@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameWorld - Inicio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-sans bg-gray-900 text-white transition-colors duration-500">
+    
+  <!-- SEPARADORES LATERALES -->
+  <div class="side-left"></div>
+  <div class="side-right"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
+  </div>
+
+  <!-- CONTENIDO CENTRAL -->
+  <div class="page-container flex justify-center relative z-10 mt-8 px-4">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-5xl p-8">
+
+      <!-- NAVBAR -->
+      <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
+        <h1 class="text-2xl font-bold text-indigo-400">GameWorld</h1>
+        <div class="space-x-4 flex items-center">
+          <a href="catalogo.html" class="hover:text-indigo-300">Catálogo</a>
+          <a href="playlists.html" class="hover:text-indigo-300">Playlists</a>
+          <a href="merch.html" class="hover:text-indigo-300">Merchandising</a>
+          <a href="sobre.html" class="hover:text-indigo-300">Sobre Nosotros</a>
+
+          <!-- 🔹 ICONO DE USUARIO LOGUEADO (CORREGIDO) -->
+          <div class="relative z-50" id="user-menu-container">
+            <button id="user-menu-button"
+              class="flex items-center space-x-2 bg-indigo-700 hover:bg-indigo-800 px-3 py-2 rounded-full transition">
+
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M5.121 17.804A8 8 0 0112 15a8 8 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+
+              <span id="nombreUsuarioNav" class="text-sm font-semibold">Usuario</span>
+            </button>
+
+            <!-- 🔹 MENÚ DESPLEGABLE ARREGLADO -->
+            <div id="user-menu"
+                class="absolute right-0 mt-2 w-40 bg-gray-800 rounded-md border border-gray-700 shadow-lg hidden z-50">
+              <a href="perfil.html" class="block px-4 py-2 text-sm hover:bg-gray-700">Perfil</a>
+              <a href="configuracion.html" class="block px-4 py-2 text-sm hover:bg-gray-700">Configuración</a>
+              <a href="#" id="cerrarSesion" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Cerrar sesión</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- HERO CON VIDEO DE FONDO -->
+      <section class="relative text-center py-20 rounded-2xl overflow-hidden shadow-lg mb-8">
+        <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-40">
+          <source src="media/bg-video.mp4" type="video/mp4">
+        </video>
+        <div class="relative z-10 text-white">
+          <h2 class="text-5xl font-extrabold mb-4 drop-shadow-lg">Bienvenido a GameWorld</h2>
+          <p class="text-lg mb-6">Tu tienda gamer definitiva: videojuegos, playlists, merchandising y más.</p>
+          <a href="catalogo.html" class="bg-indigo-800 hover:bg-indigo-900 px-6 py-3 rounded text-white font-semibold transition">Explorar Catálogo</a>
+        </div>
+      </section>
+
+      <!-- GRID DE SECCIONES -->
+      <div class="grid md:grid-cols-2 gap-6 text-center">
+        <a href="catalogo.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🎮
+          <h3 class="text-xl font-bold mt-4">Catálogo</h3>
+          <p class="text-sm mt-2">Compra y reserva los últimos lanzamientos.</p>
+        </a>
+
+        <a href="playlists.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🎵
+          <h3 class="text-xl font-bold mt-4">Playlists</h3>
+          <p class="text-sm mt-2">Descubre bandas sonoras y música ambient.</p>
+        </a>
+
+        <a href="merch.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🛒
+          <h3 class="text-xl font-bold mt-4">Merchandising</h3>
+          <p class="text-sm mt-2">Coleccionables y productos exclusivos.</p>
+        </a>
+
+        <a href="sobre.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          💼
+          <h3 class="text-xl font-bold mt-4">Sobre Nosotros</h3>
+          <p class="text-sm mt-2">Conoce nuestra historia, misión y valores.</p>
+        </a>
+      </div>
+
+<!-- APARTADO DE COMENTARIOS GAMER -->
+<section class="bg-gray-800 p-6 rounded-2xl mt-10">
+  <h3 class="text-2xl font-bold text-indigo-400 mb-4 text-center">Deja tu comentario</h3>
+  
+  <div class="flex flex-col md:flex-row gap-4 items-center justify-center mb-6">
+    <input id="comentarioInput" type="text" placeholder="Escribe tu comentario..."
+      class="p-3 rounded w-full md:w-2/3 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500" />
+    <button id="guardarComentario"
+      class="bg-indigo-700 hover:bg-indigo-800 px-5 py-2 rounded text-white font-semibold transition transform hover:scale-105">Enviar</button>
+  </div>
+
+  <div id="comentariosContainer" class="mt-6 space-y-4">
+    <!-- Comentarios generados dinámicamente -->
+  </div>
+</section>
+
+
+<!-- Enlazar el script externo justo antes del cierre de body -->
+
+      <!-- FOOTER -->
+      <footer class="mt-12 text-center text-gray-400 text-sm py-6 border-t border-gray-700">
+        <p>&copy; 2025 GameWorld. Todos los derechos reservados.</p>
+        <div class="flex justify-center space-x-4 mt-3">
+          <a href="#" class="hover:text-indigo-400">Twitter</a>
+          <a href="#" class="hover:text-indigo-400">Instagram</a>
+          <a href="#" class="hover:text-indigo-400">Discord</a>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+<script src="index2.js"></script>
+
+</body>
+</html>

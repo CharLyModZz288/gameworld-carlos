@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameWorld - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 flex justify-center items-center h-screen text-white">
+  <div class="bg-gray-800 p-10 rounded-2xl shadow-2xl w-96">
+    <h1 class="text-3xl font-bold text-center text-indigo-400 mb-6">Iniciar Sesión</h1>
+
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="block text-left text-gray-300 mb-2">Correo electrónico</label>
+        <input id="email" type="email" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+      </div>
+
+      <div>
+        <label class="block text-left text-gray-300 mb-2">Contraseña</label>
+        <input id="password" type="password" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+      </div>
+
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded font-semibold">Entrar</button>
+      
+      <p id="errorText" class="text-red-500 text-sm mt-2 hidden"></p>
+    </form>
+
+    <p class="text-sm text-gray-400 text-center mt-4">
+      ¿No tienes cuenta? 
+      <a href="register.html" class="text-indigo-400 hover:underline">Regístrate</a>
+    </p>
+  </div>
+
+  <!-- Enlazar JS del login -->
+  <script type="module" src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameWorld - Inicio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="connection.js"></script>
+</head>
+<body class="font-sans bg-gray-900 text-white transition-colors duration-500">
+
+  <!-- SEPARADORES LATERALES -->
+  <div class="side-left"></div>
+  <div class="side-right"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
+  </div>
+
+  <!-- CONTENIDO CENTRAL -->
+  <div class="page-container flex justify-center relative z-10 mt-8 px-4">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-5xl p-8">
+
+      <!-- NAVBAR -->
+      <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
+        <h1 class="text-2xl font-bold text-indigo-400">GameWorld</h1>
+        <div class="space-x-4 nav-links">
+          <a href="catalogo.html" class="hover:text-indigo-300">Catálogo</a>
+          <a href="playlists.html" class="hover:text-indigo-300">Playlists</a>
+          <a href="merch.html" class="hover:text-indigo-300">Merchandising</a>
+          <a href="sobre.html" class="hover:text-indigo-300">Sobre Nosotros</a>
+          <a href="login.html" class="hover:text-indigo-300">Login</a>
+        </div>
+      </nav>
+
+      <!-- HERO -->
+      <section class="relative text-center py-20 rounded-2xl overflow-hidden shadow-lg mb-8">
+        <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-40">
+          <source src="media/bg-video.mp4" type="video/mp4">
+        </video>
+        <div class="relative z-10 text-white">
+          <h2 class="text-5xl font-extrabold mb-4 drop-shadow-lg">Bienvenido a GameWorld</h2>
+          <p class="text-lg mb-6">Tu tienda gamer definitiva: videojuegos, playlists, merchandising y más.</p>
+          <a href="catalogo.html" class="hero-btn bg-indigo-800 hover:bg-indigo-900 px-6 py-3 rounded text-white font-semibold transition">Explorar Catálogo</a>
+        </div>
+      </section>
+
+      <!-- GRID DE SECCIONES -->
+      <div class="grid md:grid-cols-2 gap-6 text-center grid-links">
+        <a href="catalogo.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🎮
+          <h3 class="text-xl font-bold mt-4">Catálogo</h3>
+          <p class="text-sm mt-2">Compra y reserva los últimos lanzamientos.</p>
+        </a>
+
+        <a href="playlists.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🎵
+          <h3 class="text-xl font-bold mt-4">Playlists</h3>
+          <p class="text-sm mt-2">Descubre bandas sonoras y música ambient.</p>
+        </a>
+
+        <a href="merch.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          🛒
+          <h3 class="text-xl font-bold mt-4">Merchandising</h3>
+          <p class="text-sm mt-2">Coleccionables y productos exclusivos.</p>
+        </a>
+
+        <a href="sobre.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+          💼
+          <h3 class="text-xl font-bold mt-4">Sobre Nosotros</h3>
+          <p class="text-sm mt-2">Conoce nuestra historia, misión y valores.</p>
+        </a>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="mt-12 text-center text-gray-400 text-sm py-6 border-t border-gray-700">
+        <p>&copy; 2025 GameWorld. Todos los derechos reservados.</p>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+    <div class="bg-gray-800 p-6 rounded-xl shadow-2xl text-center w-80 border border-gray-700">
+      <h3 class="text-xl font-bold mb-3 text-indigo-400">⚠ Acceso restringido</h3>
+      <p class="text-sm mb-4">Debes iniciar sesión para acceder a esta sección.</p>
+      <button id="cerrarModal" class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded text-white w-full">Entendido</button>
+    </div>
+  </div>
+
+  <!-- LOADER SCRIPT -->
+  <script>
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loader');
+      loader.style.display = 'none';
+    });
+  </script>
+
+  <!-- 🔒 PROTEGER SECCIONES CON MODAL -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const logged = localStorage.getItem("usuarioLogueado");
+
+      const protectedLinks = document.querySelectorAll(".nav-links a:not([href='login.html']), .grid-links a, .hero-btn");
+
+      const modal = document.getElementById("loginModal");
+      const cerrarModal = document.getElementById("cerrarModal");
+
+      function abrirModal() {
+        modal.classList.remove("hidden");
+      }
+
+      function cerrarModalFunc() {
+        modal.classList.add("hidden");
+      }
+
+      cerrarModal.addEventListener("click", cerrarModalFunc);
+
+      protectedLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+          if (!logged) {
+            e.preventDefault();
+            abrirModal();
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

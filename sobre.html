@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sobre Nosotros - GameWorld</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-sans bg-gray-900 text-white transition-colors duration-500">
+
+  <!-- SEPARADORES LATERALES -->
+  <div class="side-left"></div>
+  <div class="side-right"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
+  </div>
+
+  <div class="page-container flex justify-center relative z-10 mt-8 px-4">
+    <div>
+
+      <!-- NAVBAR -->
+      <nav>
+        <h1>GameWorld</h1>
+        <ul>
+          <li><a href="index2.html">Inicio</a></li>
+        </ul>
+      </nav>
+
+      <!-- HERO -->
+      <section class="hero-section">
+        <video autoplay muted loop>
+          <source src="media/bg-video.mp4" type="video/mp4">
+        </video>
+        <div class="content">
+          <h2>Conoce GameWorld</h2>
+          <p>Somos tu tienda gamer definitiva: videojuegos, música, merchandising y comunidad.</p>
+          <a href="catalogo.html" class="button">Explorar Catálogo</a>
+        </div>
+      </section>
+
+      <!-- SOBRE NOSOTROS -->
+     <section class="about-section">
+  <h2>Nuestro Equipo</h2>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Carlos" alt="Avatar Carlos">
+      <h3>Carlos G.</h3>
+      <p>Fundador & CEO. Apasionado por los videojuegos y la música.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Sofia" alt="Avatar Sofía">
+      <h3>Sofía M.</h3>
+      <p>Diseño y Marketing. Siempre creando experiencias únicas para gamers.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Raul" alt="Avatar Raúl">
+      <h3>Raúl P.</h3>
+      <p>Desarrollador Web. Experto en interfaces y funcionalidades interactivas.</p>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <h2 style="margin-top: 3rem;">Nuestra Historia</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>2018 - Fundación</h4>
+      <p>Comenzamos como un pequeño equipo apasionado por los videojuegos.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>2019 - Primer Catálogo</h4>
+      <p>Lanzamos nuestro primer catálogo de videojuegos y merchandising exclusivo.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>2021 - Playlists Gamer</h4>
+      <p>Introducimos playlists y música para ambientar tus sesiones de juego.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>2025 - Comunidad Activa</h4>
+      <p>Hoy contamos con una comunidad global de gamers satisfechos y activos.</p>
+    </div>
+  </div>
+</section>
+
+      <!-- FOOTER -->
+      <footer>
+        <p>&copy; 2025 GameWorld. Todos los derechos reservados.</p>
+        <div class="flex justify-center space-x-4 mt-3">
+          <a href="#">Twitter</a>
+          <a href="#">Instagram</a>
+          <a href="#">Discord</a>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT PARA OCULTAR LOADER -->
+  <script>
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loader');
+      loader.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
