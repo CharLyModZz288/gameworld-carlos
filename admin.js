@@ -106,3 +106,4 @@ window.eliminarUsuario = async function(id) {
     alert('No se pudo eliminar el usuario');
   }
 }
+

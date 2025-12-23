@@ -109,16 +109,44 @@
       </div>
 
       <!-- Playlists -->
-      <section id="playlists" class="mt-10">
-        <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎵 Gestión de Playlists</h3>
-        <div class="bg-gray-900 rounded-lg p-6 text-center">
-          <p>Administra las playlists destacadas o creadas por usuarios.</p>
+      <!-- Playlists -->
+<section id="playlists" class="mt-10">
+  <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎵 Gestión de Playlists</h3>
 
-          <button id="btnAñadirMusica" class="mt-4 bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded">
-            + Añadir Música desde API
-          </button>
-        </div>
-      </section>
+  <div class="bg-gray-900 rounded-lg p-6 space-y-4">
+    <p class="text-gray-300">
+      Administra las playlists destacadas o creadas por usuarios.
+    </p>
+
+    <!-- SELECT ELIMINAR -->
+    <div class="flex gap-3 items-center">
+      <select
+        id="selectEliminarPlaylist"
+        class="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white flex-1"
+      >
+        <option value="">Selecciona una playlist para eliminar</option>
+      </select>
+
+      <button
+        id="btnEliminarPlaylist"
+        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm"
+      >
+        Eliminar
+      </button>
+    </div>
+
+    <!-- LISTADO VISUAL -->
+    <div id="listaPlaylists" class="space-y-3"></div>
+
+    <button
+      id="btnAñadirMusica"
+      class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded mt-4"
+    >
+      + Añadir Música desde API
+    </button>
+  </div>
+</section>
+
 
       <!-- MODAL MÚSICA -->
       <div id="modalMusica" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
