@@ -6,8 +6,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="font-sans bg-gray-900 text-white transition-colors duration-500">
-  
+
   <!-- Loader -->
   <div id="loader">
     <div class="loader-circle"></div>
@@ -15,36 +16,27 @@
   </div>
 
   <div class="page-container flex justify-center relative z-10 mt-8 px-4">
-
     <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-6xl p-8">
-      
+
       <!-- NAVBAR -->
       <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
         <h1 class="text-2xl font-bold text-indigo-400">Panel Administrador</h1>
-        <div class="space-x-4 flex items-center">
-          <button id="cerrarSesion" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold transition">Cerrar sesión</button>
-        </div>
+        <button id="cerrarSesion" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold">
+          Cerrar sesión
+        </button>
       </nav>
 
       <!-- DASHBOARD -->
       <section class="mb-8 text-center">
         <h2 class="text-3xl font-extrabold mb-6 text-indigo-400">Panel de Control</h2>
         <div class="grid md:grid-cols-4 gap-6">
-          <div class="bg-gray-900 p-6 rounded-lg shadow hover:bg-gray-800 transition">
-            <h3 class="text-lg font-semibold mb-2">Usuarios</h3>
-          </div>
-
-          <div class="bg-gray-900 p-6 rounded-lg shadow hover:bg-gray-800 transition">
-            <h3 class="text-lg font-semibold mb-2">Juegos</h3>
-          </div>
-
-          <div class="bg-gray-900 p-6 rounded-lg shadow hover:bg-gray-800 transition">
-            <h3 class="text-lg font-semibold mb-2">Playlists</h3>
-          </div>
+          <div class="bg-gray-900 p-6 rounded-lg shadow">Usuarios</div>
+          <div class="bg-gray-900 p-6 rounded-lg shadow">Juegos</div>
+          <div class="bg-gray-900 p-6 rounded-lg shadow">Playlists</div>
         </div>
       </section>
 
-      <!-- Gestión Usuarios -->
+      <!-- GESTIÓN USUARIOS -->
       <section id="usuarios" class="mt-10">
         <h3 class="text-2xl font-bold mb-4 text-indigo-300">👥 Gestión de Usuarios</h3>
         <div class="bg-gray-900 rounded-lg p-6 overflow-x-auto">
@@ -59,122 +51,156 @@
               </tr>
             </thead>
             <tbody id="tablaUsuarios">
-              <tr class="hover:bg-gray-800 transition">
-                <td class="p-2">1</td>
-                <td class="p-2">Carlos G.</td>
-                <td class="p-2">carlos@email.com</td>
-                <td class="p-2">Usuario</td>
-                <td class="p-2 text-center space-x-2">
-                  <button class="bg-yellow-500 px-2 py-1 rounded text-black text-sm hover:bg-yellow-400">Editar</button>
-                  <button class="bg-red-600 px-2 py-1 rounded text-sm hover:bg-red-500">Eliminar</button>
-                </td>
-              </tr>
+              <!-- Usuarios cargados desde Supabase -->
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Catálogo Juegos -->
-      <section id="catalogo" class="mt-10">
-        <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎮 Gestión de Catálogo</h3>
-        <div class="bg-gray-900 rounded-lg p-6 text-center">
-          <p>Agregar, editar o eliminar videojuegos del catálogo.</p>
-          <button id="btnAñadirJuego" class="mt-4 bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded">+ Añadir Juego</button>
-        </div>
-      </section>
+      <!-- MODAL EDITAR USUARIO -->
+      <div id="modalEditarUsuario" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
+        <div class="bg-gray-900 p-6 rounded-xl w-[400px]">
+          <h2 class="text-xl font-bold mb-4 text-indigo-400">Editar Usuario</h2>
 
-      <!-- Modal Añadir Juego -->
-      <div id="modalJuego" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
-        <div class="bg-gray-900 p-6 rounded-lg w-96 relative">
-          <h4 class="text-xl font-bold mb-4 text-indigo-400">Añadir Nuevo Juego</h4>
-          <form id="formNuevoJuego" class="space-y-4">
-            <div>
-              <label class="block text-gray-300 mb-1">Nombre del Juego</label>
-              <input type="text" id="nombreJuego" class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
-            </div>
-            <div>
-              <label class="block text-gray-300 mb-1">Descripción</label>
-              <textarea id="descripcionJuego" class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required></textarea>
-            </div>
-            <div>
-              <label class="block text-gray-300 mb-1">Precio</label>
-              <input type="number" id="precioJuego" class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
-            </div>
-            <div class="flex justify-end space-x-2">
-              <button type="button" id="cancelarJuego" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">Cancelar</button>
-              <button type="submit" class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded">Añadir</button>
-            </div>
-          </form>
+          <input type="hidden" id="editUserId">
+
+          <label class="block text-gray-300 mb-1">Nombre</label>
+          <input id="editNombre" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
+
+          <label class="block text-gray-300 mb-1">Email</label>
+          <input id="editEmail" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
+
+          <label class="block text-gray-300 mb-1">Rol</label>
+          <select id="editRol" class="w-full p-2 mb-4 rounded bg-gray-800 border border-gray-700">
+            <option value="usuario">Usuario</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          <div class="flex justify-end gap-2">
+            <button id="cancelarEditarUsuario" class="bg-gray-600 px-4 py-2 rounded">
+              Cancelar
+            </button>
+            <button id="guardarEditarUsuario" class="bg-indigo-700 px-4 py-2 rounded">
+              Guardar
+            </button>
+          </div>
         </div>
       </div>
+      <!-- CATÁLOGO JUEGOS -->
+<section id="catalogo" class="mt-10">
+  <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎮 Gestión de Catálogo</h3>
 
-      <!-- Playlists -->
-      <!-- Playlists -->
-<section id="playlists" class="mt-10">
-  <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎵 Gestión de Playlists</h3>
-
-  <div class="bg-gray-900 rounded-lg p-6 space-y-4">
+  <div class="bg-gray-900 rounded-lg p-6 text-center">
     <p class="text-gray-300">
-      Administra las playlists destacadas o creadas por usuarios.
+      Agregar, editar o eliminar videojuegos del catálogo.
     </p>
 
-    <!-- SELECT ELIMINAR -->
-    <div class="flex gap-3 items-center">
-      <select
-        id="selectEliminarPlaylist"
-        class="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white flex-1"
-      >
-        <option value="">Selecciona una playlist para eliminar</option>
-      </select>
-
-      <button
-        id="btnEliminarPlaylist"
-        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm"
-      >
-        Eliminar
-      </button>
-    </div>
-
-    <!-- LISTADO VISUAL -->
-    <div id="listaPlaylists" class="space-y-3"></div>
-
     <button
-      id="btnAñadirMusica"
-      class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded mt-4"
+      id="btnAñadirJuego"
+      class="mt-4 bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded"
     >
-      + Añadir Música desde API
+      + Añadir Juego
     </button>
   </div>
 </section>
 
+<!-- MODAL AÑADIR JUEGO -->
+<div
+  id="modalJuego"
+  class="fixed inset-0 bg-black bg-opacity-60 hidden flex justify-center items-center"
+>
 
-      <!-- MODAL MÚSICA -->
-      <div id="modalMusica" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
-        <div class="bg-gray-900 w-[500px] max-h-[80vh] overflow-y-auto p-6 rounded-xl shadow-xl">
-          <h2 class="text-2xl font-bold mb-4 text-indigo-400">Añadir Música desde API</h2>
+  <div class="bg-gray-900 p-6 rounded-xl w-[400px]">
+    <h2 class="text-xl font-bold mb-4 text-indigo-400">
+      Añadir Nuevo Juego
+    </h2>
 
-          <label class="block mb-2 text-gray-300">Buscar sonido:</label>
-          <input id="inputBusquedaMusica" type="text" class="w-full p-2 rounded bg-gray-800 border border-gray-700 mb-4" placeholder="Ej: battle, rain, sword...">
+    <form id="formNuevoJuego" class="space-y-4">
+      <div>
+        <label class="block text-gray-300 mb-1">Nombre</label>
+        <input
+          id="nombreJuego"
+          type="text"
+          class="w-full p-2 rounded bg-gray-800 border border-gray-700"
+          required
+        />
+      </div>
 
-          <button id="btnBuscarMusica" class="w-full bg-indigo-700 hover:bg-indigo-800 py-2 rounded mb-4">Buscar</button>
+      <div>
+        <label class="block text-gray-300 mb-1">Descripción</label>
+        <textarea
+          id="descripcionJuego"
+          class="w-full p-2 rounded bg-gray-800 border border-gray-700"
+          required
+        ></textarea>
+      </div>
 
-          <div id="listaResultadosMusica" class="space-y-4"></div>
+      <div>
+        <label class="block text-gray-300 mb-1">Precio</label>
+        <input
+          id="precioJuego"
+          type="number"
+          step="0.01"
+          class="w-full p-2 rounded bg-gray-800 border border-gray-700"
+          required
+        />
+      </div>
 
-          <button id="cerrarModalMusica" class="w-full mt-4 bg-red-700 hover:bg-red-800 py-2 rounded">
-            Cerrar
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          id="cancelarJuego"
+          class="bg-gray-600 px-4 py-2 rounded"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="bg-indigo-700 px-4 py-2 rounded"
+        >
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+      <!-- PLAYLISTS -->
+      <section id="playlists" class="mt-10">
+        <h3 class="text-2xl font-bold mb-4 text-indigo-300">🎵 Gestión de Playlists</h3>
+
+        <div class="bg-gray-900 rounded-lg p-6 space-y-4">
+          <div class="flex gap-3 items-center">
+            <select id="selectEliminarPlaylist" class="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white flex-1">
+              <option value="">Selecciona una playlist para eliminar</option>
+            </select>
+
+            <button id="btnEliminarPlaylist" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
+              Eliminar
+            </button>
+          </div>
+
+          <div id="listaPlaylists" class="space-y-3"></div>
+
+          <button id="btnAñadirMusica" class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded mt-4">
+            + Añadir Música desde API
           </button>
         </div>
-      </div>
+      </section>
 
       <!-- FOOTER -->
       <footer class="mt-12 text-center text-gray-400 text-sm py-6 border-t border-gray-700">
-        <p>&copy; 2025 GameWorld Admin. Todos los derechos reservados.</p>
+        &copy; 2025 GameWorld Admin
       </footer>
 
     </div>
   </div>
 
-    <script type="module" src="admin-juegos.js"></script>
-    <script type="module" src="admin-musica.js"></script>
+  <!-- SCRIPTS -->
+  <script type="module" src="admin-juegos.js"></script>
+  <script type="module" src="admin-musica.js"></script>
+  <script type="module" src="admin-usuarios.js"></script>
+
 </body>
 </html>
