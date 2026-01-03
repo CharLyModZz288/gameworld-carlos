@@ -140,9 +140,7 @@ async function guardarJuego(e) {
   cargarJuegos();
 }
 
-/* ============================
-   EDITAR
-============================ */
+
 window.editarJuego = async function (id) {
   const { data, error } = await supabase
     .from("Juegos")
