@@ -89,7 +89,6 @@ async function cargarUsuarios() {
 // 🔹 Funciones de ejemplo para editar y eliminar usuarios
 window.editarUsuario = function(id) {
   alert(`Editar usuario ID: ${id}`);
-  // Aquí puedes abrir un modal para editar los datos del usuario
 }
 
 window.eliminarUsuario = async function(id) {

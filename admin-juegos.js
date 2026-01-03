@@ -161,9 +161,7 @@ window.editarJuego = async function (id) {
   document.getElementById("modalJuego").classList.remove("hidden");
 };
 
-/* ============================
-   ELIMINAR
-============================ */
+
 window.eliminarJuego = async function (id) {
   if (!confirm("¿Seguro que deseas eliminar este juego?")) return;
 
