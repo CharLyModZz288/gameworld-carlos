@@ -3,54 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <title>GameWorld - Registro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/register.css">
 </head>
-<body class="bg-gray-900 flex justify-center items-center h-screen text-white">
-  <div class="bg-gray-800 p-10 rounded-2xl shadow-2xl w-96">
-    <h1 class="text-3xl font-bold text-center text-indigo-400 mb-6">Crear Cuenta</h1>
 
-    <form id="registerForm" class="space-y-5">
-      <div>
-        <label class="block text-left text-gray-300 mb-2">Nombre de usuario</label>
-        <input type="text" id="username" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+<body>
+
+  <div class="register-container">
+    <h1 class="register-title">Crear Cuenta</h1>
+
+    <form id="registerForm" class="register-form">
+
+      <div class="input-group">
+        <label for="username">Nombre de usuario</label>
+        <input type="text" id="username" required>
       </div>
 
-      <div>
-        <label class="block text-left text-gray-300 mb-2">Correo electrónico</label>
-        <input type="email" id="email" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+      <div class="input-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" required>
       </div>
 
-      <div>
-        <label class="block text-left text-gray-300 mb-2">Contraseña</label>
-        <input id="password" type="password" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+      <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" required>
       </div>
 
-      <div>
-        <label class="block text-left text-gray-300 mb-2">Confirmar contraseña</label>
-        <input id="confirmPassword" type="password" class="w-full p-3 rounded bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none" required>
-        <p id="errorText" class="text-red-500 text-sm mt-2 hidden">Las contraseñas no coinciden</p>
+      <div class="input-group">
+        <label for="confirmPassword">Confirmar contraseña</label>
+        <input type="password" id="confirmPassword" required>
+        <p id="errorText" class="error-text hidden">Las contraseñas no coinciden</p>
       </div>
-      
-      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded font-semibold transition duration-200" id="registerBtn">
+
+      <button type="submit" class="btn-register" id="registerBtn">
         <span id="btnText">Registrarse</span>
-        <div id="btnLoading" class="hidden">
-          Registrando...
-        </div>
+        <span id="btnLoading" class="hidden">Registrando...</span>
       </button>
 
-      <!-- Mensaje de estado -->
-      <div id="message" class="hidden p-3 rounded text-center text-sm font-medium"></div>
+      <div id="message" class="message hidden"></div>
     </form>
 
-    <p class="text-sm text-gray-400 text-center mt-4">
-      ¿Ya tienes cuenta? 
-      <a href="login.html" class="text-indigo-400 hover:underline">Inicia sesión</a>
+    <p class="login-text">
+      ¿Ya tienes cuenta?
+      <a href="login.html">Inicia sesión</a>
     </p>
   </div>
 
-  <script type="module" src="register.js"></script>
-  <script type="module" src="connection.js"></script>
+  <script type="module" src="js/register.js"></script>
+  <script type="module" src="js/connection.js"></script>
 
 </body>
 </html>

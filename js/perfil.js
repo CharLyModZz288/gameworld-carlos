@@ -42,7 +42,7 @@ window.addEventListener("load", () => {
 
   alert("Perfil guardado con éxito ✔");
 
-  window.location.href = "index2.html";
+  window.location.href = "index.html";
 });
 
 

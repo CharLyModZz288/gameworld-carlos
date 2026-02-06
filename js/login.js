@@ -39,7 +39,7 @@ form.addEventListener("submit", async (e) => {
       window.location.href = "admin.html";
     } else {
       console.log("🟢 Acceso usuario normal");
-      window.location.href = "index2.html";
+      window.location.href = "index.html";
     }
 
   } else {

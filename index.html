@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>GameWorld - Inicio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="connection.js"></script>
+  <link rel="stylesheet" href="css/index2.css">
+  <script type="module" src="js/connection.js"></script>
 </head>
-<body class="font-sans bg-gray-900 text-white transition-colors duration-500">
+
+<body>
 
   <!-- SEPARADORES LATERALES -->
   <div class="side-left"></div>
@@ -20,117 +20,113 @@
   </div>
 
   <!-- CONTENIDO CENTRAL -->
-  <div class="page-container flex justify-center relative z-10 mt-8 px-4">
+  <div class="page-container">
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-5xl p-8">
+    <div class="main-container">
 
       <!-- NAVBAR -->
-      <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
-        <h1 class="text-2xl font-bold text-indigo-400">GameWorld</h1>
-        <div class="space-x-4 nav-links">
-          <a href="catalogo.html" class="hover:text-indigo-300">Catálogo</a>
-          <a href="playlists.html" class="hover:text-indigo-300">Playlists</a>
-          <a href="merch.html" class="hover:text-indigo-300">Merchandising</a>
-          <a href="sobre.html" class="hover:text-indigo-300">Sobre Nosotros</a>
-          <a href="login.html" class="hover:text-indigo-300">Login</a>
+      <nav id="nav" class="navbar">
+        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <div class="nav-links">
+          <a href="catalogo.html">Catálogo</a>
+          <a href="playlists.html">Playlists</a>
+          <a href="merch.html">Merchandising</a>
+          <a href="sobre.html">Sobre Nosotros</a>
+          <a href="login.html">Login</a>
+        </div>
+      </nav>
+      
+      <nav id="navLog" display="none" class="navbar">
+        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+
+        <div class="nav-links">
+          <a href="catalogo.html">Catálogo</a>
+          <a href="playlists.html">Playlists</a>
+          <a href="merch.html">Merchandising</a>
+          <a href="sobre.html">Sobre Nosotros</a>
+
+          <!-- USUARIO -->
+          <div class="user-menu-container" id="user-menu-container">
+            <button id="user-menu-button" class="user-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A8 8 0 0112 15a8 8 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span id="nombreUsuarioNav">Usuario</span>
+            </button>
+
+            <div id="user-menu" class="user-menu hidden">
+              <a href="perfil.html">Perfil</a>
+              <a href="#" id="cerrarSesion" class="logout">Cerrar sesión</a>
+            </div>
+          </div>
         </div>
       </nav>
 
       <!-- HERO -->
-      <section class="relative text-center py-20 rounded-2xl overflow-hidden shadow-lg mb-8">
-        <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-40">
+      <section class="hero">
+        <video autoplay muted loop>
           <source src="media/bg-video.mp4" type="video/mp4">
         </video>
-        <div class="relative z-10 text-white">
-          <h2 class="text-5xl font-extrabold mb-4 drop-shadow-lg">Bienvenido a GameWorld</h2>
-          <p class="text-lg mb-6">Tu tienda gamer definitiva: videojuegos, playlists, merchandising y más.</p>
-          <a href="catalogo.html" class="hero-btn bg-indigo-800 hover:bg-indigo-900 px-6 py-3 rounded text-white font-semibold transition">Explorar Catálogo</a>
+        <div class="hero-content">
+          <h2>Bienvenido a GameWorld</h2>
+          <p>Tu tienda gamer definitiva: videojuegos, playlists, merchandising y más.</p>
+          <a href="catalogo.html" class="btn-primary">Explorar Catálogo</a>
         </div>
       </section>
 
-      <!-- GRID DE SECCIONES -->
-      <div class="grid md:grid-cols-2 gap-6 text-center grid-links">
-        <a href="catalogo.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+      <!-- GRID SECCIONES -->
+      <div class="section-grid">
+        <a href="catalogo.html" class="section-card">
           🎮
-          <h3 class="text-xl font-bold mt-4">Catálogo</h3>
-          <p class="text-sm mt-2">Compra y reserva los últimos lanzamientos.</p>
+          <h3>Catálogo</h3>
+          <p>Compra y reserva los últimos lanzamientos.</p>
         </a>
-
-        <a href="playlists.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+        <a href="playlists.html" class="section-card">
           🎵
-          <h3 class="text-xl font-bold mt-4">Playlists</h3>
-          <p class="text-sm mt-2">Descubre bandas sonoras y música ambient.</p>
+          <h3>Playlists</h3>
+          <p>Descubre bandas sonoras y música ambient.</p>
         </a>
-
-        <a href="merch.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+        <a href="merch.html" class="section-card">
           🛒
-          <h3 class="text-xl font-bold mt-4">Merchandising</h3>
-          <p class="text-sm mt-2">Coleccionables y productos exclusivos.</p>
+          <h3>Merchandising</h3>
+          <p>Coleccionables y productos exclusivos.</p>
         </a>
-
-        <a href="sobre.html" class="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition">
+        <a href="sobre.html" class="section-card">
           💼
-          <h3 class="text-xl font-bold mt-4">Sobre Nosotros</h3>
-          <p class="text-sm mt-2">Conoce nuestra historia, misión y valores.</p>
+          <h3>Sobre Nosotros</h3>
+          <p>Conoce nuestra historia, misión y valores.</p>
         </a>
       </div>
 
+      
+      <!-- COMENTARIOS -->
+      <section id="coment" display="none" class="comments">
+        <h3>Deja tu comentario</h3>
+        <div class="comment-form">
+          <input id="comentarioInput" type="text" placeholder="Escribe tu comentario...">
+          <button id="guardarComentario">Enviar</button>
+        </div>
+        <div id="comentariosContainer" class="comments-list"></div>
+      </section>
+
+
       <!-- FOOTER -->
-      <footer class="mt-12 text-center text-gray-400 text-sm py-6 border-t border-gray-700">
-        <p>&copy; 2025 GameWorld. Todos los derechos reservados.</p>
+      <footer class="footer">
+        <p>© 2025 GameWorld. Todos los derechos reservados.</p>
+        <div class="footer-links">
+          <a href="#">Twitter</a>
+          <a href="#">Instagram</a>
+          <a href="#">Discord</a>
+        </div>
       </footer>
-
+      
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
-    <div class="bg-gray-800 p-6 rounded-xl shadow-2xl text-center w-80 border border-gray-700">
-      <h3 class="text-xl font-bold mb-3 text-indigo-400">⚠ Acceso restringido</h3>
-      <p class="text-sm mb-4">Debes iniciar sesión para acceder a esta sección.</p>
-      <button id="cerrarModal" class="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded text-white w-full">Entendido</button>
-    </div>
-  </div>
+  <script src="js/index2.js"></script>
 
-  <!-- LOADER SCRIPT -->
-  <script>
-    window.addEventListener('load', () => {
-      const loader = document.getElementById('loader');
-      loader.style.display = 'none';
-    });
-  </script>
-
-  <!-- 🔒 PROTEGER SECCIONES CON MODAL -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const logged = localStorage.getItem("usuarioLogueado");
-
-      const protectedLinks = document.querySelectorAll(".nav-links a:not([href='login.html']), .grid-links a, .hero-btn");
-
-      const modal = document.getElementById("loginModal");
-      const cerrarModal = document.getElementById("cerrarModal");
-
-      function abrirModal() {
-        modal.classList.remove("hidden");
-      }
-
-      function cerrarModalFunc() {
-        modal.classList.add("hidden");
-      }
-
-      cerrarModal.addEventListener("click", cerrarModalFunc);
-
-      protectedLinks.forEach(link => {
-        link.addEventListener("click", (e) => {
-          if (!logged) {
-            e.preventDefault();
-            abrirModal();
-          }
-        });
-      });
-    });
-  </script>
 
 </body>
 </html>

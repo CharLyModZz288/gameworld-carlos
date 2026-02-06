@@ -36,8 +36,8 @@ export async function redirigirSegunLogin() {
   const { isLoggedIn } = await getAuthState();
   
   if (isLoggedIn) {
-    console.log("✅ Usuario logueado, redirigiendo a index2.html");
-    window.location.href = "index2.html";
+    console.log("✅ Usuario logueado, redirigiendo a index.html");
+    window.location.href = "index.html";
   } else {
     console.log("❌ Usuario NO logueado, redirigiendo a index.html");
     window.location.href = "index.html";
