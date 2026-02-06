@@ -44,7 +44,9 @@ form.addEventListener("submit", async (e) => {
 
     // 🔹 Redirigir a otra página (por ejemplo login.html) tras 2 segundos
     setTimeout(() => {
-      window.location.href = "login.html";
+      console.log("entra y este es el usuario: " + username)
+      localStorage.setItem("nombreUsuario", username);
+      window.location.href = "index.html";
     }, 2000); // 2000 ms = 2 segundos
 
   } catch (err) {
