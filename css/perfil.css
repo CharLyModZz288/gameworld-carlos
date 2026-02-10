@@ -1,0 +1,271 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-dark: #020617;
+  --bg-card: #111827;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --text-light: #e5e7eb;
+  --text-muted: #9ca3af;
+}
+
+/* BODY */
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease;
+}
+
+/* PAGE */
+.page-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.main-container {
+  background: rgba(17, 24, 39, 0.95);
+  max-width: 900px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-dark);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0 20px 20px;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  font-size: 1.8rem;
+  color: var(--primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-light);
+}
+
+.nav-links a:hover {
+  color: var(--primary);
+}
+
+/* USER MENU */
+.user-menu-container {
+  position: relative;
+}
+
+.user-button {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: var(--primary);
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: white;
+}
+
+.user-menu {
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background: var(--bg-card);
+  border-radius: 12px;
+  width: 150px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+}
+
+.user-menu.hidden {
+  display: none;
+}
+
+.user-menu a {
+  display: block;
+  padding: 0.7rem;
+  text-decoration: none;
+  color: var(--text-light);
+}
+
+.user-menu a:hover {
+  background: #1f2933;
+}
+
+.logout {
+  color: #f87171;
+}
+
+/* PERFIL */
+.profile-title {
+  text-align: center;
+  font-size: 2.2rem;
+  color: var(--primary);
+  margin-bottom: 2rem;
+}
+
+.profile-container {
+  display: flex;
+  gap: 2rem;
+}
+
+/* FOTO */
+.profile-photo {
+  flex: 1;
+  min-width: 260px;
+  background: var(--bg-dark);
+  padding: 1.5rem;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.profile-photo img {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary);
+}
+
+.upload-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  background: var(--primary);
+  padding: 0.55rem 1.3rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.upload-btn input {
+  display: none;
+}
+
+/* FORM */
+.profile-form {
+  flex: 2;
+  background: var(--bg-dark);
+  padding: 1.5rem;
+  border-radius: 18px;
+}
+
+/* FORM GROUP */
+.form-group {
+  margin-bottom: 1.3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* LABEL */
+.form-group label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+/* INPUT */
+.form-group input {
+  width: 100%;
+  max-width: 420px;
+  padding: 0.65rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--bg-card);
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+/* TEXTAREA */
+.form-group textarea {
+  width: 100%;
+  max-width: 420px;
+  min-height: 120px;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--bg-card);
+  color: var(--text-light);
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+/* FOCUS */
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* BUTTON */
+.save-btn {
+  max-width: 420px;
+  margin-top: 1rem;
+  background: var(--primary);
+  border: none;
+  padding: 0.8rem;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background: var(--primary-hover);
+}
+
+/* ANIM */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .form-group input,
+  .form-group textarea,
+  .save-btn {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    flex-direction: column;
+  }
+
+  .form-group textarea {
+    min-height: 140px;
+  }
+}

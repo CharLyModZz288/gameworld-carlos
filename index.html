@@ -102,14 +102,23 @@
 
       
       <!-- COMENTARIOS -->
-      <section id="coment" display="none" class="comments">
-        <h3>Deja tu comentario</h3>
-        <div class="comment-form">
-          <input id="comentarioInput" type="text" placeholder="Escribe tu comentario...">
-          <button id="guardarComentario">Enviar</button>
-        </div>
-        <div id="comentariosContainer" class="comments-list"></div>
-      </section>
+<section id="coment" class="comments">
+  <h3>Deja tu comentario</h3>
+
+  <div class="comment-form">
+    <div class="comment-avatar">
+      <img src="media/default-profile.png" alt="avatar">
+    </div>
+
+    <div class="comment-input">
+      <textarea id="comentarioInput" placeholder="Escribe tu comentario..."></textarea>
+      <button id="guardarComentario">Enviar</button>
+    </div>
+  </div>
+
+  <div id="comentariosContainer" class="comments-list"></div>
+</section>
+
 
 
       <!-- FOOTER -->

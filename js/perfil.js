@@ -2,70 +2,128 @@
 
 window.addEventListener("load", () => {
 
-  // Mostrar nombre en navbar
-  const nombreUsuario = localStorage.getItem("nombreUsuario");
-  if (nombreUsuario) {
-    document.getElementById("nombreUsuarioNav").textContent = nombreUsuario;
-    document.getElementById("nombre").value = nombreUsuario;
+  /* =========================
+     DATOS DEL USUARIO
+  ========================= */
+
+  const nombreUsuario = localStorage.getItem("nombreUsuario") || "Usuario";
+
+  const nombreNav = document.getElementById("nombreUsuarioNav");
+  const nombreInput = document.getElementById("nombre");
+  const emailInput = document.getElementById("email");
+  const bioInput = document.getElementById("bio");
+  const fotoPreview = document.getElementById("fotoPreview");
+
+  // Cargar perfil guardado
+  const perfilGuardado = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
+
+  if (perfilGuardado) {
+    if (nombreNav) nombreNav.textContent = perfilGuardado.nombre;
+    if (nombreInput) nombreInput.value = perfilGuardado.nombre;
+    if (emailInput) emailInput.value = perfilGuardado.email;
+    if (bioInput) bioInput.value = perfilGuardado.bio;
+    if (fotoPreview) fotoPreview.src = perfilGuardado.foto || "media/default-profile.png";
+  } else {
+    if (nombreNav) nombreNav.textContent = nombreUsuario;
+    if (nombreInput) nombreInput.value = nombreUsuario;
+    if (fotoPreview) fotoPreview.src = "media/default-profile.png";
   }
 
-  // Cargar foto guardada
-  const fotoGuardada = localStorage.getItem("fotoPerfil");
-  if (fotoGuardada) {
-    document.getElementById("fotoPreview").src = fotoGuardada;
-  }
+  /* =========================
+     CAMBIAR FOTO
+  ========================= */
 
-  // Cargar email y bio
-  document.getElementById("email").value = localStorage.getItem("emailUsuario") || "";
-  document.getElementById("bio").value = localStorage.getItem("bioUsuario") || "";
+  const fotoInput = document.getElementById("fotoPerfil");
 
-  // Previsualizar foto de perfil
-  document.getElementById("fotoPerfil").addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    if (file) {
+  if (fotoInput && fotoPreview) {
+    fotoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
       const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById("fotoPreview").src = e.target.result;
-        localStorage.setItem("fotoPerfil", e.target.result);
+      reader.onload = () => {
+        fotoPreview.src = reader.result;
+
+        // Actualizar perfil en localStorage
+        const usuario = nombreInput.value.trim();
+        const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {};
+        perfil.foto = reader.result;
+        localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
       };
       reader.readAsDataURL(file);
-    }
-  });
+    });
+  }
 
-  // Guardar datos
- document.getElementById("perfilForm").addEventListener("submit", (event) => {
-  event.preventDefault();
+  /* =========================
+     GUARDAR PERFIL
+  ========================= */
 
-  localStorage.setItem("nombreUsuario", document.getElementById("nombre").value);
-  localStorage.setItem("emailUsuario", document.getElementById("email").value);
-  localStorage.setItem("bioUsuario", document.getElementById("bio").value);
+  const perfilForm = document.getElementById("perfilForm");
 
-  alert("Perfil guardado con éxito ✔");
+  if (perfilForm) {
+    perfilForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  window.location.href = "index.html";
-});
+      const usuario = nombreInput.value.trim();
+      if (!usuario) return alert("Debes ingresar un nombre de usuario.");
 
+      const perfil = {
+        nombre: usuario,
+        email: emailInput.value.trim(),
+        bio: bioInput.value.trim(),
+        foto: fotoPreview.src
+      };
 
-  // Menú usuario
-  const userMenuButton = document.getElementById('user-menu-button');
-  const userMenu = document.getElementById('user-menu');
-  const userMenuContainer = document.getElementById('user-menu-container');
+      // Guardar perfil por usuario
+      localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
+      // Guardar el usuario activo
+      localStorage.setItem("nombreUsuario", usuario);
 
-  userMenuButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    userMenu.classList.toggle('hidden');
-  });
+      alert("Perfil guardado con éxito ✔");
 
-  document.addEventListener('click', (e) => {
-    if (!userMenuContainer.contains(e.target)) {
-      userMenu.classList.add('hidden');
-    }
-  });
+      // Volver al inicio privado
+      window.location.href = "index2.html";
+    });
+  }
 
-  // Cerrar sesión
-  document.getElementById("cerrarSesion").addEventListener("click", () => {
-    localStorage.clear();
-    window.location.href = "login.html";
-  });
+  /* =========================
+     MENÚ DE USUARIO
+  ========================= */
+
+  const userMenuButton = document.getElementById("user-menu-button");
+  const userMenu = document.getElementById("user-menu");
+  const userMenuContainer = document.getElementById("user-menu-container");
+
+  if (userMenuButton && userMenu && userMenuContainer) {
+
+    userMenuButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      userMenu.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!userMenuContainer.contains(e.target)) {
+        userMenu.classList.add("hidden");
+      }
+    });
+  }
+
+  /* =========================
+     CERRAR SESIÓN
+  ========================= */
+
+  const cerrarSesionBtn = document.getElementById("cerrarSesion");
+
+  if (cerrarSesionBtn) {
+    cerrarSesionBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // 🔹 Solo borramos la sesión activa, no los datos
+      localStorage.removeItem("nombreUsuario");
+
+      // Redirigir al index público
+      window.location.href = "index.html";
+    });
+  }
 
 });

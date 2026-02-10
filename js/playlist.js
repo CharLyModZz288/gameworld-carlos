@@ -17,7 +17,6 @@ function crearTarjeta(track) {
       class="cursor-pointer group relative rounded-2xl overflow-hidden
              shadow-lg hover:scale-[1.05] transition-transform duration-300"
     >
-
       <div
         class="h-48 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600
                flex items-center justify-center"
@@ -78,7 +77,7 @@ async function cargarMusicaAPI() {
 }
 
 /* ======================
-   MODAL
+   MODAL (AUTOPLAY)
 ====================== */
 window.abrirModal = function (track) {
   const modal = document.getElementById("modalPlaylist");
@@ -107,7 +106,7 @@ window.abrirModal = function (track) {
         Fuente: ${track.origen}
       </p>
 
-      <audio controls class="w-full mt-2">
+      <audio id="audioModal" controls class="w-full mt-2">
         <source src="${track.audio}" type="audio/mp3">
       </audio>
     </div>
@@ -115,10 +114,20 @@ window.abrirModal = function (track) {
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+
+  // 🔊 FORZAR PLAY
+  const audio = document.getElementById("audioModal");
+  audio.play();
 };
+
 
 window.cerrarModal = function () {
   const modal = document.getElementById("modalPlaylist");
+
+  // 🔇 parar audio al cerrar
+  const audio = modal.querySelector("audio");
+  if (audio) audio.pause();
+
   modal.classList.add("hidden");
   modal.classList.remove("flex");
 };

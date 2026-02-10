@@ -22,8 +22,15 @@ body {
   color: var(--text-light);
   min-height: 100vh;
   overflow-x: hidden;
+  
+  /* Fondo fijo */
   background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;      /* No repetir la imagen */
+  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
+  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
+  background-position: center;       /* Centrar la imagen */
 }
+
 
 /* SEPARADORES LATERALES */
 .side-left,
