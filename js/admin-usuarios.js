@@ -1,4 +1,3 @@
-// admin-usuarios.js
 import { supabase } from "./connection.js";
 
 const tablaUsuarios = document.getElementById("tablaUsuarios");
@@ -13,9 +12,9 @@ const btnGuardar = document.getElementById("guardarEditarUsuario");
 const btnCancelar = document.getElementById("cancelarEditarUsuario");
 
 // ---------------- CARGAR USUARIOS ----------------
-async function cargarUsuarios() {
+export async function cargarUsuarios() {
   const { data, error } = await supabase
-    .from("users") // 👈 TABLA REAL
+    .from("users")
     .select("*")
     .order("id", { ascending: true });
 
@@ -38,14 +37,17 @@ async function cargarUsuarios() {
       <td class="p-2">${u.email}</td>
       <td class="p-2">${u.rol || "usuario"}</td>
       <td class="p-2 text-center space-x-2">
-        <button class="btnEditar bg-yellow-500 px-2 py-1 rounded text-black text-sm">
-          Editar
-        </button>
+        <button class="btnEditar bg-yellow-500 px-2 py-1 rounded text-black text-sm">Editar</button>
+        <button class="btnEliminar bg-red-600 px-2 py-1 rounded text-white text-sm">Eliminar</button>
       </td>
     `;
 
     tr.querySelector(".btnEditar").addEventListener("click", () =>
       abrirModalEditar(u)
+    );
+
+    tr.querySelector(".btnEliminar").addEventListener("click", () =>
+      eliminarUsuario(u.id)
     );
 
     tablaUsuarios.appendChild(tr);
@@ -72,7 +74,7 @@ btnGuardar.addEventListener("click", async () => {
   const id = editUserId.value;
 
   const { error } = await supabase
-    .from("users") // 👈 TABLA REAL
+    .from("users")
     .update({
       username: editNombre.value,
       email: editEmail.value,
@@ -89,6 +91,26 @@ btnGuardar.addEventListener("click", async () => {
   modal.classList.add("hidden");
   cargarUsuarios();
 });
+
+// ---------------- ELIMINAR USUARIO ----------------
+async function eliminarUsuario(id) {
+  const confirmacion = confirm("¿Seguro que deseas eliminar este usuario?");
+  if (!confirmacion) return;
+
+  const { error } = await supabase
+    .from("users")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Error al eliminar usuario");
+    console.error(error);
+    return;
+  }
+
+  alert("Usuario eliminado correctamente");
+  cargarUsuarios();
+}
 
 // ---------------- INIT ----------------
 cargarUsuarios();

@@ -51,55 +51,56 @@
 
 
       <!-- GESTIÓN USUARIOS -->
-      <section id="usuarios" class="mt-10">
-        <h3 class="text-2xl font-bold mb-4 text-indigo-300">👥 Gestión de Usuarios</h3>
-        <div class="bg-gray-900 rounded-lg p-6 overflow-x-auto">
-          <table class="min-w-full text-left">
-            <thead>
-              <tr class="text-indigo-400 border-b border-gray-700">
-                <th class="p-2">ID</th>
-                <th class="p-2">Nombre</th>
-                <th class="p-2">Email</th>
-                <th class="p-2">Rol</th>
-                <th class="p-2 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaUsuarios">
-              <!-- Usuarios cargados desde Supabase -->
-            </tbody>
-          </table>
-        </div>
-      </section>
+<section id="usuarios" class="mt-10">
+  <h3 class="text-2xl font-bold mb-4 text-indigo-300">👥 Gestión de Usuarios</h3>
+  <div class="bg-gray-900 rounded-lg p-6 overflow-x-auto">
+    <table class="min-w-full text-left">
+      <thead>
+        <tr class="text-indigo-400 border-b border-gray-700">
+          <th class="p-2">ID</th>
+          <th class="p-2">Nombre</th>
+          <th class="p-2">Email</th>
+          <th class="p-2">Rol</th>
+          <th class="p-2 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaUsuarios">
+        <!-- Usuarios cargados desde admin-usuarios.js -->
+      </tbody>
+    </table>
+  </div>
+</section>
 
-      <!-- MODAL EDITAR USUARIO -->
-      <div id="modalEditarUsuario" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
-        <div class="bg-gray-900 p-6 rounded-xl w-[400px]">
-          <h2 class="text-xl font-bold mb-4 text-indigo-400">Editar Usuario</h2>
+<!-- MODAL EDITAR USUARIO -->
+<div id="modalEditarUsuario" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
+  <div class="bg-gray-900 p-6 rounded-xl w-[400px]">
+    <h2 class="text-xl font-bold mb-4 text-indigo-400">Editar Usuario</h2>
 
-          <input type="hidden" id="editUserId">
+    <input type="hidden" id="editUserId">
 
-          <label class="block text-gray-300 mb-1">Nombre</label>
-          <input id="editNombre" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
+    <label class="block text-gray-300 mb-1">Nombre</label>
+    <input id="editNombre" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
 
-          <label class="block text-gray-300 mb-1">Email</label>
-          <input id="editEmail" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
+    <label class="block text-gray-300 mb-1">Email</label>
+    <input id="editEmail" class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700">
 
-          <label class="block text-gray-300 mb-1">Rol</label>
-          <select id="editRol" class="w-full p-2 mb-4 rounded bg-gray-800 border border-gray-700">
-            <option value="usuario">Usuario</option>
-            <option value="admin">Admin</option>
-          </select>
+    <label class="block text-gray-300 mb-1">Rol</label>
+    <select id="editRol" class="w-full p-2 mb-4 rounded bg-gray-800 border border-gray-700">
+      <option value="usuario">Usuario</option>
+      <option value="admin">Admin</option>
+    </select>
 
-          <div class="flex justify-end gap-2">
-            <button id="cancelarEditarUsuario" class="bg-gray-600 px-4 py-2 rounded">
-              Cancelar
-            </button>
-            <button id="guardarEditarUsuario" class="bg-indigo-700 px-4 py-2 rounded">
-              Guardar
-            </button>
-          </div>
-        </div>
-      </div>
+    <div class="flex justify-end gap-2">
+      <button id="cancelarEditarUsuario" class="bg-gray-600 px-4 py-2 rounded">
+        Cancelar
+      </button>
+      <button id="guardarEditarUsuario" class="bg-indigo-700 px-4 py-2 rounded">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
       <!-- CATÁLOGO JUEGOS -->
 <section id="catalogo" class="mt-10">
   <h3 class="text-2xl font-bold mb-4 text-indigo-300">
