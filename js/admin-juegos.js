@@ -5,17 +5,20 @@ let juegoEditandoId = null;
 window.addEventListener("load", () => {
   document.getElementById("loader").style.display = "none";
 
-  // Seguridad: solo admins
+  // ✅ CORREGIDO: Verificación con "admin" en minúsculas
   const usuario = localStorage.getItem("nombreUsuario");
-  const rol = localStorage.getItem("rolUsuario");
+  const rolRaw = localStorage.getItem("rolUsuario");
+  
+  // Normalizar a minúsculas
+  const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
 
-  if (rol !== "Admin") {
-    alert("Acceso denegado. Solo administradores pueden ingresar.");
+  if (rol !== "admin") {
+    alert("🚫 Acceso denegado. Solo administradores pueden ingresar.");
     window.location.href = "login.html";
     return;
   }
 
-  console.log(`Bienvenido al panel, ${usuario}`);
+  console.log(`✅ Bienvenido al panel, ${usuario}`);
 
   // Cerrar sesión
   document.getElementById("cerrarSesion").addEventListener("click", () => {

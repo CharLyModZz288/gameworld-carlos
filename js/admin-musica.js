@@ -1,5 +1,13 @@
-// admin-musica.js
 import { supabase } from "./connection.js";
+
+// ✅ VERIFICACIÓN DE SEGURIDAD AÑADIDA
+const rolRaw = localStorage.getItem('rolUsuario');
+const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
+
+if (rol !== 'admin') {
+  alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
+  window.location.href = 'login.html';
+}
 
 const API_KEY = "9PqEyX5bQYe7e43EsASkUBftzDaRcrb2sSojP5RA";
 

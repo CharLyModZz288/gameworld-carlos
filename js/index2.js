@@ -3,7 +3,11 @@ window.addEventListener('load', () => {
   if (loader) loader.style.display = 'none';
 
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
-  const rolUsuario = localStorage.getItem("rolUsuario") || "user";
+  const rolRaw = localStorage.getItem("rolUsuario") || "user";
+  
+  // ✅ CORREGIDO: Normalizar rol para comparaciones
+  const rol = rolRaw.toString().toLowerCase().trim();
+  
   const nombreNav = document.getElementById("nombreUsuarioNav");
   if (nombreNav) nombreNav.textContent = nombreUsuario;
 
@@ -21,19 +25,22 @@ window.addEventListener('load', () => {
     coments.style.display = "flex";
   }
 
-  // ---------- APARTADO PANEL ADMIN ----------
-  if (rolUsuario === "admin") {
+  // ✅ CORREGIDO: Comparación normalizada para el panel admin
+  if (rol === "admin") {
     const sectionGrid = document.querySelector(".section-grid");
     if (sectionGrid) {
-      const adminCard = document.createElement("a");
-      adminCard.href = "admin.html";
-      adminCard.className = "section-card admin-card";
-      adminCard.innerHTML = `
-        🛡️
-        <h3>Panel Admin</h3>
-        <p>Accede a las herramientas de administración.</p>
-      `;
-      sectionGrid.appendChild(adminCard);
+      // Verificar si ya existe la tarjeta de admin para no duplicarla
+      if (!document.querySelector('.admin-card')) {
+        const adminCard = document.createElement("a");
+        adminCard.href = "admin.html";
+        adminCard.className = "section-card admin-card";
+        adminCard.innerHTML = `
+          🛡️
+          <h3>Panel Admin</h3>
+          <p>Accede a las herramientas de administración.</p>
+        `;
+        sectionGrid.appendChild(adminCard);
+      }
     }
   }
 

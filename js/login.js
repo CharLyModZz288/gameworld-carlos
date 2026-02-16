@@ -26,9 +26,14 @@ form.addEventListener("submit", async (e) => {
     const usuario = data[0];
     errorText.classList.add("hidden");
 
-    // Guardar usuario y rol
+    // ✅ CORREGIDO: Guardar usuario y rol NORMALIZADO
     localStorage.setItem("nombreUsuario", usuario.username);
-    localStorage.setItem("rolUsuario", usuario.rol || "user");
+    
+    // Convertir el rol a minúsculas para que coincida con 'admin'
+    const rolNormalizado = (usuario.rol || "user").toString().toLowerCase().trim();
+    localStorage.setItem("rolUsuario", rolNormalizado);
+
+    console.log("Rol guardado:", rolNormalizado); // Para depurar
 
     // Redirigir al index siempre
     window.location.href = "index.html";

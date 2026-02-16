@@ -234,6 +234,26 @@
     </div>
   </div>
 
+  <!-- ✅ VERIFICACIÓN DE SEGURIDAD GLOBAL (ANTES QUE LOS SCRIPTS) -->
+  <script>
+    (function() {
+      // Verificar acceso admin inmediatamente
+      const usuario = localStorage.getItem('nombreUsuario');
+      const rolRaw = localStorage.getItem('rolUsuario');
+      
+      // Normalizar rol a minúsculas y sin espacios
+      const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
+      
+      console.log('🔐 Verificando acceso - Usuario:', usuario, 'Rol original:', rolRaw, 'Rol normalizado:', rol);
+      
+      // Si no hay usuario o no es admin, redirigir
+      if (!usuario || rol !== 'admin') {
+        alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
+        window.location.href = 'login.html';
+      }
+    })();
+  </script>
+
   <!-- SCRIPTS -->
   <script type="module" src="js/admin-juegos.js"></script>
   <script type="module" src="js/admin-musica.js"></script>
