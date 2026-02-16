@@ -3,6 +3,7 @@ window.addEventListener('load', () => {
   if (loader) loader.style.display = 'none';
 
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
+  const rolUsuario = localStorage.getItem("rolUsuario") || "user";
   const nombreNav = document.getElementById("nombreUsuarioNav");
   if (nombreNav) nombreNav.textContent = nombreUsuario;
 
@@ -10,16 +11,30 @@ window.addEventListener('load', () => {
   const navLog = document.getElementById("navLog");
   const coments = document.getElementById("coment");
 
-  if(nombreUsuario == "Invitado"){
+  if(nombreUsuario === "Invitado"){
     nav.style.display = "flex";
     navLog.style.display = "none";
     coments.style.display = "none";
-  }
-  else{
+  } else {
     nav.style.display = "none";
     navLog.style.display = "flex";
     coments.style.display = "flex";
+  }
 
+  // ---------- APARTADO PANEL ADMIN ----------
+  if (rolUsuario === "admin") {
+    const sectionGrid = document.querySelector(".section-grid");
+    if (sectionGrid) {
+      const adminCard = document.createElement("a");
+      adminCard.href = "admin.html";
+      adminCard.className = "section-card admin-card";
+      adminCard.innerHTML = `
+        🛡️
+        <h3>Panel Admin</h3>
+        <p>Accede a las herramientas de administración.</p>
+      `;
+      sectionGrid.appendChild(adminCard);
+    }
   }
 
   // MENU USUARIO
@@ -44,7 +59,8 @@ window.addEventListener('load', () => {
   if (cerrarSesionBtn) {
     cerrarSesionBtn.addEventListener('click', () => {
       localStorage.removeItem("nombreUsuario");
-      window.location.href = "index.html"; // 🔹 redirige a index.html
+      localStorage.removeItem("rolUsuario");
+      window.location.href = "index.html";
     });
   }
 
