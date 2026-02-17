@@ -42,6 +42,7 @@ window.addEventListener('load', () => {
         sectionGrid.appendChild(adminCard);
       }
     }
+    document.getElementById("panel-admin").style.display = "block";
   }
 
   // MENU USUARIO
