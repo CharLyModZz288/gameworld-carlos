@@ -2,11 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GameWorld - Inicio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/index2.css">
   <script type="module" src="js/connection.js"></script>
 </head>
-
 <body>
 
   <!-- SEPARADORES LATERALES -->
@@ -21,11 +24,10 @@
 
   <!-- CONTENIDO CENTRAL -->
   <div class="page-container">
-
     <!-- CONTENEDOR PRINCIPAL -->
     <div class="main-container">
 
-      <!-- NAVBAR -->
+      <!-- NAVBAR SIN LOGIN -->
       <nav id="nav" class="navbar">
         <h1 class="logo"><a href="index.html">GameWorld</a></h1>
         <div class="nav-links">
@@ -37,7 +39,8 @@
         </div>
       </nav>
       
-      <nav id="navLog" display="none" class="navbar">
+      <!-- NAVBAR CON USUARIO LOGUEADO -->
+      <nav id="navLog" class="navbar hidden-nav">
         <h1 class="logo"><a href="index.html">GameWorld</a></h1>
 
         <div class="nav-links">
@@ -80,47 +83,44 @@
       <!-- GRID SECCIONES -->
       <div class="section-grid">
         <a href="catalogo.html" class="section-card">
-          🎮
+          <div class="card-icon">🎮</div>
           <h3>Catálogo</h3>
           <p>Compra y reserva los últimos lanzamientos.</p>
         </a>
         <a href="playlists.html" class="section-card">
-          🎵
+          <div class="card-icon">🎵</div>
           <h3>Playlists</h3>
           <p>Descubre bandas sonoras y música ambient.</p>
         </a>
         <a href="merch.html" class="section-card">
-          🛒
+          <div class="card-icon">🛒</div>
           <h3>Merchandising</h3>
           <p>Coleccionables y productos exclusivos.</p>
         </a>
         <a href="sobre.html" class="section-card">
-          💼
+          <div class="card-icon">💼</div>
           <h3>Sobre Nosotros</h3>
           <p>Conoce nuestra historia, misión y valores.</p>
         </a>
       </div>
 
-      
       <!-- COMENTARIOS -->
-<section id="coment" class="comments">
-  <h3>Deja tu comentario</h3>
+      <section id="coment" class="comments">
+        <h3>Deja tu comentario</h3>
 
-  <div class="comment-form">
-    <div class="comment-avatar">
-      <img src="media/default-profile.png" alt="avatar">
-    </div>
+        <div class="comment-form">
+          <div class="comment-avatar">
+            <img src="media/default-profile.png" alt="avatar">
+          </div>
 
-    <div class="comment-input">
-      <textarea id="comentarioInput" placeholder="Escribe tu comentario..."></textarea>
-      <button id="guardarComentario">Enviar</button>
-    </div>
-  </div>
+          <div class="comment-input">
+            <textarea id="comentarioInput" placeholder="Escribe tu comentario..."></textarea>
+            <button id="guardarComentario">Enviar</button>
+          </div>
+        </div>
 
-  <div id="comentariosContainer" class="comments-list"></div>
-</section>
-
-
+        <div id="comentariosContainer" class="comments-list"></div>
+      </section>
 
       <!-- FOOTER -->
       <footer class="footer">
@@ -136,7 +136,5 @@
   </div>
 
   <script src="js/index2.js"></script>
-
-
 </body>
 </html>

@@ -2,74 +2,69 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo - GameWorld</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/catalogo.css">
 </head>
-<body class="font-sans bg-gray-900">
+<body>
 
   <div class="side-left"></div>
   <div class="side-right"></div>
 
+  <!-- LOADER -->
   <div id="loader">
     <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
   </div>
 
-  <div class="page-container flex justify-center relative z-10 px-4 mt-8">
-    <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-5xl p-8">
+  <div class="page-container">
+    <div class="main-container">
 
-      <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
-        <h1 class="text-2xl font-bold text-indigo-400"><a href="index.html">GameWorld</a></h1>
-        <div class="space-x-4">
-          <a href="index.html" class="hover:text-indigo-300">Inicio</a>
+      <!-- NAVBAR -->
+      <nav class="navbar">
+        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <div class="nav-links">
+          <a href="index.html">Inicio</a>
           <a href="playlists.html">Playlists</a>
           <a href="merch.html">Merchandising</a>
           <a href="sobre.html">Sobre Nosotros</a>
         </div>
       </nav>
 
-      <div class="text-center">
-        <h2 class="text-4xl font-bold mb-6 text-indigo-400">Catálogo de Videojuegos</h2>
-        <p class="mb-10 text-gray-300">Explora los títulos más recientes y reserva tus favoritos.</p>
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="main-content">
+        <h2 class="page-title">Catálogo de Videojuegos</h2>
+        <p class="page-subtitle">Explora los títulos más recientes y reserva tus favoritos.</p>
 
-        <!-- Aquí se inyectarán los juegos desde Supabase -->
-<div 
-  id="gridJuegos"
-  class="grid gap-8 p-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
->
-  <p class="text-gray-400 col-span-full text-center">
-    Cargando juegos...
-  </p>
-</div>
+        <!-- GRID DE JUEGOS -->
+        <div id="gridJuegos" class="games-grid">
+          <p class="loading-text">Cargando juegos...</p>
+        </div>
 
-        <footer class="mt-8 text-gray-400">
-          © 2025 GameWorld. Todos los derechos reservados.
+        <!-- FOOTER -->
+        <footer class="footer">
+          <p>© 2025 GameWorld. Todos los derechos reservados.</p>
+          <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+          </div>
         </footer>
       </div>
     </div>
   </div>
 
-  <script type="module" src="js/script.js"></script>
   <!-- MODAL DETALLE -->
-<div
-  id="modalJuego"
-  class="fixed inset-0 bg-black bg-opacity-80 hidden
-         justify-center items-center z-50 p-4"
->
-  <div
-    class="bg-gray-900 rounded-2xl max-w-4xl w-full
-           overflow-hidden shadow-xl relative"
-  >
-    <button
-      onclick="cerrarModal()"
-      class="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
-    >
-      ✕
-    </button>
-
-    <div id="modalContenido"></div>
+  <div id="modalJuego" class="modal hidden">
+    <div class="modal-content">
+      <button onclick="cerrarModal()" class="modal-close">✕</button>
+      <div id="modalContenido"></div>
+    </div>
   </div>
-</div>
 
+  <script type="module" src="js/script.js"></script>
 </body>
 </html>

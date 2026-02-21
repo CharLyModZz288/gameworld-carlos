@@ -8,8 +8,7 @@ window.addEventListener("load", async () => {
   body.classList.add("fade-in");
 
   if (loader) {
-    loader.classList.add("fade-out");
-    setTimeout(() => loader.style.display = "none", 600);
+    loader.classList.add("hidden");
   }
 
   const { data: juegos, error } = await supabase
@@ -19,7 +18,7 @@ window.addEventListener("load", async () => {
 
   if (error) {
     grid.innerHTML = `
-      <p class="text-red-500 col-span-full text-center">
+      <p class="loading-text" style="color: #ef4444;">
         Error al cargar los juegos
       </p>
     `;
@@ -28,32 +27,25 @@ window.addEventListener("load", async () => {
 
   if (!juegos || juegos.length === 0) {
     grid.innerHTML = `
-      <p class="text-gray-400 col-span-full text-center">
+      <p class="loading-text">
         No hay juegos disponibles
       </p>
     `;
     return;
   }
 
-  // 🔹 GRID LIMPIO: imagen + nombre
   grid.innerHTML = juegos.map(juego => `
     <div
-      onclick='abrirModal(${JSON.stringify(juego)})'
-      class="relative cursor-pointer group rounded-2xl overflow-hidden shadow-lg
-             hover:scale-[1.04] transition-transform duration-300"
+      onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'
+      class="game-card"
     >
       <img
         src="${juego.imagen}"
         alt="${juego.nombre}"
-        class="w-full h-72 object-cover"
+        loading="lazy"
       >
-
-      <div
-        class="absolute inset-0 bg-black bg-opacity-60
-               opacity-0 group-hover:opacity-100
-               transition flex items-end"
-      >
-        <h3 class="text-xl font-bold text-white p-4">
+      <div class="game-overlay">
+        <h3 class="game-title">
           ${juego.nombre}
         </h3>
       </div>
@@ -61,71 +53,45 @@ window.addEventListener("load", async () => {
   `).join("");
 });
 
-/* =======================
-   MODAL
-======================= */
-
 window.abrirModal = function (juego) {
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
 
   contenido.innerHTML = `
-    <div class="grid md:grid-cols-2 gap-6">
-
+    <div class="modal-grid">
       <img
         src="${juego.imagen}"
         alt="${juego.nombre}"
-        class="w-full h-full object-cover rounded-l-2xl"
+        class="modal-image"
       >
-
-      <div class="p-6 flex flex-col gap-3 text-left">
-        <h2 class="text-3xl font-bold text-indigo-400">
+      <div class="modal-info">
+        <h2 class="modal-game-title">
           ${juego.nombre}
         </h2>
-
-        <p class="text-gray-300">
-          ${juego.descripcion}
+        <p class="modal-description">
+          ${juego.descripcion || "Descripción no disponible"}
         </p>
-
-        <div class="flex flex-wrap gap-2 text-sm">
-          <span class="bg-indigo-600 px-3 py-1 rounded">
-            ${juego.genero}
+        <div class="tags">
+          <span class="tag-primary">${juego.genero || "Género"}</span>
+          <span class="tag-secondary">${juego.plataforma || "Plataforma"}</span>
+          <span class="tag-secondary">PEGI ${juego.pegi || "+18"}</span>
+        </div>
+        <p class="developer">
+          <strong>Desarrolladora:</strong> ${juego.desarrolladora || "No especificada"}
+        </p>
+        <div class="price-section">
+          <span class="price">
+            ${juego.precio ? juego.precio.toFixed(2) : "0.00"}€
           </span>
-          <span class="bg-gray-700 px-3 py-1 rounded">
-            ${juego.plataforma}
-          </span>
-          <span class="bg-gray-700 px-3 py-1 rounded">
-            PEGI ${juego.pegi}
+          <span class="status-badge ${juego.estado === "Disponible" ? "status-available" : "status-unavailable"}">
+            ${juego.estado || "No disponible"}
           </span>
         </div>
-
-        <p class="text-sm text-gray-400">
-          <strong>Desarrolladora:</strong> ${juego.desarrolladora}
-        </p>
-
-        <div class="flex justify-between items-center mt-4">
-          <span class="text-2xl font-bold text-green-400">
-            ${juego.precio.toFixed(2)}€
-          </span>
-
-          <span class="
-            px-4 py-1 rounded
-            ${juego.estado === "Disponible" ? "bg-green-600" : "bg-red-600"}
-          ">
-            ${juego.estado}
-          </span>
-        </div>
-
         <button
-          class="
-            mt-4 py-3 rounded-lg font-semibold
-            ${juego.estado === "Disponible"
-              ? "bg-indigo-600 hover:bg-indigo-500"
-              : "bg-gray-600 cursor-not-allowed"}
-          "
+          class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
           ${juego.estado !== "Disponible" ? "disabled" : ""}
         >
-          Reservar
+          ${juego.estado === "Disponible" ? "Reservar ahora" : "No disponible"}
         </button>
       </div>
     </div>
@@ -133,10 +99,23 @@ window.abrirModal = function (juego) {
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  
+  // Prevenir scroll del body cuando el modal está abierto
+  document.body.style.overflow = "hidden";
 };
 
 window.cerrarModal = function () {
   const modal = document.getElementById("modalJuego");
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+  
+  // Restaurar scroll del body
+  document.body.style.overflow = "auto";
 };
+
+// Cerrar modal con tecla Escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    cerrarModal();
+  }
+});

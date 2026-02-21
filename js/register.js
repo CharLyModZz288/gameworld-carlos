@@ -13,35 +13,30 @@ form.addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
-  // 🔹 Validar username (mínimo 4 caracteres, solo letras, números y _)
+  // Validaciones...
   const usernameRegex = /^[a-zA-Z0-9_]{4,}$/;
-
   if (!usernameRegex.test(username)) {
     showError("❌ El username debe tener mínimo 4 caracteres y solo puede contener letras, números o _");
     return;
   }
 
-  // 🔹 Validar que las contraseñas coincidan
   if (password !== confirmPassword) {
     showError("❌ Las contraseñas no coinciden");
     return;
   }
 
-  // 🔹 Validar contraseña segura
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-
   if (!passwordRegex.test(password)) {
     showError("❌ La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número");
     return;
   }
 
-  // 🔹 Mostrar estado de carga
   btnText.classList.add("hidden");
   btnLoading.classList.remove("hidden");
   message.classList.add("hidden");
 
   try {
-    // 🔹 Verificar si el email ya existe
+    // Verificar si el email ya existe
     const { data: existingEmail } = await supabase
       .from("users")
       .select("email")
@@ -53,7 +48,7 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // 🔹 Verificar si el username ya existe
+    // Verificar si el username ya existe
     const { data: existingUsername } = await supabase
       .from("users")
       .select("username")
@@ -65,14 +60,16 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // 🔹 Insertar nuevo usuario
+    // Insertar nuevo usuario
     const { error } = await supabase
       .from("users")
       .insert([{ username, email, password }]);
 
     if (error) throw error;
 
-    // ✅ Éxito
+    // ✅ Éxito - Guardar email en localStorage
+    localStorage.setItem("emailUsuario", email); // <-- AÑADIDO
+
     message.textContent = "✅ Usuario registrado correctamente";
     message.className = "bg-green-600 text-white p-3 rounded text-center mt-3";
     message.classList.remove("hidden");
@@ -93,7 +90,6 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// 🔹 Función para mostrar errores
 function showError(text) {
   message.textContent = text;
   message.className = "bg-red-600 text-white p-3 rounded text-center mt-3";

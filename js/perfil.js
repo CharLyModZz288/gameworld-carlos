@@ -7,6 +7,7 @@ window.addEventListener("load", () => {
   ========================= */
 
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Usuario";
+  const emailRegistrado = localStorage.getItem("emailUsuario") || ""; // Obtener email del registro
 
   const nombreNav = document.getElementById("nombreUsuarioNav");
   const nombreInput = document.getElementById("nombre");
@@ -20,12 +21,15 @@ window.addEventListener("load", () => {
   if (perfilGuardado) {
     if (nombreNav) nombreNav.textContent = perfilGuardado.nombre;
     if (nombreInput) nombreInput.value = perfilGuardado.nombre;
-    if (emailInput) emailInput.value = perfilGuardado.email;
-    if (bioInput) bioInput.value = perfilGuardado.bio;
+    // Usar el email del perfil guardado, o el del registro, o vacío
+    if (emailInput) emailInput.value = perfilGuardado.email || emailRegistrado || "";
+    if (bioInput) bioInput.value = perfilGuardado.bio || "";
     if (fotoPreview) fotoPreview.src = perfilGuardado.foto || "media/default-profile.png";
   } else {
     if (nombreNav) nombreNav.textContent = nombreUsuario;
     if (nombreInput) nombreInput.value = nombreUsuario;
+    // Si no hay perfil guardado, usar el email del registro
+    if (emailInput) emailInput.value = emailRegistrado || "";
     if (fotoPreview) fotoPreview.src = "media/default-profile.png";
   }
 
@@ -46,7 +50,10 @@ window.addEventListener("load", () => {
 
         // Actualizar perfil en localStorage
         const usuario = nombreInput.value.trim();
-        const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {};
+        const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {
+          email: emailInput.value.trim(),
+          bio: bioInput.value.trim()
+        };
         perfil.foto = reader.result;
         localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
       };
@@ -76,13 +83,19 @@ window.addEventListener("load", () => {
 
       // Guardar perfil por usuario
       localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
+      
+      // Si cambió el nombre, actualizar también
+      if (usuario !== nombreUsuario) {
+        localStorage.removeItem(`perfil_${nombreUsuario}`);
+      }
+      
       // Guardar el usuario activo
       localStorage.setItem("nombreUsuario", usuario);
 
       alert("Perfil guardado con éxito ✔");
 
       // Volver al inicio privado
-      window.location.href = "index2.html";
+      window.location.href = "index.html";
     });
   }
 
@@ -120,6 +133,7 @@ window.addEventListener("load", () => {
 
       // 🔹 Solo borramos la sesión activa, no los datos
       localStorage.removeItem("nombreUsuario");
+      // No borramos el email para que pueda usarse en futuros registros
 
       // Redirigir al index público
       window.location.href = "index.html";

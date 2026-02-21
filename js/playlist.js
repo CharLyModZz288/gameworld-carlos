@@ -7,30 +7,29 @@ const grid = document.getElementById("gridPlaylists");
 const API_KEY = "9PqEyX5bQYe7e43EsASkUBftzDaRcrb2sSojP5RA";
 const QUERY = "video game soundtrack";
 
+// Mostrar mensaje de carga inicial
+if (grid) {
+  grid.innerHTML = '<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 2rem; font-family: Orbitron;">Cargando playlists...</p>';
+}
+
 /* ======================
    RENDER TARJETA
 ====================== */
 function crearTarjeta(track) {
+  const nombre = track.nombre || track.name || "Sin título";
+  const trackJSON = JSON.stringify(track).replace(/'/g, "&apos;");
+  
   return `
     <div
-      onclick='abrirModal(${JSON.stringify(track)})'
-      class="cursor-pointer group relative rounded-2xl overflow-hidden
-             shadow-lg hover:scale-[1.05] transition-transform duration-300"
+      onclick='abrirModal(${trackJSON})'
+      class="playlist-card"
     >
-      <div
-        class="h-48 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600
-               flex items-center justify-center"
-      >
+      <div class="playlist-gradient">
         🎧
       </div>
-
-      <div
-        class="absolute inset-0 bg-black bg-opacity-60
-               opacity-0 group-hover:opacity-100
-               transition flex items-end"
-      >
-        <h3 class="text-lg font-bold text-white p-4">
-          ${track.nombre || track.name}
+      <div class="playlist-overlay">
+        <h3 class="playlist-title">
+          ${nombre}
         </h3>
       </div>
     </div>
@@ -41,92 +40,114 @@ function crearTarjeta(track) {
    SUPABASE
 ====================== */
 async function cargarMusicaBD() {
-  const { data, error } = await supabase.from("musica").select("*");
-  if (error || !data) return;
+  try {
+    const { data, error } = await supabase.from("musica").select("*");
+    if (error || !data || data.length === 0) return;
 
-  data.forEach(track => {
-    grid.innerHTML += crearTarjeta({
-      ...track,
-      origen: "Base de datos",
-      audio: track.url
+    // Limpiar mensaje de carga
+    if (grid.children.length === 1 && grid.children[0].tagName === 'P') {
+      grid.innerHTML = '';
+    }
+
+    data.forEach(track => {
+      grid.innerHTML += crearTarjeta({
+        ...track,
+        origen: "Base de datos",
+        audio: track.url
+      });
     });
-  });
+  } catch (error) {
+    console.error("Error en BD:", error);
+  }
 }
 
 /* ======================
-   API
+   API FreeSound
 ====================== */
 async function cargarMusicaAPI() {
-  const res = await fetch(
-    `https://freesound.org/apiv2/search/text/?query=${encodeURIComponent(
-      QUERY
-    )}&fields=name,previews,description&token=${API_KEY}`
-  );
+  try {
+    const res = await fetch(
+      `https://freesound.org/apiv2/search/text/?query=${encodeURIComponent(
+        QUERY
+      )}&fields=name,previews,description&token=${API_KEY}`
+    );
 
-  const data = await res.json();
-  if (!data.results) return;
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) return;
 
-  data.results.forEach(track => {
-    grid.innerHTML += crearTarjeta({
-      name: track.name,
-      descripcion: track.description || "Sin descripción",
-      audio: track.previews["preview-lq-mp3"],
-      origen: "FreeSound API"
+    // Limpiar mensaje de carga si es necesario
+    if (grid.children.length === 1 && grid.children[0].tagName === 'P') {
+      grid.innerHTML = '';
+    }
+
+    data.results.forEach(track => {
+      if (track.previews && track.previews["preview-lq-mp3"]) {
+        grid.innerHTML += crearTarjeta({
+          name: track.name,
+          descripcion: track.description || "Soundtrack gamer épico",
+          audio: track.previews["preview-lq-mp3"],
+          origen: "FreeSound API"
+        });
+      }
     });
-  });
+  } catch (error) {
+    console.error("Error en API:", error);
+  }
 }
 
 /* ======================
-   MODAL (AUTOPLAY)
+   MODAL
 ====================== */
 window.abrirModal = function (track) {
   const modal = document.getElementById("modalPlaylist");
   const contenido = document.getElementById("modalContenido");
 
+  if (!modal || !contenido) return;
+
+  const nombre = track.nombre || track.name || "Sin título";
+  const descripcion = track.descripcion || "Soundtrack gamer épico";
+  const fuente = track.origen || "GameWorld";
+  const audioUrl = track.audio || track.url;
+
+  if (!audioUrl) {
+    console.error("No hay URL de audio");
+    return;
+  }
+
   contenido.innerHTML = `
-    <div class="p-6 flex flex-col gap-4 text-center">
-
-      <div
-        class="h-40 rounded-xl bg-gradient-to-br
-               from-indigo-600 via-purple-600 to-pink-600
-               flex items-center justify-center text-5xl"
-      >
-        🎵
-      </div>
-
-      <h2 class="text-2xl font-bold text-indigo-400">
-        ${track.nombre || track.name}
-      </h2>
-
-      <p class="text-gray-300">
-        ${track.descripcion || "Soundtrack gamer épico"}
-      </p>
-
-      <p class="text-sm text-gray-400">
-        Fuente: ${track.origen}
-      </p>
-
-      <audio id="audioModal" controls class="w-full mt-2">
-        <source src="${track.audio}" type="audio/mp3">
-      </audio>
+    <div class="modal-gradient-icon">
+      🎵
     </div>
+    <h2 class="modal-track-title">${nombre}</h2>
+    <p class="modal-description">${descripcion}</p>
+    <p class="modal-source">Fuente: ${fuente}</p>
+    <audio id="audioModal" controls>
+      <source src="${audioUrl}" type="audio/mpeg">
+      Tu navegador no soporta el elemento de audio.
+    </audio>
   `;
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
-
-  // 🔊 FORZAR PLAY
-  const audio = document.getElementById("audioModal");
-  audio.play();
+  
+  // Intentar reproducir
+  setTimeout(() => {
+    const audio = document.getElementById("audioModal");
+    if (audio) {
+      audio.play().catch(() => {});
+    }
+  }, 100);
 };
-
 
 window.cerrarModal = function () {
   const modal = document.getElementById("modalPlaylist");
+  if (!modal) return;
 
-  // 🔇 parar audio al cerrar
   const audio = modal.querySelector("audio");
-  if (audio) audio.pause();
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
 
   modal.classList.add("hidden");
   modal.classList.remove("flex");
@@ -136,7 +157,24 @@ window.cerrarModal = function () {
    INIT
 ====================== */
 window.addEventListener("load", async () => {
+  document.body.classList.add("fade-in");
+  
   await cargarMusicaBD();
   await cargarMusicaAPI();
-  loader.style.display = "none";
+  
+  if (loader) {
+    loader.classList.add("hidden");
+  }
+  
+  // Si no hay resultados, mostrar mensaje
+  if (grid.children.length === 0) {
+    grid.innerHTML = '<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 2rem;">No hay playlists disponibles</p>';
+  }
+});
+
+// Cerrar con Escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    cerrarModal();
+  }
 });
