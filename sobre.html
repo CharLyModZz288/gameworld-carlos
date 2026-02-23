@@ -2,10 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sobre Nosotros - GameWorld</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/sobre.css">
 </head>
-<body class="fade-in">
+<body>
 
   <!-- SEPARADORES LATERALES -->
   <div class="side-left"></div>
@@ -23,12 +27,12 @@
       <!-- NAVBAR -->
       <nav class="navbar">
         <h1 class="logo"><a href="index.html">GameWorld</a></h1>
-        <ul class="nav-links">
-          <li><a href="catalogo.html">Catálogo</a></li>
-          <li><a href="playlists.html">Playlists</a></li>
-          <li><a href="merch.html">Merchandising</a></li>
-          <li><a href="index.html">Inicio</a></li>
-        </ul>
+        <div class="nav-links">
+          <a href="catalogo.html">Catálogo</a>
+          <a href="playlists.html">Playlists</a>
+          <a href="merch.html">Merchandising</a>
+          <a href="index.html">Inicio</a>
+        </div>
       </nav>
 
       <!-- HERO -->
@@ -43,45 +47,154 @@
         </div>
       </section>
 
-      <!-- SOBRE NOSOTROS -->
+      <!-- MISIÓN Y VISIÓN -->
       <section class="about-section">
-        <h2>Nuestro Equipo</h2>
+        <h2 class="section-title">Nuestra Filosofía</h2>
+        
+        <div class="mission-vision-grid">
+          <div class="mission-card">
+            <div class="mission-icon">🎯</div>
+            <h3>Misión</h3>
+            <p>Proporcionar a los gamers la mejor experiencia de compra, con productos de calidad, música ambient y una comunidad activa que comparte la misma pasión por los videojuegos.</p>
+          </div>
+          
+          <div class="vision-card">
+            <div class="vision-icon">👁️</div>
+            <h3>Visión</h3>
+            <p>Convertirnos en la plataforma de referencia para la comunidad gamer hispanohablante, ofreciendo no solo productos sino también contenido, música y experiencias únicas.</p>
+          </div>
+        </div>
+      </section>
 
+      <!-- VALORES -->
+      <section class="values-section">
+        <h2 class="section-title">Nuestros Valores</h2>
+        
+        <div class="values-grid">
+          <div class="value-card">
+            <div class="value-icon">❤️</div>
+            <h3>Pasión por los Juegos</h3>
+            <p>Vivimos y respiramos videojuegos. Cada producto que ofrecemos está seleccionado con cuidado por verdaderos gamers.</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">🤝</div>
+            <h3>Comunidad</h3>
+            <p>Creemos en el poder de la comunidad. Fomentamos la interacción, los comentarios y la participación de todos nuestros usuarios.</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">✨</div>
+            <h3>Calidad</h3>
+            <p>Solo trabajamos con productos y contenido de la más alta calidad. Cada juego, playlist y artículo de merch pasa nuestros controles.</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">🌍</div>
+            <h3>Inclusión</h3>
+            <p>GameWorld es un espacio para todos, sin importar tu nivel de experiencia, tus gustos o tu procedencia. Todos son bienvenidos.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EQUIPO -->
+      <section class="team-section">
+        <h2 class="section-title">Nuestro Equipo</h2>
+        
         <div class="team-grid">
           <div class="team-card">
             <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Carlos" alt="Avatar Carlos">
             <h3>Carlos G.</h3>
-            <p>Fundador & CEO. Apasionado por los videojuegos y la música.</p>
+            <p class="team-role">Fundador & CEO</p>
+            <p>Apasionado por los videojuegos desde los 5 años. Su primera consola fue una NES.</p>
+            <div class="team-social">
+              <a href="#">🐦</a>
+              <a href="#">💼</a>
+              <a href="#">📧</a>
+            </div>
           </div>
+          
           <div class="team-card">
             <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Sofia" alt="Avatar Sofía">
             <h3>Sofía M.</h3>
-            <p>Diseño y Marketing. Siempre creando experiencias únicas para gamers.</p>
+            <p class="team-role">Diseño & Marketing</p>
+            <p>Experta en crear experiencias visuales únicas. Gamer de corazón y coleccionista de ediciones especiales.</p>
+            <div class="team-social">
+              <a href="#">🐦</a>
+              <a href="#">🎨</a>
+              <a href="#">📧</a>
+            </div>
           </div>
+          
           <div class="team-card">
             <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Raul" alt="Avatar Raúl">
             <h3>Raúl P.</h3>
-            <p>Desarrollador Web. Experto en interfaces y funcionalidades interactivas.</p>
+            <p class="team-role">Desarrollador Web</p>
+            <p>Programador y speedrunner amateur. Siempre buscando la mejor experiencia de usuario.</p>
+            <div class="team-social">
+              <a href="#">🐦</a>
+              <a href="#">💻</a>
+              <a href="#">📧</a>
+            </div>
+          </div>
+          
+          <div class="team-card">
+            <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Laura" alt="Avatar Laura">
+            <h3>Laura T.</h3>
+            <p class="team-role">Community Manager</p>
+            <p>La voz de GameWorld en redes. Organiza torneos, eventos y mantiene viva la comunidad.</p>
+            <div class="team-social">
+              <a href="#">🐦</a>
+              <a href="#">🎮</a>
+              <a href="#">📧</a>
+            </div>
           </div>
         </div>
+      </section>
 
-        <h2 style="margin-top: 3rem;">Nuestra Historia</h2>
+      <!-- HITOS / TIMELINE -->
+      <section class="timeline-section">
+        <h2 class="section-title">Nuestra Historia</h2>
+        
         <div class="timeline">
           <div class="timeline-item">
-            <h4>2018 - Fundación</h4>
-            <p>Comenzamos como un pequeño equipo apasionado por los videojuegos.</p>
+            <div class="timeline-year">2018</div>
+            <div class="timeline-content">
+              <h4>Fundación</h4>
+              <p>Comenzamos como un pequeño equipo apasionado por los videojuegos en un pequeño local.</p>
+            </div>
           </div>
+          
           <div class="timeline-item">
-            <h4>2019 - Primer Catálogo</h4>
-            <p>Lanzamos nuestro primer catálogo de videojuegos y merchandising exclusivo.</p>
+            <div class="timeline-year">2019</div>
+            <div class="timeline-content">
+              <h4>Primer Catálogo</h4>
+              <p>Lanzamos nuestro primer catálogo de videojuegos y merchandising exclusivo con 50 títulos.</p>
+            </div>
           </div>
+          
           <div class="timeline-item">
-            <h4>2021 - Playlists Gamer</h4>
-            <p>Introducimos playlists y música para ambientar tus sesiones de juego.</p>
+            <div class="timeline-year">2021</div>
+            <div class="timeline-content">
+              <h4>Playlists Gamer</h4>
+              <p>Introducimos playlists y música para ambientar tus sesiones de juego. Más de 10,000 reproducciones.</p>
+            </div>
           </div>
+          
           <div class="timeline-item">
-            <h4>2025 - Comunidad Activa</h4>
-            <p>Hoy contamos con una comunidad global de gamers satisfechos y activos.</p>
+            <div class="timeline-year">2023</div>
+            <div class="timeline-content">
+              <h4>Comunidad Activa</h4>
+              <p>Alcanzamos los 50,000 usuarios registrados y lanzamos el sistema de comentarios.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-content">
+              <h4>Expansión Internacional</h4>
+              <p>Hoy contamos con una comunidad global de más de 100,000 gamers satisfechos y activos.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -93,6 +206,8 @@
           <a href="#">Twitter</a>
           <a href="#">Instagram</a>
           <a href="#">Discord</a>
+          <a href="#">TikTok</a>
+          <a href="#">YouTube</a>
         </div>
       </footer>
 
@@ -103,7 +218,10 @@
   <script>
     window.addEventListener('load', () => {
       const loader = document.getElementById('loader');
-      if (loader) loader.style.display = 'none';
+      document.body.classList.add('fade-in');
+      if (loader) {
+        loader.classList.add('hidden');
+      }
     });
   </script>
 

@@ -2,63 +2,75 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Merchandising - GameWorld</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/merch.css">
 </head>
-<body class="font-sans bg-gray-900">
+<body>
 
   <div class="side-left"></div>
   <div class="side-right"></div>
 
+  <!-- LOADER -->
   <div id="loader">
     <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
   </div>
 
-  <div class="page-container flex justify-center relative z-10 px-4 mt-8">
-    <div class="bg-gray-800 bg-opacity-90 rounded-2xl shadow-xl w-full max-w-5xl p-8">
+  <div class="page-container">
+    <div class="main-container">
 
-      <nav class="flex justify-between items-center p-4 bg-gray-900 rounded-b-lg mb-6 shadow">
-        <h1 class="text-2xl font-bold text-indigo-400"><a href="index.html">GameWorld</a></h1>
-        <div class="space-x-4">
+      <!-- NAVBAR -->
+      <nav class="navbar">
+        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <div class="nav-links">
           <a href="catalogo.html">Catálogo</a>
           <a href="playlists.html">Playlists</a>
-          <a href="index.html" class="hover:text-indigo-300">Inicio</a>
+          <a href="index.html">Inicio</a>
           <a href="sobre.html">Sobre Nosotros</a>
         </div>
       </nav>
 
-      <div class="text-center">
-        <h2 class="text-4xl font-bold mb-6 text-indigo-400">Merchandising Exclusivo</h2>
-        <p class="mb-10 text-gray-300">Colecciona figuras, camisetas y objetos únicos de tus sagas favoritas.</p>
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="main-content">
+        <h2 class="page-title">Merchandising Exclusivo</h2>
+        <p class="page-subtitle">Colecciona figuras, camisetas y objetos únicos de tus sagas favoritas.</p>
 
-        <!-- Aquí se cargarán los productos -->
-        <div id="gridMerch" class="grid md:grid-cols-2 gap-8 p-8 text-center">
-          <p class="text-gray-400 col-span-2">Cargando productos...</p>
+        <!-- GRID DE PRODUCTOS -->
+        <div id="gridMerch" class="merch-grid">
+          <p class="loading-text">Cargando productos...</p>
         </div>
 
-        <footer class="mt-8 text-gray-400">
-          © 2025 GameWorld. Todos los derechos reservados.
+        <!-- FOOTER -->
+        <footer class="footer">
+          <p>© 2025 GameWorld. Todos los derechos reservados.</p>
+          <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+          </div>
         </footer>
       </div>
     </div>
   </div>
 
   <!-- MODAL ZOOM -->
-  <div id="modalZoom" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
-    <div class="bg-gray-900 p-6 rounded-xl max-w-md w-full text-center relative shadow-xl transform scale-90 transition-all duration-200" id="zoomCard">
+  <div id="modalZoom" class="modal hidden">
+    <div class="modal-content merch-modal">
+      <button id="cerrarZoom" class="modal-close">✕</button>
 
-      <button id="cerrarZoom" class="absolute top-2 right-2 text-gray-300 hover:text-white text-2xl">✖</button>
-
-      <img id="zoomImagen" src="" alt="Producto" class="w-full h-auto rounded-lg mb-4">
-      <h3 id="zoomTitulo" class="text-2xl font-bold text-indigo-400 mb-2"></h3>
-      <p id="zoomDescripcion" class="text-gray-300 mb-4"></p>
-      <p id="zoomPrecio" class="text-lg font-semibold text-green-400"></p>
-
+      <div class="modal-merch-content">
+        <img id="zoomImagen" src="" alt="Producto" class="modal-merch-image">
+        <h3 id="zoomTitulo" class="modal-merch-title"></h3>
+        <p id="zoomDescripcion" class="modal-merch-description"></p>
+        <p id="zoomPrecio" class="modal-merch-price"></p>
+      </div>
     </div>
   </div>
 
-  <!-- Archivo JS -->
   <script type="module" src="js/merch.js"></script>
 </body>
 </html>

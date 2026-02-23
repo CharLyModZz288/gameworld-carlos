@@ -1,0 +1,503 @@
+/* RESET */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+:root {
+  --bg-dark: #020617;
+  --bg-card: #111827;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --text-light: #e5e7eb;
+  --text-muted: #9ca3af;
+}
+
+/* BODY */
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+body.fade-in {
+  opacity: 1;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* SIDE DECORATION */
+.side-left, .side-right {
+  position: fixed;
+  top: 0;
+  width: 40px; 
+  height: 100%;
+  background: linear-gradient(to bottom, #312e81, #581c87);
+  opacity: 0.25;
+  z-index: 1;
+}
+.side-left { left: 0; } 
+.side-right { right: 0; }
+
+/* LOADER */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-dark);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  pointer-events: all;
+}
+
+#loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-circle {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #1e293b;
+  border-top: 5px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+#loader-text {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+/* PAGE */
+.page-container { 
+  display: flex; 
+  justify-content: center; 
+  padding: 2rem 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.main-container {
+  background: rgba(17, 24, 39, 0.9);
+  max-width: 1100px; 
+  width: 100%;
+  padding: 2rem; 
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  background: #020617; 
+  padding: 1rem 1.5rem; 
+  border-radius: 0 0 20px 20px;
+  margin-bottom: 2rem;
+}
+
+.logo { 
+  font-size: 1.8rem; 
+  color: var(--primary);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+}
+
+.logo a:hover {
+  color: var(--primary-hover);
+}
+
+.nav-links { 
+  display: flex; 
+  gap: 2rem; 
+  align-items: center; 
+}
+
+.nav-links a { 
+  color: var(--text-light);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { 
+  color: var(--primary); 
+}
+
+/* MAIN CONTENT */
+.main-content {
+  text-align: center;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.page-subtitle {
+  margin-bottom: 2.5rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* GRID DE MERCHANDISING */
+.merch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+.loading-text {
+  color: var(--text-muted);
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 3rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* TARJETA DE PRODUCTO */
+.producto {
+  background: var(--bg-card);
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.producto:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+  background: #1f2937;
+}
+
+.producto img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 0 auto 1.5rem;
+  border-radius: 12px;
+  transition: transform 0.3s;
+}
+
+.producto:hover img {
+  transform: scale(1.05);
+}
+
+.producto h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: var(--primary);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.producto p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  color: var(--text-light);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.producto .precio {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4ade80;
+  margin-top: 0.5rem;
+}
+
+/* MODAL - VERSIÓN CORREGIDA PARA CENTRADO PERFECTO */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(2, 6, 23, 0.95);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+/* Cuando el modal está visible */
+.modal.flex {
+  display: flex !important;
+}
+
+.modal.hidden {
+  display: none !important;
+}
+
+/* Contenedor del modal - centrado perfecto */
+.modal .modal-content {
+  background: var(--bg-card);
+  border-radius: 24px;
+  max-width: 500px;
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+  position: relative;
+  border: 1px solid #1f2937;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Cuando el modal está visible */
+.modal.flex .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Modal específico para merch */
+.merch-modal .modal-content {
+  max-width: 450px;
+}
+
+/* Botón cerrar */
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.modal-close:hover {
+  background: rgba(239, 68, 68, 0.8);
+}
+
+/* CONTENIDO DEL MODAL MERCH */
+.modal-merch-content {
+  padding: 2.5rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-merch-image {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  background: #1f2937;
+  padding: 1rem;
+}
+
+.modal-merch-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.modal-merch-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.modal-merch-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4ade80;
+  font-family: 'Orbitron', sans-serif;
+  background: #1f2937;
+  padding: 0.5rem 2rem;
+  border-radius: 50px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+/* Si no hay imagen */
+.modal-merch-image[src=""],
+.modal-merch-image:not([src]) {
+  display: none;
+}
+
+/* FOOTER */
+.footer { 
+  margin-top: 3rem; 
+  text-align: center; 
+  color: var(--text-muted);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.footer-links { 
+  margin-top: 0.6rem; 
+  display: flex; 
+  justify-content: center; 
+  gap: 1.5rem; 
+}
+
+.footer-links a { 
+  color: var(--text-muted); 
+  font-size: 0.9rem;
+  transition: color 0.2s;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.footer-links a:hover { 
+  color: var(--primary); 
+}
+
+/* ANIMACIONES */
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
+@keyframes fadeIn { 
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  } 
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  } 
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .nav-links {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .merch-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  
+  .modal-merch-image {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .modal-merch-title {
+    font-size: 1.5rem;
+  }
+  
+  .modal-merch-price {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-container {
+    padding: 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .merch-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .producto {
+    padding: 1.5rem;
+  }
+  
+  .producto img {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .modal-merch-content {
+    padding: 2rem 1rem 1.5rem;
+  }
+  
+  .modal-merch-image {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Utilidades adicionales */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
