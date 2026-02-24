@@ -12,6 +12,8 @@
   --primary-hover: #4f46e5;
   --text-light: #e5e7eb;
   --text-muted: #9ca3af;
+  --accent: #ff5722;
+  --accent-hover: #ff8a5c;
 }
 
 /* BODY */
@@ -21,7 +23,6 @@ body {
   color: var(--text-light);
   min-height: 100vh;
   overflow-x: hidden;
-
   background-image: url(../Fotos/Fondo.jpg);
   background-repeat: no-repeat;
   background-size: cover;
@@ -106,6 +107,7 @@ body {
   width: 150px;
   overflow: hidden;
   box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+  z-index: 1000;
 }
 
 .user-menu.hidden {
@@ -245,6 +247,194 @@ body {
   background: var(--primary-hover);
 }
 
+/* SECCIÓN DE CAMBIO DE CONTRASEÑA */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent), transparent);
+  margin: 40px 0 20px 0;
+}
+
+.password-title {
+  color: white;
+  font-size: 1.5rem;
+  margin: 20px 0 25px 0;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.password-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 40px auto;
+  background: rgba(30, 30, 40, 0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid rgba(255, 87, 34, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.password-form .form-group {
+  margin-bottom: 25px;
+}
+
+.password-form label {
+  display: block;
+  color: var(--accent-hover);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding: 12px 45px 12px 15px;
+  background: rgba(20, 20, 30, 0.8);
+  border: 2px solid rgba(255, 87, 34, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.password-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(255, 87, 34, 0.3);
+  background: rgba(25, 25, 35, 0.9);
+}
+
+.password-input-wrapper input.error {
+  border-color: #ff4444;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggle-password:hover {
+  background: rgba(255, 87, 34, 0.2);
+}
+
+.toggle-password .eye-icon {
+  fill: #888;
+  transition: fill 0.3s ease;
+}
+
+.toggle-password:hover .eye-icon {
+  fill: var(--accent);
+}
+
+/* MEDIDOR DE SEGURIDAD */
+.password-strength {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.strength-bar {
+  height: 4px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.strength-bar.weak {
+  background: #ff4444;
+  box-shadow: 0 0 8px #ff4444;
+}
+
+.strength-bar.medium {
+  background: #ffbb33;
+  box-shadow: 0 0 8px #ffbb33;
+}
+
+.strength-bar.strong {
+  background: #00C851;
+  box-shadow: 0 0 8px #00C851;
+}
+
+.password-hint {
+  display: block;
+  color: #888;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.password-match-message {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  min-height: 20px;
+}
+
+.password-match-message.match {
+  color: #00C851;
+}
+
+.password-match-message.no-match {
+  color: #ff4444;
+}
+
+/* BOTÓN DE CAMBIO DE CONTRASEÑA */
+.change-password-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.change-password-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 87, 34, 0.4);
+}
+
+.change-password-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.change-password-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #888, #aaa);
+}
+
 /* ANIM */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
@@ -267,5 +457,10 @@ body {
 
   .form-group textarea {
     min-height: 140px;
+  }
+  
+  .password-container {
+    padding: 20px;
+    margin: 0 15px 30px 15px;
   }
 }

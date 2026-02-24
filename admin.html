@@ -8,6 +8,38 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
+  <style>
+    /* Estilos adicionales para el panel de merch */
+    .merch-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      border: 1px solid rgba(99, 102, 241, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .merch-item:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      transform: translateX(5px);
+    }
+    
+    .stock-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .stock-high { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+    .stock-medium { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+  </style>
 </head>
 <body>
 
@@ -42,9 +74,13 @@
             👥 Usuarios
             <span id="contadorUsuarios">0</span>
           </a>
-          <a href="#catalogo" class="card">
+          <a href="#juegos" class="card">
             🎮 Juegos
             <span id="contadorJuegos">0</span>
+          </a>
+          <a href="#merchandising" class="card">
+            👕 Merchandising
+            <span id="contadorMerch">0</span>
           </a>
           <a href="#playlists" class="card">
             🎵 Playlists
@@ -106,9 +142,9 @@
         </div>
       </div>
 
-      <!-- CATÁLOGO JUEGOS -->
-      <section id="catalogo" class="section-admin">
-        <h3>🎮 Gestión de Catálogo</h3>
+      <!-- GESTIÓN JUEGOS -->
+      <section id="juegos" class="section-admin">
+        <h3>🎮 Gestión de Juegos</h3>
 
         <div class="admin-content">
           <!-- LISTA DE JUEGOS -->
@@ -132,7 +168,7 @@
         </div>
       </section>
 
-      <!-- MODAL AÑADIR JUEGO -->
+      <!-- MODAL AÑADIR/EDITAR JUEGO -->
       <div id="modalJuego" class="modal hidden">
         <div class="modal-content">
           <h2 class="modal-title">Añadir Nuevo Juego</h2>
@@ -149,12 +185,90 @@
             </div>
 
             <div class="form-group">
-              <label>Precio</label>
+              <label>Precio (€)</label>
               <input id="precioJuego" type="number" step="0.01" required>
             </div>
 
             <div class="modal-actions">
               <button type="button" id="cancelarJuego" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- GESTIÓN MERCHANDISING -->
+      <section id="merchandising" class="section-admin">
+        <h3>👕 Gestión de Merchandising</h3>
+
+        <div class="admin-content">
+          <!-- LISTA DE PRODUCTOS -->
+          <div>
+            <h4 class="section-subtitle">Productos en la base de datos</h4>
+            <ul id="listaMerch" class="lista-items">
+              <!-- Productos cargados desde admin-merch.js -->
+            </ul>
+          </div>
+
+          <!-- INFO + BOTÓN -->
+          <div class="text-center mt-4">
+            <p class="text-muted mb-3">
+              Agregar, editar o eliminar productos de merchandising.
+            </p>
+
+            <button id="btnAñadirMerch" class="btn-primary">
+              + Añadir Producto
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODAL AÑADIR/EDITAR MERCHANDISING -->
+      <div id="modalMerch" class="modal hidden">
+        <div class="modal-content">
+          <h2 class="modal-title">Añadir Producto de Merchandising</h2>
+
+          <form id="formNuevoMerch">
+            <div class="form-group">
+              <label>Nombre del producto</label>
+              <input id="nombreMerch" type="text" required>
+            </div>
+
+            <div class="form-group">
+              <label>Descripción</label>
+              <textarea id="descripcionMerch" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Precio (€)</label>
+              <input id="precioMerch" type="number" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label>URL de la imagen</label>
+              <input id="imagenMerch" type="url" placeholder="https://ejemplo.com/imagen.jpg">
+              <small style="color: var(--text-muted); display: block; margin-top: 4px;">Opcional - Si no se proporciona, se usará una imagen por defecto</small>
+            </div>
+
+            <div class="form-group">
+              <label>Stock</label>
+              <input id="stockMerch" type="number" min="0" value="10" required>
+            </div>
+
+            <div class="form-group">
+              <label>Categoría</label>
+              <select id="categoriaMerch" required>
+                <option value="">Seleccionar categoría</option>
+                <option value="ROPA">Ropa</option>
+                <option value="COLECCIONABLE">Coleccionable</option>
+                <option value="ACCESORIO">Accesorio</option>
+                <option value="DECORACIÓN">Decoración</option>
+                <option value="MERCH">Merch general</option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancelarMerch" class="btn-secondary">Cancelar</button>
               <button type="submit" class="btn-primary">Guardar</button>
             </div>
           </form>
@@ -226,7 +340,9 @@
 
   <!-- SCRIPTS -->
   <script type="module" src="js/admin-juegos.js"></script>
+  <script type="module" src="js/admin-merch.js"></script>
   <script type="module" src="js/admin-musica.js"></script>
   <script type="module" src="js/admin-usuarios.js"></script>
+
 </body>
 </html>

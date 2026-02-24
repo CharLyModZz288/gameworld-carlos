@@ -9,28 +9,81 @@ const QUERY = "video game soundtrack";
 
 // Mostrar mensaje de carga inicial
 if (grid) {
-  grid.innerHTML = '<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 2rem; font-family: Orbitron;">Cargando playlists...</p>';
+  grid.innerHTML = `
+    <div class="loading-spinner" style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+      <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary);"></i>
+      <p style="font-family: Orbitron;">Cargando playlists...</p>
+    </div>
+  `;
+}
+
+// Función para generar duración aleatoria (simulada)
+function generarDuracion() {
+  const minutos = Math.floor(Math.random() * 30) + 15; // 15-45 minutos
+  return `${minutos} min`;
+}
+
+// Función para generar número de canciones (simulada)
+function generarCanciones() {
+  return Math.floor(Math.random() * 15) + 5; // 5-20 canciones
+}
+
+// Función para determinar si es destacado (aleatorio)
+function esDestacado() {
+  return Math.random() > 0.7; // 30% de probabilidad
+}
+
+// Función para obtener género musical
+function obtenerGenero(nombre) {
+  const generos = ['OST', 'Rock', 'Electrónica', 'Orquestal', 'Chiptune', 'Ambient'];
+  return generos[Math.floor(Math.random() * generos.length)];
 }
 
 /* ======================
-   RENDER TARJETA
+   RENDER TARJETA - ESTILO NINTENDO
 ====================== */
 function crearTarjeta(track) {
   const nombre = track.nombre || track.name || "Sin título";
-  const trackJSON = JSON.stringify(track).replace(/'/g, "&apos;");
+  const genero = track.genero || obtenerGenero(nombre);
+  const canciones = track.canciones || generarCanciones();
+  const duracion = track.duracion || generarDuracion();
+  const destacado = track.destacado !== undefined ? track.destacado : esDestacado();
+  
+  const trackJSON = JSON.stringify({
+    ...track,
+    nombre,
+    genero,
+    canciones,
+    duracion,
+    destacado
+  }).replace(/'/g, "&apos;");
   
   return `
-    <div
-      onclick='abrirModal(${trackJSON})'
-      class="playlist-card"
-    >
-      <div class="playlist-gradient">
-        🎧
+    <div class="playlist-card">
+      <div class="playlist-image-container" onclick='abrirModal(${trackJSON})'>
+        <div class="playlist-icon">
+          🎧
+        </div>
+        <span class="playlist-genre-tag">${genero}</span>
+        ${destacado ? '<span class="playlist-featured-tag">DESTACADO</span>' : ''}
       </div>
-      <div class="playlist-overlay">
+      <div class="playlist-info">
         <h3 class="playlist-title">
           ${nombre}
         </h3>
+        <div class="playlist-details">
+          <div class="playlist-tracks-row">
+            <span class="playlist-tracks-label">CANCIONES</span>
+            <span class="playlist-tracks-value">${canciones}</span>
+          </div>
+          <div class="playlist-duration-row">
+            <span class="playlist-duration-label">DURACIÓN</span>
+            <span class="playlist-duration-value">${duracion}</span>
+          </div>
+        </div>
+        <button class="playlist-button" onclick='abrirModal(${trackJSON})'>
+          ESCUCHAR
+        </button>
       </div>
     </div>
   `;
@@ -45,9 +98,7 @@ async function cargarMusicaBD() {
     if (error || !data || data.length === 0) return;
 
     // Limpiar mensaje de carga
-    if (grid.children.length === 1 && grid.children[0].tagName === 'P') {
-      grid.innerHTML = '';
-    }
+    grid.innerHTML = '';
 
     data.forEach(track => {
       grid.innerHTML += crearTarjeta({
@@ -75,8 +126,8 @@ async function cargarMusicaAPI() {
     const data = await res.json();
     if (!data.results || data.results.length === 0) return;
 
-    // Limpiar mensaje de carga si es necesario
-    if (grid.children.length === 1 && grid.children[0].tagName === 'P') {
+    // Si el grid está vacío o solo tiene el mensaje de carga, limpiar
+    if (grid.children.length === 1 && grid.children[0].classList?.contains('loading-spinner')) {
       grid.innerHTML = '';
     }
 
@@ -108,6 +159,9 @@ window.abrirModal = function (track) {
   const descripcion = track.descripcion || "Soundtrack gamer épico";
   const fuente = track.origen || "GameWorld";
   const audioUrl = track.audio || track.url;
+  const genero = track.genero || obtenerGenero(nombre);
+  const canciones = track.canciones || generarCanciones();
+  const duracion = track.duracion || generarDuracion();
 
   if (!audioUrl) {
     console.error("No hay URL de audio");
@@ -120,7 +174,24 @@ window.abrirModal = function (track) {
     </div>
     <h2 class="modal-track-title">${nombre}</h2>
     <p class="modal-description">${descripcion}</p>
+    
+    <div class="modal-stats">
+      <div class="stat-item">
+        <span class="stat-label">Género</span>
+        <span class="stat-value">${genero}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Canciones</span>
+        <span class="stat-value">${canciones}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Duración</span>
+        <span class="stat-value">${duracion}</span>
+      </div>
+    </div>
+    
     <p class="modal-source">Fuente: ${fuente}</p>
+    
     <audio id="audioModal" controls>
       <source src="${audioUrl}" type="audio/mpeg">
       Tu navegador no soporta el elemento de audio.
@@ -167,14 +238,23 @@ window.addEventListener("load", async () => {
   }
   
   // Si no hay resultados, mostrar mensaje
-  if (grid.children.length === 0) {
-    grid.innerHTML = '<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 2rem;">No hay playlists disponibles</p>';
+  if (grid.children.length === 0 || 
+      (grid.children.length === 1 && grid.children[0].classList?.contains('loading-spinner'))) {
+    grid.innerHTML = '<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 2rem; font-family: Orbitron;">No hay playlists disponibles</p>';
   }
 });
 
 // Cerrar con Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
+    cerrarModal();
+  }
+});
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("modalPlaylist");
+  if (e.target === modal) {
     cerrarModal();
   }
 });

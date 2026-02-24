@@ -140,4 +140,182 @@ window.addEventListener("load", () => {
     });
   }
 
+  /* =========================
+     CAMBIO DE CONTRASEÑA - NUEVO
+  ========================= */
+
+  // Elementos del formulario de contraseña
+  const passwordForm = document.getElementById("passwordForm");
+  const currentPasswordInput = document.getElementById("currentPassword");
+  const newPasswordInput = document.getElementById("newPassword");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
+  const changePasswordBtn = document.getElementById("changePasswordBtn");
+  const passwordMatchMessage = document.getElementById("passwordMatchMessage");
+  const strengthBars = document.querySelectorAll(".strength-bar");
+
+  // Función para mostrar/ocultar contraseña
+  document.querySelectorAll(".toggle-password").forEach(button => {
+    button.addEventListener("click", function() {
+      const targetId = this.getAttribute("data-target");
+      const targetInput = document.getElementById(targetId);
+      
+      if (targetInput) {
+        const type = targetInput.getAttribute("type") === "password" ? "text" : "password";
+        targetInput.setAttribute("type", type);
+        
+        // Animar el icono (opcional)
+        this.style.transform = "scale(0.9)";
+        setTimeout(() => {
+          this.style.transform = "scale(1)";
+        }, 100);
+      }
+    });
+  });
+
+  // Función para evaluar la fortaleza de la contraseña
+  function evaluatePasswordStrength(password) {
+    let score = 0;
+    
+    if (password.length >= 6) score++;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    return Math.min(score, 3); // Máximo 3 barras
+  }
+
+  // Función para actualizar las barras de fortaleza
+  function updatePasswordStrength(password) {
+    const strength = evaluatePasswordStrength(password);
+    
+    strengthBars.forEach((bar, index) => {
+      bar.className = "strength-bar";
+      if (index < strength) {
+        if (strength <= 1) bar.classList.add("weak");
+        else if (strength <= 2) bar.classList.add("medium");
+        else bar.classList.add("strong");
+      }
+    });
+  }
+
+  // Validar coincidencia de contraseñas
+  function checkPasswordMatch() {
+    const newPass = newPasswordInput.value;
+    const confirmPass = confirmPasswordInput.value;
+    
+    if (confirmPass.length === 0) {
+      passwordMatchMessage.textContent = "";
+      passwordMatchMessage.className = "password-match-message";
+      return false;
+    }
+    
+    if (newPass === confirmPass) {
+      passwordMatchMessage.textContent = "✓ Las contraseñas coinciden";
+      passwordMatchMessage.className = "password-match-message match";
+      return true;
+    } else {
+      passwordMatchMessage.textContent = "✗ Las contraseñas no coinciden";
+      passwordMatchMessage.className = "password-match-message no-match";
+      return false;
+    }
+  }
+
+  // Eventos para validación en tiempo real
+  if (newPasswordInput) {
+    newPasswordInput.addEventListener("input", () => {
+      updatePasswordStrength(newPasswordInput.value);
+      checkPasswordMatch();
+    });
+  }
+
+  if (confirmPasswordInput) {
+    confirmPasswordInput.addEventListener("input", checkPasswordMatch);
+  }
+
+  // Función para inicializar datos de usuario
+  function initializeUserData() {
+    const usuario = localStorage.getItem("nombreUsuario") || nombreInput.value.trim();
+    if (usuario && usuario !== "Usuario") {
+      const userKey = `usuario_${usuario}`;
+      if (!localStorage.getItem(userKey)) {
+        // Crear datos de usuario si no existen
+        const userData = {
+          email: emailInput.value.trim() || localStorage.getItem("emailUsuario") || "",
+          password: localStorage.getItem(`password_${usuario}`) || "default123"
+        };
+        localStorage.setItem(userKey, JSON.stringify(userData));
+      }
+    }
+  }
+
+  // Inicializar datos de usuario
+  initializeUserData();
+
+  // Manejar el envío del formulario de cambio de contraseña
+  if (passwordForm) {
+    passwordForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const currentUser = localStorage.getItem("nombreUsuario") || nombreInput.value.trim();
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      
+      // Validaciones
+      if (!newPassword || !confirmPassword) {
+        alert("Por favor, completa todos los campos.");
+        return;
+      }
+      
+      
+      // Validar nueva contraseña
+      if (newPassword.length < 6) {
+        alert("La nueva contraseña debe tener al menos 6 caracteres.");
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        alert("Las contraseñas nuevas no coinciden.");
+        return;
+      }
+      
+      // Guardar la nueva contraseña
+      const usuario = currentUser;
+      const userKey = `usuario_${usuario}`;
+      
+      // Obtener datos existentes del usuario o crear nuevo objeto
+      let userDataToSave = JSON.parse(localStorage.getItem(userKey)) || {};
+      
+      // Si no existe, crear con email si está disponible
+      if (Object.keys(userDataToSave).length === 0) {
+        userDataToSave = {
+          email: emailInput.value.trim() || localStorage.getItem("emailUsuario") || "",
+          password: newPassword
+        };
+      } else {
+        userDataToSave.password = newPassword;
+      }
+      
+      // Guardar en localStorage
+      localStorage.setItem(userKey, JSON.stringify(userDataToSave));
+      
+      // También guardar la contraseña en un lugar de respaldo (opcional)
+      localStorage.setItem(`password_${usuario}`, newPassword);
+      
+      // Mostrar mensaje de éxito
+      alert("✅ ¡Contraseña cambiada con éxito!");
+      
+      // Limpiar el formulario
+      passwordForm.reset();
+      updatePasswordStrength("");
+      passwordMatchMessage.textContent = "";
+      
+      // Animación de éxito en el botón
+      changePasswordBtn.style.transform = "scale(0.95)";
+      setTimeout(() => {
+        changePasswordBtn.style.transform = "scale(1)";
+      }, 200);
+    });
+  }
+
 });

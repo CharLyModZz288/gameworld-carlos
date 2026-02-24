@@ -12,6 +12,8 @@
   --primary-hover: #4f46e5;
   --text-light: #e5e7eb;
   --text-muted: #9ca3af;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
 }
 
 /* BODY */
@@ -97,7 +99,7 @@ a {
 
 .main-container {
   background: rgba(17,24,39,0.9);
-  max-width: 1100px; 
+  max-width: 1200px; 
   width: 100%;
   padding: 2rem; 
   border-radius: 24px;
@@ -165,7 +167,7 @@ a {
 /* GRID DE JUEGOS */
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   padding: 1rem;
   min-height: 400px;
@@ -179,62 +181,182 @@ a {
   padding: 3rem;
 }
 
-/* TARJETA DE JUEGO */
+/* TARJETA DE JUEGO - ESTILO NINTENDO */
 .game-card {
-  position: relative;
-  cursor: pointer;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  transition: transform 0.3s, box-shadow 0.3s;
-  aspect-ratio: 3/4;
   background: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #1f2937;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .game-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+  box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+  border-color: var(--primary);
 }
 
-.game-card img {
+.game-image-container {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: #000;
+}
+
+.game-image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
   transition: transform 0.5s;
 }
 
-.game-card:hover img {
-  transform: scale(1.1);
+.game-card:hover .game-image-container img {
+  transform: scale(1.05);
 }
 
-.game-overlay {
+/* ETIQUETA DE PLATAFORMA */
+.game-platform-tag {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.3s;
-  display: flex;
-  align-items: flex-end;
-  padding: 1.5rem;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--text-light);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--primary);
+  z-index: 2;
 }
 
-.game-card:hover .game-overlay {
-  opacity: 1;
+/* ETIQUETA DE REGALO */
+.game-gift-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.game-info {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg-card);
 }
 
 .game-title {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: white;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  transform: translateY(20px);
-  transition: transform 0.3s;
+  color: var(--text-light);
+  text-align: left;
+  line-height: 1.4;
+  min-height: 2.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.game-card:hover .game-title {
-  transform: translateY(0);
+.game-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid #1f2937;
+  padding-top: 0.75rem;
+}
+
+.game-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.game-price-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.game-price-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.game-points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-points-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.game-points-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-yellow);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.game-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 0.5rem;
+}
+
+.game-button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* TARJETA DESTACADA (OPCIONAL) */
+.game-card.featured {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.game-card.featured .game-image-container {
+  aspect-ratio: 16/9;
+}
+
+.game-card.featured .game-title {
+  font-size: 1.3rem;
 }
 
 /* FOOTER */
@@ -518,8 +640,13 @@ a {
   }
   
   .games-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
+  }
+  
+  .game-card.featured {
+    grid-column: span 1;
+    grid-template-columns: 1fr;
   }
   
   .modal-info {

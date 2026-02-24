@@ -35,19 +35,33 @@ window.addEventListener("load", async () => {
   }
 
   grid.innerHTML = juegos.map(juego => `
-    <div
-      onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'
-      class="game-card"
-    >
-      <img
-        src="${juego.imagen}"
-        alt="${juego.nombre}"
-        loading="lazy"
-      >
-      <div class="game-overlay">
+    <div class="game-card">
+      <div class="game-image-container" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+        <img
+          src="${juego.imagen}"
+          alt="${juego.nombre}"
+          loading="lazy"
+        >
+        <span class="game-platform-tag">${juego.plataforma?.toUpperCase() || "NINTENDO SWITCH"}</span>
+        ${juego.regalo ? '<span class="game-gift-tag">INCLUYE REGALO</span>' : ''}
+      </div>
+      <div class="game-info">
         <h3 class="game-title">
           ${juego.nombre}
         </h3>
+        <div class="game-details">
+          <div class="game-price-row">
+            <span class="game-price-label">COMPRAR</span>
+            <span class="game-price-value">${juego.precio ? juego.precio.toFixed(2) : "0.00"}€</span>
+          </div>
+          <div class="game-points-row">
+            <span class="game-points-label">PUNTOS</span>
+            <span class="game-points-value">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
+          </div>
+        </div>
+        <button class="game-button" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+          VER DETALLES
+        </button>
       </div>
     </div>
   `).join("");
@@ -87,9 +101,14 @@ window.abrirModal = function (juego) {
             ${juego.estado || "No disponible"}
           </span>
         </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
+          <span style="color: var(--text-muted); font-size: 0.9rem;">Puntos al comprar:</span>
+          <span class="game-points-value" style="font-size: 1rem;">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
+        </div>
         <button
           class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
           ${juego.estado !== "Disponible" ? "disabled" : ""}
+          onclick="event.stopPropagation(); alert('Redirigiendo a la página de reserva...')"
         >
           ${juego.estado === "Disponible" ? "Reservar ahora" : "No disponible"}
         </button>
@@ -116,6 +135,14 @@ window.cerrarModal = function () {
 // Cerrar modal con tecla Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
+    cerrarModal();
+  }
+});
+
+// Cerrar modal al hacer clic fuera del contenido
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("modalJuego");
+  if (e.target === modal) {
     cerrarModal();
   }
 });
