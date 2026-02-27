@@ -4,12 +4,179 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GameWorld - Panel Admin</title>
+  
+  <!-- === PROTECCIÓN INMEDIATA MEJORADA (DOBLE VERIFICACIÓN) === -->
+  <script>
+    (function() {
+      // Mostrar loader visual inmediato
+      const style = document.createElement('style');
+      style.textContent = `
+        body { margin: 0; background: #0a0a0f; overflow: hidden; }
+        #auth-guard {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
+          background: #0a0a0f;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          flex-direction: column;
+        }
+        .guard-spinner {
+          width: 60px;
+          height: 60px;
+          border: 4px solid #00ffff33;
+          border-top-color: #00ffff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 20px;
+        }
+        .guard-text {
+          color: #00ffff;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.2rem;
+          text-align: center;
+        }
+        .guard-subtext {
+          color: #888;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 0.9rem;
+          margin-top: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `;
+      document.head.appendChild(style);
+      
+      // Añadir el loader
+      document.write(`
+        <div id="auth-guard">
+          <div class="guard-spinner"></div>
+          <div class="guard-text">Verificando acceso de administrador</div>
+          <div class="guard-subtext">Por favor, espera...</div>
+        </div>
+      `);
+
+      // Función principal de verificación
+      function checkAdminAccess() {
+        try {
+          // ===== VERIFICACIÓN 1: localStorage =====
+          const usuario = localStorage.getItem('nombreUsuario');
+          const rolRaw = localStorage.getItem('rolUsuario');
+          const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
+          
+          // ===== VERIFICACIÓN 2: Supabase token =====
+          const supabaseToken = 
+            localStorage.getItem('supabase.auth.token') || 
+            sessionStorage.getItem('supabase.auth.token');
+          
+          // ===== VERIFICACIÓN 3: Cookies (por seguridad) =====
+          const hasAuthCookie = 
+            document.cookie.includes('sb-access-token') || 
+            document.cookie.includes('supabase');
+          
+          // Registrar intento de acceso (para debug)
+          console.log('🔐 Verificando acceso admin:', { 
+            usuario: !!usuario, 
+            rol, 
+            tieneToken: !!supabaseToken,
+            tieneCookie: hasAuthCookie 
+          });
+
+          // === VERIFICACIÓN PRINCIPAL ===
+          // Debe tener usuario Y ser admin
+          if (!usuario) {
+            console.log('❌ No hay usuario logueado');
+            window.location.replace('/login.html?error=unauthorized');
+            return false;
+          }
+          
+          if (rol !== 'admin') {
+            console.log('❌ Usuario no es administrador. Rol:', rol);
+            alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
+            window.location.replace('/catalogo.html');
+            return false;
+          }
+          
+          // Verificar token de Supabase (opcional pero recomendado)
+          if (!supabaseToken && !hasAuthCookie) {
+            console.log('❌ No hay token de autenticación');
+            alert('⚠️ Sesión no válida. Por favor, inicia sesión nuevamente.');
+            localStorage.clear();
+            window.location.replace('/login.html');
+            return false;
+          }
+          
+          // Verificar expiración del token si existe
+          if (supabaseToken) {
+            try {
+              const session = JSON.parse(supabaseToken);
+              const expiresAt = session.expires_at || 
+                               session.expiresIn || 
+                               session?.currentSession?.expires_at;
+              
+              if (expiresAt && Date.now() > expiresAt * 1000) {
+                console.log('❌ Token expirado');
+                alert('⚠️ Sesión expirada. Por favor, inicia sesión nuevamente.');
+                localStorage.clear();
+                window.location.replace('/login.html');
+                return false;
+              }
+            } catch (e) {
+              console.warn('Error al verificar token:', e);
+            }
+          }
+
+          // === ACCESO CONCEDIDO ===
+          console.log('✅ Acceso de administrador concedido');
+          
+          // Remover el guardia y mostrar contenido
+          setTimeout(() => {
+            const guard = document.getElementById('auth-guard');
+            if (guard) {
+              guard.style.opacity = '0';
+              guard.style.transition = 'opacity 0.3s ease';
+              setTimeout(() => {
+                guard.remove();
+                document.body.style.overflow = 'auto';
+                document.body.classList.add('auth-success');
+              }, 300);
+            }
+          }, 500); // Pequeño retraso para asegurar verificación
+          
+          return true;
+          
+        } catch (error) {
+          console.error('Error en verificación:', error);
+          window.location.replace('/login.html');
+          return false;
+        }
+      }
+      
+      // Ejecutar verificación
+      checkAdminAccess();
+    })();
+  </script>
+
+  <!-- Tus estilos originales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
+  
+  <!-- Estilo adicional para ocultar contenido hasta verificar -->
   <style>
-    /* Estilos adicionales para el panel de merch */
+    .page-container {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    body.auth-success .page-container {
+      opacity: 1;
+    }
+    
+    /* Mejoras visuales para el panel admin */
     .merch-item {
       display: flex;
       justify-content: space-between;
@@ -41,9 +208,9 @@
     .stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
   </style>
 </head>
-<body>
+<body style="overflow: hidden;">
 
-  <!-- LOADER -->
+  <!-- LOADER (se mantiene, pero ahora el auth-guard es el principal) -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">Cargando Panel...</div>
@@ -324,21 +491,7 @@
     </div>
   </div>
 
-  <!-- ✅ VERIFICACIÓN DE SEGURIDAD GLOBAL -->
-  <script>
-    (function() {
-      const usuario = localStorage.getItem('nombreUsuario');
-      const rolRaw = localStorage.getItem('rolUsuario');
-      const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
-      
-      if (!usuario || rol !== 'admin') {
-        alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
-        window.location.href = 'login.html';
-      }
-    })();
-  </script>
-
-  <!-- SCRIPTS -->
+  <!-- SCRIPTS (modificados para trabajar con autenticación) -->
   <script type="module" src="js/admin-juegos.js"></script>
   <script type="module" src="js/admin-merch.js"></script>
   <script type="module" src="js/admin-musica.js"></script>

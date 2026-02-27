@@ -1,5 +1,29 @@
 // PERFIL.JS
 
+// Verificar sesión al inicio
+(async function checkSession() {
+  try {
+    // Verificar si hay token de sesión
+    const supabaseToken = localStorage.getItem('supabase.auth.token') || 
+                         sessionStorage.getItem('supabase.auth.token');
+    const nombreUsuario = localStorage.getItem('nombreUsuario');
+    
+    if (!supabaseToken && !nombreUsuario) {
+      console.log('No hay sesión activa - Redirigiendo a login');
+      window.location.replace('login.html');
+      return false;
+    }
+    
+    // Marcar autenticación exitosa
+    document.body.classList.add('auth-success');
+    return true;
+  } catch (error) {
+    console.error('Error verificando sesión:', error);
+    window.location.replace('login.html');
+    return false;
+  }
+})();
+
 window.addEventListener("load", () => {
 
   /* =========================
@@ -7,7 +31,7 @@ window.addEventListener("load", () => {
   ========================= */
 
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Usuario";
-  const emailRegistrado = localStorage.getItem("emailUsuario") || ""; // Obtener email del registro
+  const emailRegistrado = localStorage.getItem("emailUsuario") || "";
 
   const nombreNav = document.getElementById("nombreUsuarioNav");
   const nombreInput = document.getElementById("nombre");
@@ -15,20 +39,24 @@ window.addEventListener("load", () => {
   const bioInput = document.getElementById("bio");
   const fotoPreview = document.getElementById("fotoPreview");
 
+  // Si no hay nombre de usuario, redirigir
+  if (!localStorage.getItem("nombreUsuario") && !localStorage.getItem("supabase.auth.token")) {
+    window.location.replace('login.html');
+    return;
+  }
+
   // Cargar perfil guardado
   const perfilGuardado = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
 
   if (perfilGuardado) {
     if (nombreNav) nombreNav.textContent = perfilGuardado.nombre;
     if (nombreInput) nombreInput.value = perfilGuardado.nombre;
-    // Usar el email del perfil guardado, o el del registro, o vacío
     if (emailInput) emailInput.value = perfilGuardado.email || emailRegistrado || "";
     if (bioInput) bioInput.value = perfilGuardado.bio || "";
     if (fotoPreview) fotoPreview.src = perfilGuardado.foto || "media/default-profile.png";
   } else {
     if (nombreNav) nombreNav.textContent = nombreUsuario;
     if (nombreInput) nombreInput.value = nombreUsuario;
-    // Si no hay perfil guardado, usar el email del registro
     if (emailInput) emailInput.value = emailRegistrado || "";
     if (fotoPreview) fotoPreview.src = "media/default-profile.png";
   }
@@ -48,7 +76,6 @@ window.addEventListener("load", () => {
       reader.onload = () => {
         fotoPreview.src = reader.result;
 
-        // Actualizar perfil en localStorage
         const usuario = nombreInput.value.trim();
         const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {
           email: emailInput.value.trim(),
@@ -81,20 +108,15 @@ window.addEventListener("load", () => {
         foto: fotoPreview.src
       };
 
-      // Guardar perfil por usuario
       localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
       
-      // Si cambió el nombre, actualizar también
       if (usuario !== nombreUsuario) {
         localStorage.removeItem(`perfil_${nombreUsuario}`);
       }
       
-      // Guardar el usuario activo
       localStorage.setItem("nombreUsuario", usuario);
 
       alert("Perfil guardado con éxito ✔");
-
-      // Volver al inicio privado
       window.location.href = "index.html";
     });
   }
@@ -122,7 +144,7 @@ window.addEventListener("load", () => {
   }
 
   /* =========================
-     CERRAR SESIÓN
+     CERRAR SESIÓN - MODIFICADO
   ========================= */
 
   const cerrarSesionBtn = document.getElementById("cerrarSesion");
@@ -131,22 +153,29 @@ window.addEventListener("load", () => {
     cerrarSesionBtn.addEventListener("click", (e) => {
       e.preventDefault();
 
-      // 🔹 Solo borramos la sesión activa, no los datos
+      // Limpiar TODOS los datos de sesión
       localStorage.removeItem("nombreUsuario");
-      // No borramos el email para que pueda usarse en futuros registros
-
-      // Redirigir al index público
-      window.location.href = "index.html";
+      localStorage.removeItem("emailUsuario");
+      localStorage.removeItem("rolUsuario");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("supabase.auth.token");
+      localStorage.removeItem("sb-access-token");
+      sessionStorage.removeItem("supabase.auth.token");
+      sessionStorage.removeItem("sb-access-token");
+      
+      // Limpiar cookies
+      document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      // Redirigir al login
+      window.location.href = "login.html";
     });
   }
 
   /* =========================
-     CAMBIO DE CONTRASEÑA - NUEVO
+     CAMBIO DE CONTRASEÑA
   ========================= */
 
-  // Elementos del formulario de contraseña
   const passwordForm = document.getElementById("passwordForm");
-  const currentPasswordInput = document.getElementById("currentPassword");
   const newPasswordInput = document.getElementById("newPassword");
   const confirmPasswordInput = document.getElementById("confirmPassword");
   const changePasswordBtn = document.getElementById("changePasswordBtn");
@@ -163,7 +192,6 @@ window.addEventListener("load", () => {
         const type = targetInput.getAttribute("type") === "password" ? "text" : "password";
         targetInput.setAttribute("type", type);
         
-        // Animar el icono (opcional)
         this.style.transform = "scale(0.9)";
         setTimeout(() => {
           this.style.transform = "scale(1)";
@@ -172,7 +200,6 @@ window.addEventListener("load", () => {
     });
   });
 
-  // Función para evaluar la fortaleza de la contraseña
   function evaluatePasswordStrength(password) {
     let score = 0;
     
@@ -182,10 +209,9 @@ window.addEventListener("load", () => {
     if (/[0-9]/.test(password)) score++;
     if (/[^A-Za-z0-9]/.test(password)) score++;
     
-    return Math.min(score, 3); // Máximo 3 barras
+    return Math.min(score, 3);
   }
 
-  // Función para actualizar las barras de fortaleza
   function updatePasswordStrength(password) {
     const strength = evaluatePasswordStrength(password);
     
@@ -199,7 +225,6 @@ window.addEventListener("load", () => {
     });
   }
 
-  // Validar coincidencia de contraseñas
   function checkPasswordMatch() {
     const newPass = newPasswordInput.value;
     const confirmPass = confirmPasswordInput.value;
@@ -221,7 +246,6 @@ window.addEventListener("load", () => {
     }
   }
 
-  // Eventos para validación en tiempo real
   if (newPasswordInput) {
     newPasswordInput.addEventListener("input", () => {
       updatePasswordStrength(newPasswordInput.value);
@@ -233,26 +257,6 @@ window.addEventListener("load", () => {
     confirmPasswordInput.addEventListener("input", checkPasswordMatch);
   }
 
-  // Función para inicializar datos de usuario
-  function initializeUserData() {
-    const usuario = localStorage.getItem("nombreUsuario") || nombreInput.value.trim();
-    if (usuario && usuario !== "Usuario") {
-      const userKey = `usuario_${usuario}`;
-      if (!localStorage.getItem(userKey)) {
-        // Crear datos de usuario si no existen
-        const userData = {
-          email: emailInput.value.trim() || localStorage.getItem("emailUsuario") || "",
-          password: localStorage.getItem(`password_${usuario}`) || "default123"
-        };
-        localStorage.setItem(userKey, JSON.stringify(userData));
-      }
-    }
-  }
-
-  // Inicializar datos de usuario
-  initializeUserData();
-
-  // Manejar el envío del formulario de cambio de contraseña
   if (passwordForm) {
     passwordForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -261,14 +265,11 @@ window.addEventListener("load", () => {
       const newPassword = newPasswordInput.value;
       const confirmPassword = confirmPasswordInput.value;
       
-      // Validaciones
       if (!newPassword || !confirmPassword) {
         alert("Por favor, completa todos los campos.");
         return;
       }
       
-      
-      // Validar nueva contraseña
       if (newPassword.length < 6) {
         alert("La nueva contraseña debe tener al menos 6 caracteres.");
         return;
@@ -279,14 +280,10 @@ window.addEventListener("load", () => {
         return;
       }
       
-      // Guardar la nueva contraseña
-      const usuario = currentUser;
-      const userKey = `usuario_${usuario}`;
+      const userKey = `usuario_${currentUser}`;
       
-      // Obtener datos existentes del usuario o crear nuevo objeto
       let userDataToSave = JSON.parse(localStorage.getItem(userKey)) || {};
       
-      // Si no existe, crear con email si está disponible
       if (Object.keys(userDataToSave).length === 0) {
         userDataToSave = {
           email: emailInput.value.trim() || localStorage.getItem("emailUsuario") || "",
@@ -296,21 +293,15 @@ window.addEventListener("load", () => {
         userDataToSave.password = newPassword;
       }
       
-      // Guardar en localStorage
       localStorage.setItem(userKey, JSON.stringify(userDataToSave));
+      localStorage.setItem(`password_${currentUser}`, newPassword);
       
-      // También guardar la contraseña en un lugar de respaldo (opcional)
-      localStorage.setItem(`password_${usuario}`, newPassword);
-      
-      // Mostrar mensaje de éxito
       alert("✅ ¡Contraseña cambiada con éxito!");
       
-      // Limpiar el formulario
       passwordForm.reset();
       updatePasswordStrength("");
       passwordMatchMessage.textContent = "";
       
-      // Animación de éxito en el botón
       changePasswordBtn.style.transform = "scale(0.95)";
       setTimeout(() => {
         changePasswordBtn.style.transform = "scale(1)";
@@ -318,4 +309,5 @@ window.addEventListener("load", () => {
     });
   }
 
+  console.log("Perfil cargado correctamente");
 });

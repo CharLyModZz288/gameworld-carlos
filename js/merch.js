@@ -35,6 +35,18 @@ function esNuevo() {
 }
 
 window.addEventListener("load", async () => {
+  // Verificar sesión una vez más por seguridad
+  const { data: { session }, error } = await supabase.auth.getSession();
+  
+  if (error || !session) {
+    console.log('Sesión no válida en load, redirigiendo...');
+    window.location.replace('/login.html');
+    return;
+  }
+  
+  // Marcar que la autenticación fue exitosa
+  document.body.classList.add('auth-success');
+  
   const grid = document.getElementById("gridMerch");
   const loader = document.getElementById("loader");
   const body = document.body;
@@ -45,13 +57,13 @@ window.addEventListener("load", async () => {
     loader.classList.add("hidden");
   }
 
-  const { data: merch, error } = await supabase
+  const { data: merch, error: merchError } = await supabase
     .from("merchandising")
     .select("*")
     .order("id", { ascending: true });
 
-  if (error) {
-    console.error("❌ Error al cargar merchandising:", error);
+  if (merchError) {
+    console.error("❌ Error al cargar merchandising:", merchError);
     grid.innerHTML = `<p class="loading-text" style="color: #ef4444;">No se pudieron cargar los productos.</p>`;
     return;
   }
@@ -232,3 +244,5 @@ window.cerrarModal = window.cerrarModal || function() {
     document.body.style.overflow = "auto";
   }
 };
+
+console.log("Script de merchandising cargado correctamente");
