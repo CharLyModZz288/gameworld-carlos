@@ -4,128 +4,125 @@
   <meta charset="UTF-8">
   <title>Perfil - GameWorld</title>
   
-  <!-- === PROTECCIÓN INMEDIATA CONTRA ACCESO DIRECTO === -->
+  <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
   <script>
     (function() {
-      // Mostrar un loader visual mientras verificamos
-      const style = document.createElement('style');
-      style.textContent = `
-        body { margin: 0; background: #0a0a0f; overflow: hidden; }
-        #auth-guard {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100vh;
-          background: #0a0a0f;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 10000;
-        }
-        .guard-spinner {
-          width: 50px;
-          height: 50px;
-          border: 3px solid #00ffff33;
-          border-top-color: #00ffff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `;
-      document.head.appendChild(style);
-      
-      // Añadir el loader
-      document.write(`
-        <div id="auth-guard">
-          <div class="guard-spinner"></div>
-        </div>
-      `);
-
-      // Función para verificar autenticación
-      function checkAuth() {
+      // Verificar si se accede directamente por URL o mediante navegación interna
+      function checkDirectAccess() {
         try {
-          // Buscar token de Supabase en localStorage y sessionStorage
-          const supabaseToken = 
-            localStorage.getItem('supabase.auth.token') || 
-            sessionStorage.getItem('supabase.auth.token');
+          // Obtener el referrer para saber de qué página viene
+          const referrer = document.referrer;
           
-          // También buscar tokens directos
-          const accessToken = 
-            localStorage.getItem('sb-access-token') ||
-            sessionStorage.getItem('sb-access-token');
-          
-          // Verificar nombre de usuario (fallback)
-          const nombreUsuario = localStorage.getItem('nombreUsuario');
-          
-          // Verificar cookies
-          const hasAuthCookie = 
-            document.cookie.includes('sb-access-token') || 
-            document.cookie.includes('supabase');
-          
-          if (!supabaseToken && !accessToken && !hasAuthCookie && !nombreUsuario) {
-            console.log('No hay sesión detectada - Redirigiendo a login');
+          // Si no hay referrer o viene de fuera del sitio, es acceso directo por URL
+          if (!referrer) {
+            console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
             window.location.replace('/index.html');
             return false;
           }
           
-          // Verificación adicional: comprobar si el token ha expirado
-          if (supabaseToken) {
-            try {
-              const session = JSON.parse(supabaseToken);
-              const expiresAt = session.expires_at || 
-                               session.expiresIn || 
-                               session?.currentSession?.expires_at;
-              
-              if (expiresAt && Date.now() > expiresAt * 1000) {
-                console.log('Token expirado - Redirigiendo a login');
-                window.location.replace('/login.html');
-                return false;
-              }
-            } catch (e) {
-              console.warn('Error al verificar token');
-            }
+          // Verificar que el referrer sea de nuestro propio sitio
+          const currentDomain = window.location.hostname;
+          const referrerDomain = new URL(referrer).hostname;
+          
+          if (referrerDomain !== currentDomain) {
+            console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+            window.location.replace('/index.html');
+            return false;
           }
           
-          // Autenticado, remover el guardia
-          setTimeout(() => {
-            const guard = document.getElementById('auth-guard');
-            if (guard) {
-              guard.style.opacity = '0';
-              setTimeout(() => {
-                guard.remove();
-                document.body.style.overflow = 'auto';
-              }, 300);
-            }
-          }, 100);
+          // Verificar que viene de una página válida de nuestra aplicación
+          const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
+          const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
+          
+          if (!allowedPages.includes(referrerPath)) {
+            console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+            window.location.replace('/index.html');
+            return false;
+          }
+          
+          // Si pasa todas las verificaciones, mostrar el contenido
+          console.log('✅ Acceso permitido - Navegación interna');
+          
+          // Mostrar el contenido
+          document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.overflow = 'auto';
+          });
           
           return true;
         } catch (error) {
           console.error('Error en verificación:', error);
-          window.location.replace('/login.html');
-          return false;
+          // En caso de error, permitir acceso (mejor falso positivo que bloquear a usuarios legítimos)
+          return true;
         }
       }
       
       // Ejecutar verificación
-      checkAuth();
+      checkDirectAccess();
     })();
   </script>
   
   <link rel="stylesheet" href="/css/perfil.css">
   
-  <!-- Estilo adicional para ocultar contenido hasta verificar -->
+  <!-- Estilo para loader de verificación -->
   <style>
+    body {
+      margin: 0;
+      background: #0a0a0f;
+        /* Fondo fijo */
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;      /* No repetir la imagen */
+  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
+  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
+  background-position: center;       /* Centrar la imagen */
+    }
+    
+    #access-check {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: #0a0a0f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      transition: opacity 0.3s ease;
+    }
+    
+    .check-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #00ffff33;
+      border-top-color: #00ffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    body.access-allowed #access-check {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
     .page-container {
       opacity: 0;
       transition: opacity 0.5s ease;
     }
-    body.auth-success .page-container {
+    body.access-allowed .page-container {
       opacity: 1;
     }
   </style>
 </head>
 <body class="fade-in" style="overflow: hidden;">
+
+  <!-- Loader de verificación -->
+  <div id="access-check">
+    <div class="check-spinner"></div>
+  </div>
 
   <!-- CONTENEDOR CENTRAL -->
   <div class="page-container">
@@ -244,6 +241,13 @@
 
     </div>
   </div>
+
+  <!-- Script para quitar el loader de verificación -->
+  <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('access-allowed');
+    });
+  </script>
 
   <script src="js/perfil.js"></script>
 </body>

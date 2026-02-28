@@ -5,91 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GameWorld - Panel Admin</title>
   
-  <!-- === PROTECCIÓN INMEDIATA MEJORADA (DOBLE VERIFICACIÓN) === -->
+  <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
   <script>
     (function() {
-      // Mostrar loader visual inmediato
-      const style = document.createElement('style');
-      style.textContent = `
-        body { margin: 0; background: #0a0a0f; overflow: hidden; }
-        #auth-guard {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100vh;
-          background: #0a0a0f;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 10000;
-          flex-direction: column;
-        }
-        .guard-spinner {
-          width: 60px;
-          height: 60px;
-          border: 4px solid #00ffff33;
-          border-top-color: #00ffff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-bottom: 20px;
-        }
-        .guard-text {
-          color: #00ffff;
-          font-family: 'Orbitron', sans-serif;
-          font-size: 1.2rem;
-          text-align: center;
-        }
-        .guard-subtext {
-          color: #888;
-          font-family: 'Orbitron', sans-serif;
-          font-size: 0.9rem;
-          margin-top: 10px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `;
-      document.head.appendChild(style);
-      
-      // Añadir el loader
-      document.write(`
-        <div id="auth-guard">
-          <div class="guard-spinner"></div>
-          <div class="guard-text">Verificando acceso de administrador</div>
-          <div class="guard-subtext">Por favor, espera...</div>
-        </div>
-      `);
-
-      // Función principal de verificación
-      function checkAdminAccess() {
+      // Verificar si se accede directamente por URL o mediante navegación interna
+      function checkDirectAccess() {
         try {
-          // ===== VERIFICACIÓN 1: localStorage =====
+          // Obtener el referrer para saber de qué página viene
+          const referrer = document.referrer;
+          
+          // Si no hay referrer, es acceso directo por URL
+          if (!referrer) {
+            console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
+            window.location.replace('/index.html');
+            return false;
+          }
+          
+          // Verificar que el referrer sea de nuestro propio sitio
+          const currentDomain = window.location.hostname;
+          const referrerDomain = new URL(referrer).hostname;
+          
+          if (referrerDomain !== currentDomain) {
+            console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+            window.location.replace('/index.html');
+            return false;
+          }
+          
+          // Verificar que viene de una página válida de nuestra aplicación
+          const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html', 'admin.html'];
+          const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
+          
+          if (!allowedPages.includes(referrerPath)) {
+            console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+            window.location.replace('/index.html');
+            return false;
+          }
+          
+          // Verificar rol de administrador
           const usuario = localStorage.getItem('nombreUsuario');
           const rolRaw = localStorage.getItem('rolUsuario');
           const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
           
-          // ===== VERIFICACIÓN 2: Supabase token =====
-          const supabaseToken = 
-            localStorage.getItem('supabase.auth.token') || 
-            sessionStorage.getItem('supabase.auth.token');
-          
-          // ===== VERIFICACIÓN 3: Cookies (por seguridad) =====
-          const hasAuthCookie = 
-            document.cookie.includes('sb-access-token') || 
-            document.cookie.includes('supabase');
-          
-          // Registrar intento de acceso (para debug)
-          console.log('🔐 Verificando acceso admin:', { 
-            usuario: !!usuario, 
-            rol, 
-            tieneToken: !!supabaseToken,
-            tieneCookie: hasAuthCookie 
-          });
-
-          // === VERIFICACIÓN PRINCIPAL ===
-          // Debe tener usuario Y ser admin
           if (!usuario) {
             console.log('❌ No hay usuario logueado');
-            window.location.replace('/login.html?error=unauthorized');
+            window.location.replace('/login.html');
             return false;
           }
           
@@ -98,56 +57,26 @@
             alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
             window.location.replace('/catalogo.html');
             return false;
-          }         
-          
-          // Verificar expiración del token si existe
-          if (supabaseToken) {
-            try {
-              const session = JSON.parse(supabaseToken);
-              const expiresAt = session.expires_at || 
-                               session.expiresIn || 
-                               session?.currentSession?.expires_at;
-              
-              if (expiresAt && Date.now() > expiresAt * 1000) {
-                console.log('❌ Token expirado');
-                alert('⚠️ Sesión expirada. Por favor, inicia sesión nuevamente.');
-                localStorage.clear();
-                window.location.replace('/login.html');
-                return false;
-              }
-            } catch (e) {
-              console.warn('Error al verificar token:', e);
-            }
           }
-
-          // === ACCESO CONCEDIDO ===
-          console.log('✅ Acceso de administrador concedido');
           
-          // Remover el guardia y mostrar contenido
-          setTimeout(() => {
-            const guard = document.getElementById('auth-guard');
-            if (guard) {
-              guard.style.opacity = '0';
-              guard.style.transition = 'opacity 0.3s ease';
-              setTimeout(() => {
-                guard.remove();
-                document.body.style.overflow = 'auto';
-                document.body.classList.add('auth-success');
-              }, 300);
-            }
-          }, 500); // Pequeño retraso para asegurar verificación
+          // Si pasa todas las verificaciones, mostrar el contenido
+          console.log('✅ Acceso permitido - Administrador autenticado');
+          
+          // Mostrar el contenido
+          document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.overflow = 'auto';
+          });
           
           return true;
-          
         } catch (error) {
           console.error('Error en verificación:', error);
-          window.location.replace('/login.html');
+          window.location.replace('/index.html');
           return false;
         }
       }
       
       // Ejecutar verificación
-      checkAdminAccess();
+      checkDirectAccess();
     })();
   </script>
 
@@ -157,13 +86,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
   
-  <!-- Estilo adicional para ocultar contenido hasta verificar -->
+  <!-- Estilo para loader de verificación -->
   <style>
+    body {
+      margin: 0;
+      background: #0a0a0f;
+        /* Fondo fijo */
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;      /* No repetir la imagen */
+  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
+  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
+  background-position: center;       /* Centrar la imagen */
+    }
+    
+    #access-check {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: #0a0a0f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      flex-direction: column;
+      transition: opacity 0.3s ease;
+    }
+    
+    .check-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #00ffff33;
+      border-top-color: #00ffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    .check-text {
+      color: #00ffff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    
+    .check-subtext {
+      color: #888;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    body.access-allowed #access-check {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
     .page-container {
       opacity: 0;
       transition: opacity 0.5s ease;
     }
-    body.auth-success .page-container {
+    body.access-allowed .page-container {
       opacity: 1;
     }
     
@@ -201,7 +189,14 @@
 </head>
 <body style="overflow: hidden;">
 
-  <!-- LOADER (se mantiene, pero ahora el auth-guard es el principal) -->
+  <!-- Loader de verificación -->
+  <div id="access-check">
+    <div class="check-spinner"></div>
+    <div class="check-text">Verificando acceso de administrador</div>
+    <div class="check-subtext">Por favor, espera...</div>
+  </div>
+
+  <!-- LOADER (se mantiene) -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">Cargando Panel...</div>
@@ -482,11 +477,35 @@
     </div>
   </div>
 
-  <!-- SCRIPTS (modificados para trabajar con autenticación) -->
+  <!-- Script para quitar el loader de verificación -->
+  <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('access-allowed');
+    });
+  </script>
+
+  <!-- SCRIPTS -->
   <script type="module" src="js/admin-juegos.js"></script>
   <script type="module" src="js/admin-merch.js"></script>
   <script type="module" src="js/admin-musica.js"></script>
   <script type="module" src="js/admin-usuarios.js"></script>
-
+  
+  <!-- Script para cerrar sesión -->
+  <script>
+    document.getElementById('cerrarSesion')?.addEventListener('click', function() {
+      // Limpiar datos de sesión
+      localStorage.removeItem('nombreUsuario');
+      localStorage.removeItem('emailUsuario');
+      localStorage.removeItem('rolUsuario');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('sb-access-token');
+      sessionStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('sb-access-token');
+      
+      // Redirigir al login
+      window.location.href = 'login.html';
+    });
+  </script>
 </body>
 </html>

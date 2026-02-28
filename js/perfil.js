@@ -1,30 +1,9 @@
 // PERFIL.JS
 
-// Verificar sesión al inicio
-(async function checkSession() {
-  try {
-    // Verificar si hay token de sesión
-    const supabaseToken = localStorage.getItem('supabase.auth.token') || 
-                         sessionStorage.getItem('supabase.auth.token');
-    const nombreUsuario = localStorage.getItem('nombreUsuario');
-    
-    if (!supabaseToken && !nombreUsuario) {
-      console.log('No hay sesión activa - Redirigiendo a login');
-      window.location.replace('login.html');
-      return false;
-    }
-    
-    // Marcar autenticación exitosa
-    document.body.classList.add('auth-success');
-    return true;
-  } catch (error) {
-    console.error('Error verificando sesión:', error);
-    window.location.replace('login.html');
-    return false;
-  }
-})();
-
 window.addEventListener("load", () => {
+  
+  // Marcar acceso permitido
+  document.body.classList.add('access-allowed');
 
   /* =========================
      DATOS DEL USUARIO
@@ -39,10 +18,9 @@ window.addEventListener("load", () => {
   const bioInput = document.getElementById("bio");
   const fotoPreview = document.getElementById("fotoPreview");
 
-  // Si no hay nombre de usuario, redirigir
+  // Si no hay nombre de usuario, usar valores por defecto (no redirigir)
   if (!localStorage.getItem("nombreUsuario") && !localStorage.getItem("supabase.auth.token")) {
-    window.location.replace('login.html');
-    return;
+    console.log("Usuario no autenticado, mostrando perfil por defecto");
   }
 
   // Cargar perfil guardado
@@ -144,7 +122,7 @@ window.addEventListener("load", () => {
   }
 
   /* =========================
-     CERRAR SESIÓN - MODIFICADO
+     CERRAR SESIÓN
   ========================= */
 
   const cerrarSesionBtn = document.getElementById("cerrarSesion");
@@ -166,8 +144,8 @@ window.addEventListener("load", () => {
       // Limpiar cookies
       document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
-      // Redirigir al login
-      window.location.href = "login.html";
+      // Redirigir al index
+      window.location.href = "index.html";
     });
   }
 

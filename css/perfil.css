@@ -28,6 +28,12 @@ body {
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
+    /* Fondo fijo */
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;      /* No repetir la imagen */
+  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
+  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
+  background-position: center;       /* Centrar la imagen */
 }
 
 .fade-in {
