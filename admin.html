@@ -98,16 +98,7 @@
             alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
             window.location.replace('/catalogo.html');
             return false;
-          }
-          
-          // Verificar token de Supabase (opcional pero recomendado)
-          if (!supabaseToken && !hasAuthCookie) {
-            console.log('❌ No hay token de autenticación');
-            alert('⚠️ Sesión no válida. Por favor, inicia sesión nuevamente.');
-            localStorage.clear();
-            window.location.replace('/login.html');
-            return false;
-          }
+          }         
           
           // Verificar expiración del token si existe
           if (supabaseToken) {

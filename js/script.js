@@ -8,7 +8,7 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll (TU CÓDIGO ORIGINAL)
+// Función para manejar el scroll
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
@@ -40,20 +40,8 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
-// Cargar juegos - MODIFICADO para asegurar que hay sesión
+// Cargar juegos
 window.addEventListener("load", async () => {
-  // Verificar sesión una vez más por seguridad
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
-  if (error || !session) {
-    console.log('Sesión no válida en load, redirigiendo...');
-    window.location.replace('/login.html');
-    return;
-  }
-  
-  // Marcar que la autenticación fue exitosa
-  document.body.classList.add('auth-success');
-  
   const loader = document.getElementById("loader");
   const body = document.body;
   const grid = document.getElementById("gridJuegos");
@@ -70,7 +58,7 @@ window.addEventListener("load", async () => {
     loader.classList.add("hidden");
   }
 
-  // TU CÓDIGO ORIGINAL DE CARGA DE JUEGOS
+  // Cargar juegos desde Supabase
   const { data: juegos, error: juegosError } = await supabase
     .from("Juegos")
     .select("*")
@@ -127,7 +115,7 @@ window.addEventListener("load", async () => {
   `).join("");
 });
 
-// EL RESTO DE TU CÓDIGO ORIGINAL (SIN CAMBIOS)
+// Función para abrir modal
 window.abrirModal = function (juego) {
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
@@ -193,6 +181,7 @@ window.abrirModal = function (juego) {
   }
 };
 
+// Función para cerrar modal
 window.cerrarModal = function () {
   const modal = document.getElementById("modalJuego");
   modal.classList.add("hidden");
@@ -204,7 +193,7 @@ window.cerrarModal = function () {
   }
 };
 
-// Event listeners (todos igual)
+// Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
