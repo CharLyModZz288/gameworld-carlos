@@ -40,11 +40,116 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'success') {
+  // Eliminar notificaciones existentes
+  const notificacionesExistentes = document.querySelectorAll('.cart-notification');
+  notificacionesExistentes.forEach(notif => notif.remove());
+  
+  const notificacion = document.createElement('div');
+  notificacion.className = 'cart-notification';
+  notificacion.style.background = tipo === 'success' 
+    ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+    : 'linear-gradient(135deg, #ef4444, #dc2626)';
+  notificacion.textContent = mensaje;
+  
+  document.body.appendChild(notificacion);
+  
+  setTimeout(() => {
+    notificacion.remove();
+  }, 3000);
+}
+
+// Función para actualizar el contador del carrito
+function actualizarContadorCarrito() {
+  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
+  
+  // Actualizar contador en el navbar
+  const contadorNav = document.getElementById('carrito-contador-nav');
+  if (contadorNav) {
+    contadorNav.textContent = totalItems;
+  }
+  
+  return totalItems;
+}
+
+// Función para inicializar el carrito
+function inicializarCarrito() {
+  if (!localStorage.getItem('carrito')) {
+    localStorage.setItem('carrito', JSON.stringify([]));
+  }
+  actualizarContadorCarrito();
+}
+
+// Función para añadir al carrito
+function añadirAlCarrito(juego) {
+  console.log('Añadiendo al carrito:', juego); // Debug
+
+  // Verificar si el usuario está logueado
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  if (!nombreUsuario || nombreUsuario === "Invitado") {
+    mostrarNotificacion('Debes iniciar sesión para reservar', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
+
+  // Verificar si el juego está disponible
+  if (juego.estado !== "Disponible") {
+    mostrarNotificacion('Este juego no está disponible para reserva', 'error');
+    return false;
+  }
+
+  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  
+  // Buscar si el juego ya está en el carrito
+  const existeIndex = carrito.findIndex(item => item.id === juego.id);
+  
+  if (existeIndex !== -1) {
+    // Incrementar cantidad si ya existe
+    carrito[existeIndex].cantidad = (carrito[existeIndex].cantidad || 1) + 1;
+    mostrarNotificacion(`✓ ${juego.nombre} - Cantidad actualizada en el carrito`);
+  } else {
+    // Añadir nuevo item al carrito
+    carrito.push({
+      id: juego.id,
+      nombre: juego.nombre,
+      precio: juego.precio,
+      imagen: juego.imagen,
+      plataforma: juego.plataforma,
+      puntos: juego.puntos || Math.floor((juego.precio || 0) * 6),
+      cantidad: 1,
+      regalo: juego.regalo || false,
+      estado: juego.estado,
+      descripcion: juego.descripcion || ''
+    });
+    mostrarNotificacion(`✓ ${juego.nombre} añadido al carrito`);
+  }
+  
+  // Guardar en localStorage
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+  
+  // Actualizar contador
+  actualizarContadorCarrito();
+  
+  return true;
+}
+
+// Hacer la función global para que pueda ser llamada desde el HTML
+window.añadirAlCarrito = añadirAlCarrito;
+
 // Cargar juegos
 window.addEventListener("load", async () => {
+  console.log('Página cargada, inicializando...'); // Debug
+  
   const loader = document.getElementById("loader");
   const body = document.body;
   const grid = document.getElementById("gridJuegos");
+
+  // Inicializar carrito
+  inicializarCarrito();
 
   body.classList.add("fade-in");
 
@@ -59,12 +164,15 @@ window.addEventListener("load", async () => {
   }
 
   // Cargar juegos desde Supabase
+  console.log('Cargando juegos desde Supabase...'); // Debug
+  
   const { data: juegos, error: juegosError } = await supabase
     .from("Juegos")
     .select("*")
     .order("id", { ascending: true });
 
   if (juegosError) {
+    console.error('Error al cargar juegos:', juegosError); // Debug
     grid.innerHTML = `
       <p class="loading-text" style="color: #ef4444;">
         Error al cargar los juegos: ${juegosError.message}
@@ -81,6 +189,8 @@ window.addEventListener("load", async () => {
     `;
     return;
   }
+
+  console.log('Juegos cargados:', juegos.length); // Debug
 
   grid.innerHTML = juegos.map(juego => `
     <div class="game-card">
@@ -115,10 +225,15 @@ window.addEventListener("load", async () => {
   `).join("");
 });
 
-// Función para abrir modal
+// Función para abrir modal - VERSIÓN CORREGIDA
 window.abrirModal = function (juego) {
+  console.log('Abriendo modal para:', juego.nombre); // Debug
+  
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
+
+  // Guardar el juego en una variable global
+  window.juegoSeleccionado = juego;
 
   contenido.innerHTML = `
     <div class="modal-grid">
@@ -161,13 +276,22 @@ window.abrirModal = function (juego) {
             </p>
           </div>
         ` : ''}
-        <button
-          class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
-          ${juego.estado !== "Disponible" ? "disabled" : ""}
-          onclick="event.stopPropagation(); window.location.href='merch.html?juego=${encodeURIComponent(juego.nombre)}'"
-        >
-          ${juego.estado === "Disponible" ? "Reservar ahora" : "No disponible"}
-        </button>
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <button
+            class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
+            ${juego.estado !== "Disponible" ? "disabled" : ""}
+            onclick="añadirJuegoSeleccionado()"
+          >
+            🛒 ${juego.estado === "Disponible" ? "Añadir al carrito" : "No disponible"}
+          </button>
+          <button
+            class="reserve-btn available"
+            onclick="window.location.href='carrito.html'"
+            style="background: transparent; border: 2px solid #6366f1;"
+          >
+            Ver Carrito
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -178,6 +302,16 @@ window.abrirModal = function (juego) {
   
   if (window.history.pushState) {
     window.history.pushState({ modalOpen: true }, '');
+  }
+};
+
+// Nueva función para añadir el juego seleccionado
+window.añadirJuegoSeleccionado = function() {
+  if (window.juegoSeleccionado) {
+    añadirAlCarrito(window.juegoSeleccionado);
+  } else {
+    console.error('No hay juego seleccionado');
+    mostrarNotificacion('Error al añadir al carrito', 'error');
   }
 };
 
@@ -223,6 +357,13 @@ document.body.addEventListener('touchmove', (e) => {
 
 window.addEventListener('resize', () => {
   handleScroll();
+});
+
+// Escuchar cambios en localStorage desde otras pestañas
+window.addEventListener('storage', (e) => {
+  if (e.key === 'carrito') {
+    actualizarContadorCarrito();
+  }
 });
 
 console.log("Script de catálogo cargado correctamente");

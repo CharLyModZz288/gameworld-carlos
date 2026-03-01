@@ -50,6 +50,56 @@ window.addEventListener('load', () => {
     if (panelAdmin) panelAdmin.style.display = "block";
   }
 
+  // ---------- CARRITO DE COMPRAS ----------
+  // Función para inicializar el carrito
+  function inicializarCarrito() {
+    if (!localStorage.getItem('carrito')) {
+      localStorage.setItem('carrito', JSON.stringify([]));
+    }
+  }
+
+  // Función para actualizar el contador del carrito
+  function actualizarContadorCarrito() {
+    const contadorElement = document.getElementById('carrito-contador');
+    if (!contadorElement) return;
+
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
+    
+    if (totalItems > 0) {
+      contadorElement.textContent = totalItems;
+      contadorElement.classList.add('activo');
+    } else {
+      contadorElement.textContent = '0';
+      contadorElement.classList.remove('activo');
+    }
+  }
+
+  // Función para mostrar/ocultar el enlace del carrito según el rol
+  function gestionarVisibilidadCarrito() {
+    const carritoLink = document.getElementById('carrito-link');
+    if (!carritoLink) return;
+
+    // El carrito solo se muestra para usuarios no admin y que no sean invitados
+    if (rol !== 'admin' && nombreUsuario !== 'Invitado') {
+      carritoLink.style.display = 'flex';
+    } else {
+      carritoLink.style.display = 'none';
+    }
+  }
+
+  // Inicializar carrito
+  inicializarCarrito();
+  gestionarVisibilidadCarrito();
+  actualizarContadorCarrito();
+
+  // Escuchar cambios en el carrito (para actualizar contador en tiempo real)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'carrito') {
+      actualizarContadorCarrito();
+    }
+  });
+
   // MENU USUARIO
   const userMenuButton = document.getElementById('user-menu-button');
   const userMenu = document.getElementById('user-menu');
@@ -60,6 +110,8 @@ window.addEventListener('load', () => {
     userMenuButton.addEventListener('click', (e) => {
       e.stopPropagation();
       userMenu.classList.toggle('hidden');
+      // Actualizar contador cuando se abre el menú
+      setTimeout(actualizarContadorCarrito, 50);
     });
     
     document.addEventListener('click', (e) => {

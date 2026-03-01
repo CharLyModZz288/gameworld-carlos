@@ -8,20 +8,16 @@
   <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
   <script>
     (function() {
-      // Verificar si se accede directamente por URL o mediante navegación interna
       function checkDirectAccess() {
         try {
-          // Obtener el referrer para saber de qué página viene
           const referrer = document.referrer;
           
-          // Si no hay referrer o viene de fuera del sitio, es acceso directo por URL
           if (!referrer) {
             console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
             window.location.replace('/index.html');
             return false;
           }
           
-          // Verificar que el referrer sea de nuestro propio sitio
           const currentDomain = window.location.hostname;
           const referrerDomain = new URL(referrer).hostname;
           
@@ -31,7 +27,6 @@
             return false;
           }
           
-          // Verificar que viene de una página válida de nuestra aplicación
           const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
           const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
           
@@ -41,10 +36,8 @@
             return false;
           }
           
-          // Si pasa todas las verificaciones, mostrar el contenido
           console.log('✅ Acceso permitido - Navegación interna');
           
-          // Mostrar el contenido
           document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'auto';
           });
@@ -52,12 +45,10 @@
           return true;
         } catch (error) {
           console.error('Error en verificación:', error);
-          // En caso de error, permitir acceso (mejor falso positivo que bloquear a usuarios legítimos)
           return true;
         }
       }
       
-      // Ejecutar verificación
       checkDirectAccess();
     })();
   </script>
@@ -73,12 +64,11 @@
     body {
       margin: 0;
       background: #0a0a0f;
-        /* Fondo fijo */
-  background-image: url(../Fotos/Fondo.jpg);
-  background-repeat: no-repeat;      /* No repetir la imagen */
-  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
-  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
-  background-position: center;       /* Centrar la imagen */
+      background-image: url(../Fotos/Fondo.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
     }
     
     #access-check {
@@ -133,7 +123,7 @@
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR -->
+      <!-- NAVBAR ACTUALIZADO CON CARRITO -->
       <nav class="navbar">
         <h1 class="logo"><a href="index.html">GameWorld</a></h1>
         <div class="nav-links">
@@ -141,6 +131,10 @@
           <a href="playlists.html">Playlists</a>
           <a href="merch.html">Merchandising</a>
           <a href="sobre.html">Sobre Nosotros</a>
+          <a href="carrito.html" class="cart-link-nav">
+            🛒 Carrito
+            <span id="carrito-contador-nav" class="carrito-contador-nav">0</span>
+          </a>
         </div>
       </nav>
 
