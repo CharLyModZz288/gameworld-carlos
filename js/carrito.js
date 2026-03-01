@@ -1,8 +1,9 @@
 import { supabase } from "./connection.js";
 
-// Variables globales
+// Control de navbar y footer con scroll
 let lastScrollTop = 0;
 let scrollTimeout;
+
 const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
@@ -39,6 +40,26 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'success') {
+  // Eliminar notificaciones existentes
+  const notificacionesExistentes = document.querySelectorAll('.cart-notification');
+  notificacionesExistentes.forEach(notif => notif.remove());
+  
+  const notificacion = document.createElement('div');
+  notificacion.className = 'cart-notification';
+  notificacion.style.background = tipo === 'success' 
+    ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+    : 'linear-gradient(135deg, #ef4444, #dc2626)';
+  notificacion.textContent = mensaje;
+  
+  document.body.appendChild(notificacion);
+  
+  setTimeout(() => {
+    notificacion.remove();
+  }, 3000);
+}
+
 // Función para actualizar el contador del carrito
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -53,20 +74,12 @@ function actualizarContadorCarrito() {
   return totalItems;
 }
 
-// Función para mostrar notificaciones
-function mostrarNotificacion(mensaje, tipo = 'success') {
-  const notificacion = document.createElement('div');
-  notificacion.className = 'notification';
-  notificacion.style.background = tipo === 'success' 
-    ? 'linear-gradient(135deg, var(--primary), #8b5cf6)'
-    : 'linear-gradient(135deg, #ef4444, #dc2626)';
-  notificacion.textContent = mensaje;
-  
-  document.body.appendChild(notificacion);
-  
-  setTimeout(() => {
-    notificacion.remove();
-  }, 3000);
+// Función para inicializar el carrito
+function inicializarCarrito() {
+  if (!localStorage.getItem('carrito')) {
+    localStorage.setItem('carrito', JSON.stringify([]));
+  }
+  actualizarContadorCarrito();
 }
 
 // Función para cargar el carrito
@@ -223,40 +236,32 @@ function procesarPago() {
   );
 }
 
-// ============================================
-// FUNCIÓN MODIFICADA - SOLO JUEGOS DISPONIBLES
-// ============================================
+// Función para cargar recomendados
 async function cargarRecomendados() {
   const container = document.getElementById('productos-recomendados');
   if (!container) return;
   
   try {
-    // Obtener IDs de juegos que ya están en el carrito para excluirlos
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    const idsEnCarrito = carrito.map(item => item.id).filter(id => id); // Filtrar IDs válidos
+    const idsEnCarrito = carrito.map(item => item.id).filter(id => id);
     
-    // Construir consulta base: SOLO juegos disponibles
     let query = supabase
       .from("Juegos")
       .select("*")
-      .eq("estado", "Disponible"); // <-- FILTRO CLAVE: solo disponibles
+      .eq("estado", "Disponible");
     
-    // Excluir juegos que ya están en el carrito
     if (idsEnCarrito.length > 0) {
       query = query.not('id', 'in', `(${idsEnCarrito.join(',')})`);
     }
     
-    // Ejecutar consulta
     const { data: juegos, error } = await query;
       
     if (error) throw error;
     
-    // Filtro adicional de seguridad para asegurar que solo tenemos disponibles
     const juegosDisponibles = juegos?.filter(juego => 
       juego.estado === "Disponible" && !idsEnCarrito.includes(juego.id)
     ) || [];
     
-    // Si no hay juegos disponibles, mostrar mensaje
     if (juegosDisponibles.length === 0) {
       container.innerHTML = `
         <div class="no-recommendations">
@@ -266,14 +271,11 @@ async function cargarRecomendados() {
       return;
     }
     
-    // Mezclar aleatoriamente y tomar solo 4
     const juegosAleatorios = [...juegosDisponibles]
       .sort(() => Math.random() - 0.5)
       .slice(0, 4);
     
-    // Generar HTML con mejor estructura
     container.innerHTML = juegosAleatorios.map(juego => {
-      // Escapar el juego para el onclick de manera segura
       const juegoJSON = JSON.stringify(juego).replace(/'/g, "&apos;");
       
       return `
@@ -302,10 +304,9 @@ async function cargarRecomendados() {
 
 // Función para agregar al carrito desde recomendados
 window.agregarAlCarritoRecomendado = function(juego) {
-  // Verificar que el juego sigue disponible
   if (juego.estado !== "Disponible") {
     mostrarNotificacion('Este juego ya no está disponible', 'error');
-    cargarRecomendados(); // Recargar recomendados
+    cargarRecomendados();
     return;
   }
   
@@ -331,7 +332,7 @@ window.agregarAlCarritoRecomendado = function(juego) {
   }
   
   localStorage.setItem('carrito', JSON.stringify(carrito));
-  cargarCarrito(); // Recargar carrito para actualizar vista
+  cargarCarrito();
   actualizarContadorCarrito();
 };
 
@@ -342,6 +343,7 @@ function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
   const modalMensaje = document.getElementById('modal-mensaje');
   const btnCancelar = document.getElementById('modal-cancelar');
   const btnConfirmar = document.getElementById('modal-confirmar');
+  const closeBtn = modal.querySelector('.modal-close');
   
   modalTitulo.textContent = titulo;
   modalMensaje.textContent = mensaje;
@@ -358,40 +360,48 @@ function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
     btnConfirmar.removeEventListener('click', confirmHandler);
   });
   
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      cerrarModal();
+      btnConfirmar.removeEventListener('click', confirmHandler);
+    });
+  }
+  
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   document.body.style.overflow = 'hidden';
 }
 
 // Función para cerrar modal
-function cerrarModal() {
+window.cerrarModal = function() {
   const modal = document.getElementById('modalConfirmacion');
   modal.classList.add('hidden');
   modal.classList.remove('flex');
   document.body.style.overflow = 'auto';
-}
+};
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', async () => {
-  const loader = document.getElementById('loader');
+window.addEventListener("load", async () => {
+  console.log('Página cargada, inicializando carrito...');
+  
+  const loader = document.getElementById("loader");
   const body = document.body;
-  
-  body.classList.add('fade-in');
-  
+
+  // Inicializar carrito
+  inicializarCarrito();
+
+  body.classList.add("fade-in");
+
   if (window.pageYOffset > 0) {
     navbar.classList.add('visible');
   }
-  
+
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
-  window.addEventListener('resize', handleScroll);
-  
+
   if (loader) {
-    loader.classList.add('hidden');
+    loader.classList.add("hidden");
   }
-  
-  // Inicializar contador
-  actualizarContadorCarrito();
-  
+
   // Cargar carrito
   await cargarCarrito();
   
@@ -400,29 +410,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (vaciarBtn) {
     vaciarBtn.addEventListener('click', vaciarCarrito);
   }
-  
-  // Event listener para tecla Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      cerrarModal();
-    }
-  });
-  
-  // Event listener para cerrar modal al hacer clic fuera
-  document.addEventListener('click', (e) => {
-    const modal = document.getElementById('modalConfirmacion');
-    if (e.target === modal) {
-      cerrarModal();
-    }
-  });
-  
-  // Escuchar cambios en localStorage desde otras pestañas
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'carrito') {
-      cargarCarrito();
-      actualizarContadorCarrito();
-    }
-  });
+});
+
+// Event listeners para el modal
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    cerrarModal();
+  }
+});
+
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("modalConfirmacion");
+  if (e.target === modal) {
+    cerrarModal();
+  }
+});
+
+document.body.addEventListener('touchmove', (e) => {
+  const modal = document.getElementById("modalConfirmacion");
+  if (!modal.classList.contains('hidden')) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+window.addEventListener('resize', () => {
+  handleScroll();
+});
+
+// Escuchar cambios en localStorage desde otras pestañas
+window.addEventListener('storage', (e) => {
+  if (e.key === 'carrito') {
+    cargarCarrito();
+    actualizarContadorCarrito();
+  }
 });
 
 console.log("Script de carrito cargado correctamente");

@@ -53,13 +53,13 @@
     })();
   </script>
   
-  <!-- Estilos y fuentes -->
+  <!-- Tus estilos originales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/carrito.css">
   
-  <!-- Estilo base y para loader de verificación -->
+  <!-- Estilo para loader de verificación -->
   <style>
     body {
       margin: 0;
@@ -69,10 +69,6 @@
       background-size: cover;
       background-attachment: fixed;
       background-position: center;
-    }
-    
-    .page-container {
-      opacity: 1;
     }
     
     #access-check {
@@ -127,15 +123,11 @@
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR ACTUALIZADO CON CARRITO -->
+      <!-- NAVBAR (IGUAL QUE EN CATALOGO) -->
       <nav class="navbar">
         <h1 class="logo"><a href="index.html">GameWorld</a></h1>
         <div class="nav-links">
-          <a href="index.html">Inicio</a>
-          <a href="catalogo.html">Catálogo</a>
-          <a href="playlists.html">Playlists</a>
-          <a href="merch.html">Merchandising</a>
-          <a href="sobre.html">Sobre Nosotros</a>
+          
           <a href="carrito.html" class="cart-link-nav">
             🛒 Carrito
             <span id="carrito-contador-nav" class="carrito-contador-nav">0</span>
@@ -216,6 +208,7 @@
   <!-- MODAL DE CONFIRMACIÓN -->
   <div id="modalConfirmacion" class="modal hidden">
     <div class="modal-content modal-small">
+      <button onclick="cerrarModal()" class="modal-close">✕</button>
       <h3 class="modal-title">Confirmar acción</h3>
       <p id="modal-mensaje" class="modal-message"></p>
       <div class="modal-actions">
