@@ -50,27 +50,26 @@
           <a href="sobre.html">Sobre Nosotros</a>
 
           <!-- USUARIO -->
-          <!-- USUARIO -->
-<div class="user-menu-container" id="user-menu-container">
-  <button id="user-menu-button" class="user-button">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M5.121 17.804A8 8 0 0112 15a8 8 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
-    </svg>
-    <span id="nombreUsuarioNav">Usuario</span>
-  </button>
+          <div class="user-menu-container" id="user-menu-container">
+            <button id="user-menu-button" class="user-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A8 8 0 0112 15a8 8 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span id="nombreUsuarioNav">Usuario</span>
+            </button>
 
-  <div id="user-menu" class="user-menu hidden">
-    <a href="perfil.html">Perfil</a>
-    <!-- CARRITO - Solo visible para no admins -->
-    <a href="carrito.html" id="carrito-link" class="carrito-link">
-      <span>🛒 Carrito</span>
-      <span id="carrito-contador" class="carrito-contador">0</span>
-    </a>
-    <a id="panel-admin" style="display: none;" href="admin.html">Panel admin</a>
-    <a href="#" id="cerrarSesion" class="logout">Cerrar sesión</a>
-  </div>
-</div>
+            <div id="user-menu" class="user-menu hidden">
+              <a href="perfil.html">Perfil</a>
+              <!-- CARRITO - Visible para TODOS los usuarios -->
+              <a href="carrito.html" id="carrito-link" class="carrito-link">
+                <span>🛒 Carrito</span>
+                <span id="carrito-contador" class="carrito-contador">0</span>
+              </a>
+              <a id="panel-admin" style="display: none;" href="admin.html">Panel admin</a>
+              <a href="#" id="cerrarSesion" class="logout">Cerrar sesión</a>
+            </div>
+          </div>
         </div>
       </nav>
 

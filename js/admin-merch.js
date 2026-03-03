@@ -2,20 +2,9 @@ import { supabase } from "./connection.js";
 
 let merchEditandoId = null;
 
-// Ocultar loader cuando el script cargue
-document.addEventListener("DOMContentLoaded", () => {
-  const loader = document.getElementById("loader");
-  if (loader) {
-    loader.classList.add("hidden");
-  }
-});
-
-// Cerrar sesión
-document.getElementById("cerrarSesion")?.addEventListener("click", () => {
-  localStorage.removeItem("nombreUsuario");
-  localStorage.removeItem("rolUsuario");
-  window.location.href = "login.html";
-});
+// Ocultar loader
+const loader = document.getElementById("loader");
+if (loader) loader.style.display = "none";
 
 // ============================================
 // CONFIGURACIÓN DE MODALES
@@ -27,38 +16,30 @@ const form = document.getElementById("formNuevoMerch");
 
 // Función para determinar el estado del stock
 function getStockInfo(stock) {
-  // Si el stock es 0 o menor
   if (stock <= 0) {
     return {
       text: "Agotado",
-      class: "stock-low",
-      color: "#ef4444" // Rojo
+      class: "stock-low"
     };
   }
   
-  // Si el stock es menor o igual a 5 (últimas unidades)
   if (stock <= 5) {
     return {
       text: "¡Últimas unidades!",
-      class: "stock-low",
-      color: "#ef4444" // Rojo
+      class: "stock-low"
     };
   }
   
-  // Si el stock es menor o igual a 10 (disponible - stock medio)
   if (stock <= 10) {
     return {
       text: "Disponible",
-      class: "stock-medium",
-      color: "#fbbf24" // Amarillo
+      class: "stock-medium"
     };
   }
   
-  // Si el stock es mayor a 10 (alta disponibilidad)
   return {
     text: "Alta disponibilidad",
-    class: "stock-high",
-    color: "#4ade80" // Verde
+    class: "stock-high"
   };
 }
 
@@ -67,11 +48,9 @@ btnAbrir?.addEventListener("click", () => {
   merchEditandoId = null;
   form.reset();
   
-  // Resetear valores por defecto
   document.getElementById("stockMerch").value = "10";
   document.getElementById("categoriaMerch").value = "";
   
-  // Cambiar título del modal
   const modalTitle = modal.querySelector(".modal-title");
   if (modalTitle) modalTitle.textContent = "Añadir Producto de Merchandising";
   
@@ -111,27 +90,26 @@ async function cargarProductos() {
   const lista = document.getElementById("listaMerch");
   if (!lista) return;
   
-  lista.innerHTML = `<li class="text-gray-400">Cargando productos...</li>`;
+  lista.innerHTML = `<li class="text-muted" style="text-align: center; padding: 2rem;">Cargando productos...</li>`;
 
   const { data: productos, error } = await supabase
     .from("merchandising")
     .select("*")
     .order("id", { ascending: true });
 
-  // Actualizar contador
   const contador = document.getElementById("contadorMerch");
   if (contador && productos) contador.textContent = productos.length;
 
   if (error) {
     console.error(error);
-    lista.innerHTML = `<li class="text-red-400">Error al cargar productos</li>`;
+    lista.innerHTML = `<li class="text-muted" style="text-align: center; padding: 2rem; color: #ef4444;">Error al cargar productos</li>`;
     return;
   }
 
   lista.innerHTML = "";
 
   if (productos.length === 0) {
-    lista.innerHTML = `<li class="text-gray-400">No hay productos registrados</li>`;
+    lista.innerHTML = `<li class="text-muted" style="text-align: center; padding: 2rem;">No hay productos registrados</li>`;
     return;
   }
 
@@ -139,33 +117,31 @@ async function cargarProductos() {
     const li = document.createElement("li");
     li.className = "merch-item";
     
-    // Obtener información del stock
     const stockInfo = getStockInfo(producto.stock);
+    const imagenUrl = producto.imagen || `https://via.placeholder.com/50x50/111827/6366f1?text=${producto.nombre.charAt(0)}`;
     
     li.innerHTML = `
-      <div style="display: flex; gap: 1rem; align-items: center; width: 100%;">
-        <img src="${producto.imagen || 'https://via.placeholder.com/50x50/111827/6366f1?text=' + encodeURIComponent(producto.nombre.charAt(0))}" 
+      <div class="item-info-container">
+        <img src="${imagenUrl}" 
              alt="${producto.nombre}"
-             style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: var(--bg-secondary);">
-        <div style="flex: 1;">
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
-            <p class="font-semibold" style="color: var(--primary);">${producto.nombre}</p>
-            <span class="stock-badge ${stockInfo.class}" style="background: ${stockInfo.color}20; color: ${stockInfo.color};">${stockInfo.text}</span>
-          </div>
-          <p class="text-sm" style="color: var(--text-muted); margin-bottom: 0.25rem;">${producto.descripcion || 'Sin descripción'}</p>
-          <div style="display: flex; gap: 1rem; font-size: 0.85rem; flex-wrap: wrap;">
-            <span style="color: var(--accent-green);">💰 ${producto.precio ? producto.precio.toFixed(2) : '0.00'}€</span>
-            <span style="color: ${stockInfo.color};">📦 Stock: ${producto.stock || 0}</span>
-            <span style="color: var(--text-muted);">🏷️ ${producto.categoria || 'MERCH'}</span>
+             class="item-image"
+             onerror="this.src='https://via.placeholder.com/50x50/111827/6366f1?text=?'">
+        <div class="item-details">
+          <span class="item-title">${producto.nombre}</span>
+          <div class="item-description">${producto.descripcion || 'Sin descripción'}</div>
+          <div class="item-meta">
+            <span class="item-price">💰 ${producto.precio ? producto.precio.toFixed(2) : '0.00'}€</span>
+            <span class="stock-badge ${stockInfo.class}">📦 ${stockInfo.text} (${producto.stock || 0})</span>
+            <span class="item-category">🏷️ ${producto.categoria || 'MERCH'}</span>
           </div>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button class="btn-editar" onclick="editarProducto(${producto.id})">
-          Editar
+      <div class="item-actions">
+        <button class="btn-edit" onclick="editarProducto(${producto.id})">
+          ✏️ Editar
         </button>
-        <button class="btn-eliminar" onclick="eliminarProducto(${producto.id})">
-          Eliminar
+        <button class="btn-delete" onclick="eliminarProducto(${producto.id})">
+          🗑️ Eliminar
         </button>
       </div>
     `;
@@ -186,7 +162,6 @@ async function guardarProducto(e) {
   const stock = parseInt(document.getElementById("stockMerch").value) || 0;
   const categoria = document.getElementById("categoriaMerch").value;
 
-  // Validaciones
   if (!nombre || !descripcion || isNaN(precio)) {
     alert("El nombre, descripción y precio son obligatorios");
     return;
@@ -207,7 +182,6 @@ async function guardarProducto(e) {
     return;
   }
 
-  // Preparar datos para insertar/actualizar
   const productoData = {
     nombre,
     descripcion,
@@ -220,13 +194,11 @@ async function guardarProducto(e) {
   let error;
 
   if (merchEditandoId) {
-    // Actualizar producto existente
     ({ error } = await supabase
       .from("merchandising")
       .update(productoData)
       .eq("id", merchEditandoId));
   } else {
-    // Insertar nuevo producto
     ({ error } = await supabase
       .from("merchandising")
       .insert([productoData]));
@@ -260,7 +232,6 @@ window.editarProducto = async function (id) {
 
   merchEditandoId = id;
   
-  // Rellenar el formulario
   document.getElementById("nombreMerch").value = data.nombre || '';
   document.getElementById("descripcionMerch").value = data.descripcion || '';
   document.getElementById("precioMerch").value = data.precio || '';
@@ -268,7 +239,6 @@ window.editarProducto = async function (id) {
   document.getElementById("stockMerch").value = data.stock || 0;
   document.getElementById("categoriaMerch").value = data.categoria || 'MERCH';
 
-  // Cambiar título del modal
   const modalTitle = modal.querySelector(".modal-title");
   if (modalTitle) modalTitle.textContent = "Editar Producto de Merchandising";
 

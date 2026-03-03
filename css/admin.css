@@ -119,6 +119,7 @@ body {
   font-family: 'Orbitron', sans-serif;
   font-weight: 500;
   transition: color 0.2s;
+  text-decoration: none;
 }
 
 .nav-links a:hover { 
@@ -174,11 +175,13 @@ body {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.2rem;
   position: relative;
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .card:hover { 
   transform: translateY(-5px); 
   background: var(--primary); 
+  border-color: var(--primary);
 }
 
 .card span {
@@ -195,6 +198,7 @@ body {
   background: var(--bg-card); 
   padding: 1.5rem; 
   border-radius: 16px; 
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .section-admin h3 { 
@@ -250,10 +254,12 @@ tr:hover {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.8rem;
   margin-right: 0.3rem;
+  transition: all 0.2s ease;
 }
 
 .btn-editar:hover {
   background: #eab308;
+  transform: translateY(-2px);
 }
 
 .btn-eliminar {
@@ -265,13 +271,15 @@ tr:hover {
   cursor: pointer;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.8rem;
+  transition: all 0.2s ease;
 }
 
 .btn-eliminar:hover {
   background: var(--danger-hover);
+  transform: translateY(-2px);
 }
 
-/* LISTA ITEMS */
+/* LISTA ITEMS - CORREGIDO PARA BOTONES HORIZONTALES */
 .lista-items { 
   list-style: none; 
   padding: 0; 
@@ -286,10 +294,131 @@ tr:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  transition: all 0.3s ease;
 }
 
 .lista-items li:hover {
   background: #2d3748;
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+/* Contenedor de información del item */
+.item-info-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+}
+
+/* Imagen del item */
+.item-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--bg-dark);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Detalles del item */
+.item-details {
+  flex: 1;
+}
+
+.item-title {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.item-description {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.item-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+}
+
+.item-price {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Badges */
+.estado-badge, .stock-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.estado-disponible { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+.estado-preventa { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.estado-agotado { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.estado-proximamente { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+
+.stock-high { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.stock-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+/* Contenedor de botones de acción - HORIZONTAL */
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+/* Botones de acción */
+.btn-edit, .btn-delete {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-edit {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-edit:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-2px);
 }
 
 /* BOTONES GENERALES */
@@ -302,12 +431,13 @@ tr:hover {
   cursor: pointer; 
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
-  transition: background 0.2s, transform 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover { 
   background: var(--primary-hover); 
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn-secondary {
@@ -319,11 +449,12 @@ tr:hover {
   cursor: pointer;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
   background: #6b7280;
+  transform: translateY(-2px);
 }
 
 .btn-danger {
@@ -335,11 +466,13 @@ tr:hover {
   cursor: pointer;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-danger:hover {
   background: var(--danger-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* MODAL */
@@ -369,6 +502,7 @@ tr:hover {
   width: 450px; 
   max-width: 90%;
   box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 .modal-lg {
@@ -405,6 +539,7 @@ tr:hover {
   border-radius: 6px;
   color: var(--text-light);
   font-family: 'Orbitron', sans-serif;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
@@ -412,6 +547,7 @@ tr:hover {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
 .form-group textarea {
@@ -424,6 +560,14 @@ tr:hover {
   justify-content: flex-end; 
   gap: 0.8rem; 
   margin-top: 1.5rem; 
+}
+
+/* Form row para grids */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 /* SELECT INPUT */
@@ -452,6 +596,7 @@ tr:hover {
   display: flex;
   gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .text-center {
@@ -478,6 +623,7 @@ tr:hover {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 0.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 /* TEXT UTILITIES */
@@ -549,6 +695,14 @@ tr:hover {
     padding: 0.2rem 0.5rem;
     font-size: 0.7rem;
   }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .item-actions {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
@@ -562,7 +716,662 @@ tr:hover {
   
   .lista-items li {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
     text-align: center;
+  }
+  
+  .item-info-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .item-meta {
+    justify-content: center;
+  }
+}
+/* ========================================
+   ESTILOS PARA GESTIÓN DE USUARIOS
+   ======================================== */
+
+/* Contenedor de acciones para usuarios */
+.user-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Badge para roles de usuario */
+.role-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.role-admin {
+  background: rgba(99, 102, 241, 0.2);
+  color: #6366f1;
+}
+
+.role-user {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+/* Avatar de usuario */
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Celda de usuario con avatar */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+/* Celda de email con icono */
+.email-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.email-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+/* Botones de acción para usuarios - Versión mejorada */
+.btn-user-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.btn-user-edit:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-user-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.btn-user-delete:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Texto para admin principal */
+.admin-protected {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Iconos SVG para botones */
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Estilos para la tabla de usuarios */
+.table-user-id {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Mejoras en hover de filas */
+tr.user-row {
+  transition: all 0.2s ease;
+}
+
+tr.user-row:hover {
+  background: rgba(99, 102, 241, 0.05) !important;
+  cursor: pointer;
+}
+
+/* Estado de carga para botones */
+.btn-loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: button-spin 0.6s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes button-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mensajes de alerta personalizados */
+.alert-success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #10b981;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ef4444;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #f59e0b;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Tooltip para información adicional */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]:before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 0.8rem;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+[data-tooltip]:hover:before {
+  opacity: 1;
+  visibility: visible;
+  bottom: 150%;
+}
+
+/* Responsive para usuarios */
+@media (max-width: 768px) {
+  .user-actions {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .btn-user-edit,
+  .btn-user-delete,
+  .admin-protected {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .user-cell {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .email-cell {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .role-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Estilos adicionales para el modal de edición de usuario */
+.user-edit-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.user-edit-avatar {
+  width: 48px;
+  height: 48px;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.2rem;
+  border: 2px solid var(--primary);
+}
+
+.user-edit-info {
+  flex: 1;
+}
+
+.user-edit-id {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-edit-name {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Checkbox personalizado para permisos (si se necesitan) */
+.permission-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.permission-checkbox:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.permission-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+/* ========================================
+   MODAL GRANDE PARA EDICIÓN DE JUEGOS Y PRODUCTOS
+   ======================================== */
+
+.modal-juego-detalle,
+.modal-merch-detalle {
+  width: 900px !important;
+  max-width: 95vw !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  background: var(--bg-card) !important;
+  border: 2px solid var(--primary) !important;
+  box-shadow: 0 30px 60px rgba(99, 102, 241, 0.3) !important;
+  animation: modalZoomIn 0.3s ease;
+}
+
+@keyframes modalZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-juego-detalle .modal-grid,
+.modal-merch-detalle .modal-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.modal-juego-detalle .modal-image,
+.modal-merch-detalle .modal-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--primary);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-juego-detalle .modal-info,
+.modal-merch-detalle .modal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-juego-detalle .modal-game-title,
+.modal-merch-detalle .modal-product-title {
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.modal-juego-detalle .modal-description,
+.modal-merch-detalle .modal-description {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.modal-juego-detalle .modal-description::-webkit-scrollbar,
+.modal-merch-detalle .modal-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-juego-detalle .modal-description::-webkit-scrollbar-track,
+.modal-merch-detalle .modal-description::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.modal-juego-detalle .modal-description::-webkit-scrollbar-thumb,
+.modal-merch-detalle .modal-description::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.modal-juego-detalle .tags,
+.modal-merch-detalle .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.modal-juego-detalle .tag-primary,
+.modal-merch-detalle .tag-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.modal-juego-detalle .tag-secondary,
+.modal-merch-detalle .tag-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-juego-detalle .developer,
+.modal-merch-detalle .category {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+}
+
+.modal-juego-detalle .developer strong,
+.modal-merch-detalle .category strong {
+  color: var(--primary);
+}
+
+.modal-juego-detalle .price-section,
+.modal-merch-detalle .price-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.modal-juego-detalle .price,
+.modal-merch-detalle .price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.modal-juego-detalle .status-badge,
+.modal-merch-detalle .stock-badge-large {
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.modal-juego-detalle .status-available {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.modal-juego-detalle .status-unavailable {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.modal-juego-detalle .stock-high {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.modal-juego-detalle .stock-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+}
+
+.modal-juego-detalle .stock-low {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.modal-juego-detalle .edit-actions,
+.modal-merch-detalle .edit-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modal-juego-detalle .edit-btn,
+.modal-merch-detalle .edit-btn {
+  flex: 1;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modal-juego-detalle .edit-btn:hover,
+.modal-merch-detalle .edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+}
+
+.modal-juego-detalle .delete-btn,
+.modal-merch-detalle .delete-btn {
+  flex: 1;
+  padding: 1rem;
+  background: transparent;
+  color: #ef4444;
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modal-juego-detalle .delete-btn:hover,
+.modal-merch-detalle .delete-btn:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.4);
+}
+
+.modal-juego-detalle .info-row,
+.modal-merch-detalle .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.modal-juego-detalle .info-label,
+.modal-merch-detalle .info-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.modal-juego-detalle .info-value,
+.modal-merch-detalle .info-value {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.modal-juego-detalle .gift-badge,
+.modal-merch-detalle .gift-badge {
+  background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.1));
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  color: #ef4444;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-juego-detalle .gift-badge span,
+.modal-merch-detalle .gift-badge span {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .modal-juego-detalle .modal-grid,
+  .modal-merch-detalle .modal-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-juego-detalle .modal-image,
+  .modal-merch-detalle .modal-image {
+    max-height: 300px;
+  }
+  
+  .modal-juego-detalle .edit-actions,
+  .modal-merch-detalle .edit-actions {
+    flex-direction: column;
   }
 }

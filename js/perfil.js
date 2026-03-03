@@ -1,9 +1,31 @@
-// PERFIL.JS
-
 window.addEventListener("load", () => {
   
   // Marcar acceso permitido
   document.body.classList.add('access-allowed');
+
+  // Inicializar Supabase (REEMPLAZA con tus credenciales)
+  const supabase = window.supabase.createClient(
+    'https://tu-proyecto.supabase.co',
+    'tu-clave-anon'
+  );
+
+  // Verificar que el bucket existe
+  async function verificarBucket() {
+    try {
+      const { data, error } = await supabase.storage.getBucket('avatars');
+      if (error) {
+        console.error("❌ El bucket 'avatars' no existe o no es accesible:", error);
+        // No mostramos alerta para no molestar, solo log
+      } else {
+        console.log("✅ Bucket 'avatars' encontrado:", data);
+      }
+    } catch (error) {
+      console.error("Error verificando bucket:", error);
+    }
+  }
+
+  // Llamar a la verificación
+  verificarBucket();
 
   /* =========================
      DATOS DEL USUARIO
@@ -11,6 +33,14 @@ window.addEventListener("load", () => {
 
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Usuario";
   const emailRegistrado = localStorage.getItem("emailUsuario") || "";
+  const userId = localStorage.getItem("userId");
+
+  // Depuración: Verificar estado de autenticación
+  console.log("🔐 Estado de autenticación:", {
+    userId: userId,
+    nombreUsuario: nombreUsuario,
+    token: localStorage.getItem("supabase.auth.token") ? "Presente" : "Ausente"
+  });
 
   const nombreNav = document.getElementById("nombreUsuarioNav");
   const nombreInput = document.getElementById("nombre");
@@ -18,12 +48,60 @@ window.addEventListener("load", () => {
   const bioInput = document.getElementById("bio");
   const fotoPreview = document.getElementById("fotoPreview");
 
-  // Si no hay nombre de usuario, usar valores por defecto (no redirigir)
-  if (!localStorage.getItem("nombreUsuario") && !localStorage.getItem("supabase.auth.token")) {
-    console.log("Usuario no autenticado, mostrando perfil por defecto");
+  // Función para obtener la URL pública de la foto
+  function getPublicUrl(path) {
+    if (!path) return null;
+    
+    if (path.startsWith('http')) return path;
+    
+    const { data } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(path);
+    
+    return data.publicUrl;
   }
 
-  // Cargar perfil guardado
+  // Función para cargar foto desde Supabase Storage
+  async function cargarFotoDesdeSupabase() {
+    if (!userId) {
+      console.log("No hay userId, no se puede cargar foto de Supabase");
+      return;
+    }
+
+    try {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('foto_path')
+        .eq('id', userId)
+        .single();
+
+      if (userError) {
+        console.error("Error cargando datos del usuario:", userError);
+        return;
+      }
+
+      if (userData && userData.foto_path) {
+        const publicUrl = getPublicUrl(userData.foto_path);
+        
+        if (publicUrl) {
+          console.log("✅ Foto cargada desde Supabase Storage:", publicUrl);
+          fotoPreview.src = publicUrl;
+          
+          const usuario = nombreInput.value.trim() || nombreUsuario;
+          const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {
+            email: emailInput.value.trim() || emailRegistrado,
+            bio: bioInput.value.trim() || ""
+          };
+          perfil.foto = publicUrl;
+          localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  // Cargar perfil guardado (localStorage)
   const perfilGuardado = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
 
   if (perfilGuardado) {
@@ -39,37 +117,186 @@ window.addEventListener("load", () => {
     if (fotoPreview) fotoPreview.src = "media/default-profile.png";
   }
 
+  // Cargar foto desde Supabase
+  cargarFotoDesdeSupabase();
+
   /* =========================
-     CAMBIAR FOTO
+     SUBIR FOTO A SUPABASE STORAGE
+  ========================= */
+
+  async function subirFotoASupabase(file, userId) {
+    try {
+      console.log("📤 Iniciando subida para usuario:", userId);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      console.log("📁 Subiendo a:", filePath);
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error("❌ ERROR DETALLADO DE SUBIDA:", uploadError);
+        return { success: false, error: uploadError.message };
+      }
+
+      console.log("✅ Subida exitosa:", uploadData);
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ foto_path: filePath })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error("❌ Error actualizando usuario:", updateError);
+        return { success: false, error: updateError.message };
+      }
+
+      const publicUrl = getPublicUrl(filePath);
+      
+      return { success: true, path: filePath, url: publicUrl };
+    } catch (error) {
+      console.error("❌ ERROR COMPLETO:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /* =========================
+     CAMBIAR FOTO - VERSIÓN CORREGIDA
   ========================= */
 
   const fotoInput = document.getElementById("fotoPerfil");
 
   if (fotoInput && fotoPreview) {
-    fotoInput.addEventListener("change", (e) => {
+    fotoInput.addEventListener("change", async (e) => {
+      // ¡IMPORTANTE! Prevenir cualquier comportamiento por defecto
+      e.preventDefault();
+      e.stopPropagation();
+      
       const file = e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        fotoPreview.src = reader.result;
+      // Validar que sea imagen
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecciona un archivo de imagen válido.');
+        return;
+      }
 
-        const usuario = nombreInput.value.trim();
+      // Validar tamaño (máximo 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('La imagen no debe superar los 2MB.');
+        return;
+      }
+
+      // Verificar que hay sesión
+      if (!userId) {
+        alert('Error: No hay sesión iniciada. Por favor, inicia sesión nuevamente.');
+        return;
+      }
+
+      // Mostrar indicador de carga
+      fotoPreview.style.opacity = '0.5';
+      
+      // Crear y mostrar mensaje de carga
+      const loadingMsg = document.createElement('div');
+      loadingMsg.textContent = 'Subiendo imagen...';
+      loadingMsg.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2196F3;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      `;
+      document.body.appendChild(loadingMsg);
+
+      // Vista previa local
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        fotoPreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Subir a Supabase
+      const result = await subirFotoASupabase(file, userId);
+      
+      // Quitar mensaje de carga
+      loadingMsg.remove();
+
+      if (result.success) {
+        console.log("✅ Foto subida correctamente:", result.url);
+        
+        // Actualizar vista previa con la URL de Supabase
+        fotoPreview.src = result.url;
+        fotoPreview.style.opacity = '1';
+
+        // Guardar en localStorage
+        const usuario = nombreInput.value.trim() || nombreUsuario;
         const perfil = JSON.parse(localStorage.getItem(`perfil_${usuario}`)) || {
           email: emailInput.value.trim(),
           bio: bioInput.value.trim()
         };
-        perfil.foto = reader.result;
+        perfil.foto = result.url;
         localStorage.setItem(`perfil_${usuario}`, JSON.stringify(perfil));
-      };
-      reader.readAsDataURL(file);
+
+        // Mostrar mensaje de éxito
+        const mensaje = document.createElement('div');
+        mensaje.textContent = '✓ Foto guardada correctamente';
+        mensaje.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #4CAF50;
+          color: white;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-size: 14px;
+          z-index: 9999;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          animation: slideIn 0.3s ease;
+        `;
+        document.body.appendChild(mensaje);
+        
+        setTimeout(() => {
+          mensaje.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => mensaje.remove(), 300);
+        }, 3000);
+      } else {
+        alert('Error al subir la foto: ' + result.error);
+        fotoPreview.style.opacity = '1';
+        // Restaurar imagen anterior
+        cargarFotoDesdeSupabase();
+      }
     });
   }
+
+  // Añadir estilos para animaciones
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
 
   /* =========================
      GUARDAR PERFIL
   ========================= */
-
   const perfilForm = document.getElementById("perfilForm");
 
   if (perfilForm) {
@@ -102,13 +329,11 @@ window.addEventListener("load", () => {
   /* =========================
      MENÚ DE USUARIO
   ========================= */
-
   const userMenuButton = document.getElementById("user-menu-button");
   const userMenu = document.getElementById("user-menu");
   const userMenuContainer = document.getElementById("user-menu-container");
 
   if (userMenuButton && userMenu && userMenuContainer) {
-
     userMenuButton.addEventListener("click", (e) => {
       e.stopPropagation();
       userMenu.classList.toggle("hidden");
@@ -124,14 +349,12 @@ window.addEventListener("load", () => {
   /* =========================
      CERRAR SESIÓN
   ========================= */
-
   const cerrarSesionBtn = document.getElementById("cerrarSesion");
 
   if (cerrarSesionBtn) {
     cerrarSesionBtn.addEventListener("click", (e) => {
       e.preventDefault();
 
-      // Limpiar TODOS los datos de sesión
       localStorage.removeItem("nombreUsuario");
       localStorage.removeItem("emailUsuario");
       localStorage.removeItem("rolUsuario");
@@ -141,151 +364,11 @@ window.addEventListener("load", () => {
       sessionStorage.removeItem("supabase.auth.token");
       sessionStorage.removeItem("sb-access-token");
       
-      // Limpiar cookies
       document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
-      // Redirigir al index
       window.location.href = "index.html";
     });
   }
 
-  /* =========================
-     CAMBIO DE CONTRASEÑA
-  ========================= */
-
-  const passwordForm = document.getElementById("passwordForm");
-  const newPasswordInput = document.getElementById("newPassword");
-  const confirmPasswordInput = document.getElementById("confirmPassword");
-  const changePasswordBtn = document.getElementById("changePasswordBtn");
-  const passwordMatchMessage = document.getElementById("passwordMatchMessage");
-  const strengthBars = document.querySelectorAll(".strength-bar");
-
-  // Función para mostrar/ocultar contraseña
-  document.querySelectorAll(".toggle-password").forEach(button => {
-    button.addEventListener("click", function() {
-      const targetId = this.getAttribute("data-target");
-      const targetInput = document.getElementById(targetId);
-      
-      if (targetInput) {
-        const type = targetInput.getAttribute("type") === "password" ? "text" : "password";
-        targetInput.setAttribute("type", type);
-        
-        this.style.transform = "scale(0.9)";
-        setTimeout(() => {
-          this.style.transform = "scale(1)";
-        }, 100);
-      }
-    });
-  });
-
-  function evaluatePasswordStrength(password) {
-    let score = 0;
-    
-    if (password.length >= 6) score++;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-    
-    return Math.min(score, 3);
-  }
-
-  function updatePasswordStrength(password) {
-    const strength = evaluatePasswordStrength(password);
-    
-    strengthBars.forEach((bar, index) => {
-      bar.className = "strength-bar";
-      if (index < strength) {
-        if (strength <= 1) bar.classList.add("weak");
-        else if (strength <= 2) bar.classList.add("medium");
-        else bar.classList.add("strong");
-      }
-    });
-  }
-
-  function checkPasswordMatch() {
-    const newPass = newPasswordInput.value;
-    const confirmPass = confirmPasswordInput.value;
-    
-    if (confirmPass.length === 0) {
-      passwordMatchMessage.textContent = "";
-      passwordMatchMessage.className = "password-match-message";
-      return false;
-    }
-    
-    if (newPass === confirmPass) {
-      passwordMatchMessage.textContent = "✓ Las contraseñas coinciden";
-      passwordMatchMessage.className = "password-match-message match";
-      return true;
-    } else {
-      passwordMatchMessage.textContent = "✗ Las contraseñas no coinciden";
-      passwordMatchMessage.className = "password-match-message no-match";
-      return false;
-    }
-  }
-
-  if (newPasswordInput) {
-    newPasswordInput.addEventListener("input", () => {
-      updatePasswordStrength(newPasswordInput.value);
-      checkPasswordMatch();
-    });
-  }
-
-  if (confirmPasswordInput) {
-    confirmPasswordInput.addEventListener("input", checkPasswordMatch);
-  }
-
-  if (passwordForm) {
-    passwordForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      
-      const currentUser = localStorage.getItem("nombreUsuario") || nombreInput.value.trim();
-      const newPassword = newPasswordInput.value;
-      const confirmPassword = confirmPasswordInput.value;
-      
-      if (!newPassword || !confirmPassword) {
-        alert("Por favor, completa todos los campos.");
-        return;
-      }
-      
-      if (newPassword.length < 6) {
-        alert("La nueva contraseña debe tener al menos 6 caracteres.");
-        return;
-      }
-      
-      if (newPassword !== confirmPassword) {
-        alert("Las contraseñas nuevas no coinciden.");
-        return;
-      }
-      
-      const userKey = `usuario_${currentUser}`;
-      
-      let userDataToSave = JSON.parse(localStorage.getItem(userKey)) || {};
-      
-      if (Object.keys(userDataToSave).length === 0) {
-        userDataToSave = {
-          email: emailInput.value.trim() || localStorage.getItem("emailUsuario") || "",
-          password: newPassword
-        };
-      } else {
-        userDataToSave.password = newPassword;
-      }
-      
-      localStorage.setItem(userKey, JSON.stringify(userDataToSave));
-      localStorage.setItem(`password_${currentUser}`, newPassword);
-      
-      alert("✅ ¡Contraseña cambiada con éxito!");
-      
-      passwordForm.reset();
-      updatePasswordStrength("");
-      passwordMatchMessage.textContent = "";
-      
-      changePasswordBtn.style.transform = "scale(0.95)";
-      setTimeout(() => {
-        changePasswordBtn.style.transform = "scale(1)";
-      }, 200);
-    });
-  }
-
-  console.log("Perfil cargado correctamente");
+  console.log("✅ Perfil cargado correctamente");
 });

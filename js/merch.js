@@ -40,6 +40,48 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'success') {
+  // Eliminar notificaciones existentes
+  const notificacionesExistentes = document.querySelectorAll('.cart-notification');
+  notificacionesExistentes.forEach(notif => notif.remove());
+  
+  const notificacion = document.createElement('div');
+  notificacion.className = 'cart-notification';
+  notificacion.style.background = tipo === 'success' 
+    ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+    : 'linear-gradient(135deg, #ef4444, #dc2626)';
+  notificacion.textContent = mensaje;
+  
+  document.body.appendChild(notificacion);
+  
+  setTimeout(() => {
+    notificacion.remove();
+  }, 3000);
+}
+
+// Función para actualizar el contador del carrito
+function actualizarContadorCarrito() {
+  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
+  
+  // Actualizar contador en el navbar
+  const contadorNav = document.getElementById('carrito-contador-nav');
+  if (contadorNav) {
+    contadorNav.textContent = totalItems;
+  }
+  
+  return totalItems;
+}
+
+// Función para inicializar el carrito
+function inicializarCarrito() {
+  if (!localStorage.getItem('carrito')) {
+    localStorage.setItem('carrito', JSON.stringify([]));
+  }
+  actualizarContadorCarrito();
+}
+
 // Función para determinar el stock y su estilo
 function getStockInfo(stock) {
   if (stock === undefined || stock === null) return { text: "Disponible", class: "stock-high" };
@@ -73,6 +115,68 @@ function tieneOferta() {
 function esNuevo() {
   return Math.random() > 0.7;
 }
+
+// Función para añadir al carrito
+function añadirAlCarrito(producto) {
+  console.log('Añadiendo al carrito:', producto); // Debug
+
+  // Verificar si el usuario está logueado
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  if (!nombreUsuario || nombreUsuario === "Invitado") {
+    mostrarNotificacion('Debes iniciar sesión para comprar', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
+
+  // Verificar si hay stock
+  if (producto.stock <= 0) {
+    mostrarNotificacion('Producto agotado', 'error');
+    return false;
+  }
+
+  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  
+  // Buscar si el producto ya está en el carrito
+  const existeIndex = carrito.findIndex(item => item.id === `merch_${producto.id}`);
+  
+  if (existeIndex !== -1) {
+    // Verificar que no exceda el stock disponible
+    if (carrito[existeIndex].cantidad >= producto.stock) {
+      mostrarNotificacion(`No hay más stock disponible de ${producto.nombre}`, 'error');
+      return false;
+    }
+    // Incrementar cantidad si ya existe
+    carrito[existeIndex].cantidad = (carrito[existeIndex].cantidad || 1) + 1;
+    mostrarNotificacion(`✓ ${producto.nombre} - Cantidad actualizada en el carrito`);
+  } else {
+    // Añadir nuevo item al carrito
+    carrito.push({
+      id: `merch_${producto.id}`,
+      nombre: producto.nombre,
+      precio: producto.precio,
+      imagen: producto.imagen,
+      categoria: producto.categoria || getCategoria(producto.nombre),
+      cantidad: 1,
+      stock: producto.stock,
+      descripcion: producto.descripcion || 'Producto exclusivo de GameWorld',
+      tipo: 'merch'
+    });
+    mostrarNotificacion(`✓ ${producto.nombre} añadido al carrito`);
+  }
+  
+  // Guardar en localStorage
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+  
+  // Actualizar contador
+  actualizarContadorCarrito();
+  
+  return true;
+}
+
+// Hacer la función global para que pueda ser llamada desde el HTML
+window.añadirAlCarrito = añadirAlCarrito;
 
 // DATOS DE RESPALDO
 const datosRespaldo = [
@@ -144,11 +248,118 @@ const datosRespaldo = [
   }
 ];
 
+// Función para abrir modal
+window.abrirModalProducto = function(producto) {
+  console.log('Abriendo modal para:', producto.nombre); // Debug
+  
+  const modal = document.getElementById("modalProducto");
+  const contenido = document.getElementById("modalContenido");
+
+  // Guardar el producto en una variable global
+  window.productoSeleccionado = producto;
+
+  const stockInfo = getStockInfo(producto.stock);
+
+  contenido.innerHTML = `
+    <div class="modal-grid">
+      <img
+        src="${producto.imagen}"
+        alt="${producto.nombre}"
+        class="modal-image"
+      >
+      <div class="modal-info">
+        <h2 class="modal-game-title">
+          ${producto.nombre}
+        </h2>
+        <p class="modal-description">
+          ${producto.descripcion || "Descripción no disponible"}
+        </p>
+        <div class="tags">
+          <span class="tag-primary">${producto.categoria || getCategoria(producto.nombre)}</span>
+          <span class="tag-secondary">Merchandising</span>
+          ${producto.oferta ? '<span class="tag-secondary" style="background: #ef4444;">OFERTA</span>' : ''}
+          ${!producto.oferta && producto.nuevo ? '<span class="tag-secondary" style="background: #10b981;">NUEVO</span>' : ''}
+        </div>
+        <div class="price-section" style="margin-top: 1.5rem;">
+          <span class="price">
+            ${producto.precio ? producto.precio.toFixed(2) : "0.00"}€
+          </span>
+          <span class="status-badge ${producto.stock > 0 ? 'status-available' : 'status-unavailable'}">
+            ${producto.stock > 0 ? 'Disponible' : 'Agotado'}
+          </span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
+          <span style="color: var(--text-muted); font-size: 0.9rem;">Stock disponible:</span>
+          <span class="game-points-value" style="font-size: 1rem;">${producto.stock || 0} unidades</span>
+        </div>
+        <div style="background: rgba(99,102,241,0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 0.75rem; margin: 0.5rem 0;">
+          <p style="color: #6366f1; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📦</span> ${stockInfo.text}
+          </p>
+        </div>
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <button
+            class="reserve-btn ${producto.stock > 0 ? 'available' : 'unavailable'}"
+            ${producto.stock <= 0 ? "disabled" : ""}
+            onclick="añadirProductoSeleccionado()"
+          >
+            🛒 ${producto.stock > 0 ? "Añadir al carrito" : "Agotado"}
+          </button>
+          <button
+            class="reserve-btn available"
+            onclick="window.location.href='carrito.html'"
+            style="background: transparent; border: 2px solid #6366f1;"
+          >
+            Ver Carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  document.body.style.overflow = "hidden";
+  
+  if (window.history.pushState) {
+    window.history.pushState({ modalOpen: true }, '');
+  }
+};
+
+// Nueva función para añadir el producto seleccionado
+window.añadirProductoSeleccionado = function() {
+  if (window.productoSeleccionado) {
+    añadirAlCarrito(window.productoSeleccionado);
+  } else {
+    console.error('No hay producto seleccionado');
+    mostrarNotificacion('Error al añadir al carrito', 'error');
+  }
+};
+
+// Función para cerrar modal
+window.cerrarModal = function() {
+  const modal = document.getElementById("modalProducto");
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+  document.body.style.overflow = "auto";
+  
+  if (window.history.state && window.history.state.modalOpen) {
+    window.history.back();
+  }
+};
+
 // Cargar productos
 window.addEventListener("load", async () => {
+  console.log('Página cargada, inicializando...'); // Debug
+  
   const loader = document.getElementById("loader");
   const body = document.body;
   const grid = document.getElementById("gridMerch");
+
+  // Inicializar carrito
+  inicializarCarrito();
 
   if (!grid) {
     console.error("No se encontró el elemento gridMerch");
@@ -192,13 +403,13 @@ window.addEventListener("load", async () => {
           precio: item.precio,
           imagen: item.imagen,
           stock: item.stock,
-          categoria: categoria
+          categoria: categoria,
+          oferta: item.oferta,
+          nuevo: item.nuevo
         };
         
-        const productoJSON = JSON.stringify(productoData).replace(/'/g, "&apos;");
-        
         grid.innerHTML += `
-          <div class="merch-card" onclick='abrirModalProducto(${productoJSON})'>
+          <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
             <div class="merch-image-container">
               <img src="${item.imagen}" alt="${item.nombre}" loading="lazy">
               <span class="merch-category-tag">${categoria}</span>
@@ -221,7 +432,7 @@ window.addEventListener("load", async () => {
                 </div>
               </div>
               
-              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${productoJSON})">
+              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
                 VER PRODUCTO
               </button>
             </div>
@@ -243,13 +454,13 @@ window.addEventListener("load", async () => {
           precio: item.precio,
           imagen: item.imagen,
           stock: item.stock,
-          categoria: categoria
+          categoria: categoria,
+          oferta: oferta,
+          nuevo: nuevo
         };
         
-        const productoJSON = JSON.stringify(productoData).replace(/'/g, "&apos;");
-        
         grid.innerHTML += `
-          <div class="merch-card" onclick='abrirModalProducto(${productoJSON})'>
+          <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
             <div class="merch-image-container">
               ${item.imagen 
                 ? `<img src="${item.imagen}" alt="${item.nombre}" loading="lazy">` 
@@ -275,7 +486,7 @@ window.addEventListener("load", async () => {
                 </div>
               </div>
               
-              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${productoJSON})">
+              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
                 VER PRODUCTO
               </button>
             </div>
@@ -297,13 +508,13 @@ window.addEventListener("load", async () => {
         precio: item.precio,
         imagen: item.imagen,
         stock: item.stock,
-        categoria: categoria
+        categoria: categoria,
+        oferta: item.oferta,
+        nuevo: item.nuevo
       };
       
-      const productoJSON = JSON.stringify(productoData).replace(/'/g, "&apos;");
-      
       grid.innerHTML += `
-        <div class="merch-card" onclick='abrirModalProducto(${productoJSON})'>
+        <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
           <div class="merch-image-container">
             <img src="${item.imagen}" alt="${item.nombre}" loading="lazy">
             <span class="merch-category-tag">${categoria}</span>
@@ -326,7 +537,7 @@ window.addEventListener("load", async () => {
               </div>
             </div>
             
-            <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${productoJSON})">
+            <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
               VER PRODUCTO
             </button>
           </div>
@@ -341,113 +552,6 @@ window.addEventListener("load", async () => {
   }
 });
 
-// Función para abrir modal
-window.abrirModalProducto = function(producto) {
-  const modal = document.getElementById("modalZoom");
-  const zoomImg = document.getElementById("zoomImagen");
-  const zoomTitulo = document.getElementById("zoomTitulo");
-  const zoomDescripcion = document.getElementById("zoomDescripcion");
-  const zoomPrecio = document.getElementById("zoomPrecio");
-  const zoomStock = document.getElementById("zoomStock");
-  const zoomStockText = document.getElementById("zoomStockText");
-  const comprarBtn = document.getElementById("comprarBtn");
-  
-  if (!modal) {
-    console.error("No se encontró el modal #modalZoom");
-    return;
-  }
-
-  // Actualizar imagen
-  if (producto.imagen) {
-    zoomImg.src = producto.imagen;
-  } else {
-    zoomImg.src = `https://via.placeholder.com/400x400/111827/6366f1?text=${encodeURIComponent(producto.nombre.charAt(0))}`;
-  }
-  zoomImg.alt = producto.nombre;
-  
-  // Actualizar texto
-  zoomTitulo.textContent = producto.nombre;
-  zoomDescripcion.textContent = producto.descripcion || 'Producto exclusivo de GameWorld';
-  zoomPrecio.textContent = producto.precio ? `${producto.precio.toFixed(2)}€` : '0.00€';
-  
-  // Actualizar stock
-  const stock = producto.stock || 10;
-  if (zoomStock) zoomStock.textContent = stock;
-  
-  let stockText = "Disponible";
-  let stockClass = "stock-high";
-  
-  if (stock > 10) {
-    stockText = "Alta disponibilidad";
-    stockClass = "stock-high";
-  } else if (stock > 5) {
-    stockText = "Disponible";
-    stockClass = "stock-medium";
-  } else if (stock > 0) {
-    stockText = "¡Últimas unidades!";
-    stockClass = "stock-low";
-  } else {
-    stockText = "Agotado";
-    stockClass = "stock-low";
-  }
-  
-  if (zoomStockText) {
-    zoomStockText.textContent = stockText;
-    zoomStockText.className = `modal-merch-stock-text ${stockClass}`;
-  }
-
-  // Actualizar botón de compra
-  if (comprarBtn) {
-    if (stock > 0) {
-      comprarBtn.disabled = false;
-      comprarBtn.textContent = "COMPRAR AHORA";
-      comprarBtn.style.background = "#10b981";
-      comprarBtn.style.cursor = "pointer";
-      comprarBtn.setAttribute('data-producto-nombre', producto.nombre);
-      comprarBtn.setAttribute('data-producto-precio', producto.precio);
-    } else {
-      comprarBtn.disabled = true;
-      comprarBtn.textContent = "AGOTADO";
-      comprarBtn.style.background = "#4b5563";
-      comprarBtn.style.cursor = "not-allowed";
-    }
-  }
-
-  // Mostrar modal
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-  document.body.style.overflow = "hidden";
-  
-  if (window.history.pushState) {
-    window.history.pushState({ modalOpen: true }, '');
-  }
-};
-
-// Función para cerrar modal
-window.cerrarModal = function() {
-  const modal = document.getElementById("modalZoom");
-  if (!modal) return;
-
-  modal.classList.add("hidden");
-  modal.classList.remove("flex");
-  document.body.style.overflow = "auto";
-  
-  if (window.history.state && window.history.state.modalOpen) {
-    window.history.back();
-  }
-};
-
-// Configurar botón de compra
-document.addEventListener("click", function(e) {
-  if (e.target && e.target.id === 'comprarBtn' && !e.target.disabled) {
-    const nombre = e.target.getAttribute('data-producto-nombre') || 'Producto';
-    const precio = e.target.getAttribute('data-producto-precio') || '0.00';
-    
-    alert(`✅ ¡Producto añadido al carrito!\n\n${nombre}\nPrecio: ${parseFloat(precio).toFixed(2)}€\n\nRedirigiendo al proceso de pago...`);
-    cerrarModal();
-  }
-});
-
 // Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
@@ -456,21 +560,21 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const modal = document.getElementById("modalZoom");
+  const modal = document.getElementById("modalProducto");
   if (e.target === modal) {
     cerrarModal();
   }
 });
 
 window.addEventListener("popstate", (e) => {
-  const modal = document.getElementById("modalZoom");
+  const modal = document.getElementById("modalProducto");
   if (!modal.classList.contains('hidden')) {
     cerrarModal();
   }
 });
 
 document.body.addEventListener('touchmove', (e) => {
-  const modal = document.getElementById("modalZoom");
+  const modal = document.getElementById("modalProducto");
   if (!modal.classList.contains('hidden')) {
     e.preventDefault();
   }
@@ -478,6 +582,13 @@ document.body.addEventListener('touchmove', (e) => {
 
 window.addEventListener('resize', () => {
   handleScroll();
+});
+
+// Escuchar cambios en localStorage desde otras pestañas
+window.addEventListener('storage', (e) => {
+  if (e.key === 'carrito') {
+    actualizarContadorCarrito();
+  }
 });
 
 console.log("Script de merchandising cargado correctamente");

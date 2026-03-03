@@ -4,23 +4,22 @@
   <meta charset="UTF-8">
   <title>Perfil - GameWorld</title>
   
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
   <script>
     (function() {
-      // Verificar si se accede directamente por URL o mediante navegación interna
       function checkDirectAccess() {
         try {
-          // Obtener el referrer para saber de qué página viene
           const referrer = document.referrer;
           
-          // Si no hay referrer o viene de fuera del sitio, es acceso directo por URL
           if (!referrer) {
             console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
             window.location.replace('/index.html');
             return false;
           }
           
-          // Verificar que el referrer sea de nuestro propio sitio
           const currentDomain = window.location.hostname;
           const referrerDomain = new URL(referrer).hostname;
           
@@ -30,7 +29,6 @@
             return false;
           }
           
-          // Verificar que viene de una página válida de nuestra aplicación
           const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
           const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
           
@@ -40,10 +38,8 @@
             return false;
           }
           
-          // Si pasa todas las verificaciones, mostrar el contenido
           console.log('✅ Acceso permitido - Navegación interna');
           
-          // Mostrar el contenido
           document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'auto';
           });
@@ -51,71 +47,16 @@
           return true;
         } catch (error) {
           console.error('Error en verificación:', error);
-          // En caso de error, permitir acceso (mejor falso positivo que bloquear a usuarios legítimos)
           return true;
         }
       }
       
-      // Ejecutar verificación
       checkDirectAccess();
     })();
   </script>
   
   <link rel="stylesheet" href="/css/perfil.css">
   
-  <!-- Estilo para loader de verificación -->
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0f;
-        /* Fondo fijo */
-  background-image: url(../Fotos/Fondo.jpg);
-  background-repeat: no-repeat;      /* No repetir la imagen */
-  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
-  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
-  background-position: center;       /* Centrar la imagen */
-    }
-    
-    #access-check {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: #0a0a0f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      transition: opacity 0.3s ease;
-    }
-    
-    .check-spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid #00ffff33;
-      border-top-color: #00ffff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    body.access-allowed #access-check {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    .page-container {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    body.access-allowed .page-container {
-      opacity: 1;
-    }
-  </style>
 </head>
 <body class="fade-in" style="overflow: hidden;">
 
@@ -130,7 +71,7 @@
 
       <!-- NAVBAR -->
       <nav class="navbar">
-        <h1 class="logo">GameWorld</h1>
+        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
 
         <div class="nav-links">
           <a href="catalogo.html">Catálogo</a>
@@ -159,19 +100,17 @@
 
       <div class="profile-container">
 
-        <!-- FOTO -->
+        <!-- FOTO (FUERA DEL FORMULARIO) -->
         <div class="profile-photo">
           <img id="fotoPreview" src="media/default-profile.png" alt="Foto de perfil">
-
           <label class="upload-btn">
             Cambiar foto
             <input type="file" id="fotoPerfil" accept="image/*">
           </label>
         </div>
 
-        <!-- FORMULARIO -->
+        <!-- FORMULARIO (SOLO DATOS DE TEXTO) -->
         <form id="perfilForm" class="profile-form">
-
           <div class="form-group">
             <label>Nombre</label>
             <input type="text" id="nombre" placeholder="Tu nombre">

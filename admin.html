@@ -5,78 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GameWorld - Panel Admin</title>
   
-  <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
+  <!-- Solo verificación básica de admin -->
   <script>
     (function() {
-      // Verificar si se accede directamente por URL o mediante navegación interna
-      function checkDirectAccess() {
-        try {
-          // Obtener el referrer para saber de qué página viene
-          const referrer = document.referrer;
-          
-          // Si no hay referrer, es acceso directo por URL
-          if (!referrer) {
-            console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          // Verificar que el referrer sea de nuestro propio sitio
-          const currentDomain = window.location.hostname;
-          const referrerDomain = new URL(referrer).hostname;
-          
-          if (referrerDomain !== currentDomain) {
-            console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          // Verificar que viene de una página válida de nuestra aplicación
-          const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html', 'admin.html'];
-          const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
-          
-          if (!allowedPages.includes(referrerPath)) {
-            console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          // Verificar rol de administrador
-          const usuario = localStorage.getItem('nombreUsuario');
-          const rolRaw = localStorage.getItem('rolUsuario');
-          const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
-          
-          if (!usuario) {
-            console.log('❌ No hay usuario logueado');
-            window.location.replace('/login.html');
-            return false;
-          }
-          
-          if (rol !== 'admin') {
-            console.log('❌ Usuario no es administrador. Rol:', rol);
-            alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
-            window.location.replace('/catalogo.html');
-            return false;
-          }
-          
-          // Si pasa todas las verificaciones, mostrar el contenido
-          console.log('✅ Acceso permitido - Administrador autenticado');
-          
-          // Mostrar el contenido
-          document.addEventListener('DOMContentLoaded', function() {
-            document.body.style.overflow = 'auto';
-          });
-          
-          return true;
-        } catch (error) {
-          console.error('Error en verificación:', error);
-          window.location.replace('/index.html');
-          return false;
-        }
+      // Verificar solo rol de administrador
+      const usuario = localStorage.getItem('nombreUsuario');
+      const rolRaw = localStorage.getItem('rolUsuario');
+      const rol = rolRaw ? rolRaw.toString().toLowerCase().trim() : '';
+      
+      if (!usuario) {
+        window.location.replace('/login.html');
+        return;
       }
       
-      // Ejecutar verificación
-      checkDirectAccess();
+      if (rol !== 'admin') {
+        alert('🚫 Acceso denegado. Solo administradores.');
+        window.location.replace('/catalogo.html');
+        return;
+      }
+      
+      // Si pasa, mostrar contenido
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.style.overflow = 'auto';
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+      });
     })();
   </script>
 
@@ -86,20 +39,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
   
-  <!-- Estilo para loader de verificación -->
   <style>
     body {
       margin: 0;
       background: #0a0a0f;
-        /* Fondo fijo */
-  background-image: url(../Fotos/Fondo.jpg);
-  background-repeat: no-repeat;      /* No repetir la imagen */
-  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
-  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
-  background-position: center;       /* Centrar la imagen */
+      background-image: url(../Fotos/Fondo.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
     }
     
-    #access-check {
+    /* LOADER */
+    #loader {
       position: fixed;
       top: 0;
       left: 0;
@@ -109,12 +61,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 10000;
+      z-index: 9999;
       flex-direction: column;
-      transition: opacity 0.3s ease;
     }
     
-    .check-spinner {
+    .loader-circle {
       width: 60px;
       height: 60px;
       border: 4px solid #00ffff33;
@@ -124,39 +75,226 @@
       margin-bottom: 20px;
     }
     
-    .check-text {
+    #loader-text {
       color: #00ffff;
       font-family: 'Orbitron', sans-serif;
       font-size: 1.2rem;
-      text-align: center;
-    }
-    
-    .check-subtext {
-      color: #888;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
-      margin-top: 10px;
     }
     
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
     
-    body.access-allowed #access-check {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
+    /* Mejoras visuales para el panel admin */
     .page-container {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    body.access-allowed .page-container {
       opacity: 1;
     }
-    
-    /* Mejoras visuales para el panel admin */
-    .merch-item {
+
+    /* Estilos para el formulario de juegos */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Badges */
+    .estado-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .estado-disponible { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+    .estado-preventa { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .estado-agotado { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .estado-proximamente { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+
+    /* Select inputs */
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    select option {
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+
+    /* Estilos para el menú de usuario */
+    .user-menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .user-button {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 30px;
+      padding: 0.5rem 1.2rem;
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .user-button:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+    }
+
+    .user-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: rgba(10, 10, 20, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      min-width: 180px;
+      margin-top: 8px;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .user-menu a {
+      display: block;
+      padding: 0.8rem 1.2rem;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .user-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .user-menu a:hover {
+      background: rgba(99, 102, 241, 0.15);
+      padding-left: 1.5rem;
+    }
+
+    .user-menu .logout {
+      color: #ef4444;
+    }
+
+    .user-menu .logout:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ESTILOS PARA BOTONES HORIZONTALES */
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .admin-header h3 {
+      margin: 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-danger, .btn-secondary, .btn-edit, .btn-delete {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-danger, .btn-delete {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover, .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-secondary, .btn-edit {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--text);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary:hover, .btn-edit:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* ESTILOS CORREGIDOS PARA ITEMS HORIZONTALES */
+    .lista-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .juego-item, .merch-item, .playlist-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -168,10 +306,25 @@
       transition: all 0.3s ease;
     }
     
-    .merch-item:hover {
+    .juego-item:hover, .merch-item:hover, .playlist-item:hover {
       background: rgba(99, 102, 241, 0.1);
       border-color: var(--primary);
       transform: translateX(5px);
+    }
+    
+    .item-info {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-shrink: 0;
     }
     
     .stock-badge {
@@ -185,18 +338,104 @@
     .stock-high { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
     .stock-medium { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
     .stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+    .flex-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .select-input {
+      min-width: 250px;
+      flex: 1;
+    }
+
+    .mt-4 {
+      margin-top: 1.5rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1.5rem;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Estilos para la tabla de usuarios */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th {
+      background: rgba(99, 102, 241, 0.2);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Botones pequeños para acciones */
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    /* Info adicional */
+    .item-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .item-details {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .price {
+      color: var(--primary);
+      font-weight: 600;
+    }
   </style>
 </head>
-<body style="overflow: hidden;">
+<body>
 
-  <!-- Loader de verificación -->
-  <div id="access-check">
-    <div class="check-spinner"></div>
-    <div class="check-text">Verificando acceso de administrador</div>
-    <div class="check-subtext">Por favor, espera...</div>
-  </div>
-
-  <!-- LOADER (se mantiene) -->
+  <!-- LOADER -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">Cargando Panel...</div>
@@ -205,17 +444,25 @@
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR -->
+      <!-- NAVBAR CON MENÚ DESPLEGABLE -->
       <nav class="navbar">
-        <h1 class="logo">Panel Administrador</h1>
+        <h1 class="logo">Panel Administrador</h1>          
+
         <div class="nav-links">
-          <a href="catalogo.html">Catálogo</a>
-          <a href="playlists.html">Playlists</a>
-          <a href="merch.html">Merchandising</a>
-          <a href="sobre.html">Sobre Nosotros</a>
-          <button id="cerrarSesion" class="btn-logout">
-            Cerrar sesión
-          </button>
+          <a href="index.html">Inicio</a>          
+          <!-- MENÚ USUARIO DESPLEGABLE -->
+          <div class="user-menu-container" id="user-menu-container">
+            <button id="user-menu-button" class="user-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A8 8 0 0112 15a8 8 0 016.879 2.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span id="nombreUsuarioNav">Admin</span>
+            </button>
+            <div id="user-menu" class="user-menu hidden">
+              <a href="#" id="cerrarSesion" class="logout">Cerrar sesión</a>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -244,7 +491,14 @@
 
       <!-- GESTIÓN USUARIOS -->
       <section id="usuarios" class="section-admin">
-        <h3>👥 Gestión de Usuarios</h3>
+        <div class="admin-header">
+          <h3>👥 Gestión de Usuarios</h3>
+          <div class="action-buttons">
+            <button class="btn-secondary" onclick="window.location.href='#usuarios'">
+              Actualizar
+            </button>
+          </div>
+        </div>
         <div class="table-container">
           <table>
             <thead>
@@ -257,7 +511,7 @@
               </tr>
             </thead>
             <tbody id="tablaUsuarios">
-              <!-- Usuarios cargados desde admin-usuarios.js -->
+              <!-- Los usuarios se cargarán dinámicamente -->
             </tbody>
           </table>
         </div>
@@ -267,19 +521,15 @@
       <div id="modalEditarUsuario" class="modal hidden">
         <div class="modal-content">
           <h2 class="modal-title">Editar Usuario</h2>
-
           <input type="hidden" id="editUserId">
-
           <div class="form-group">
             <label>Nombre</label>
             <input id="editNombre" type="text">
           </div>
-
           <div class="form-group">
             <label>Email</label>
             <input id="editEmail" type="email">
           </div>
-
           <div class="form-group">
             <label>Rol</label>
             <select id="editRol">
@@ -287,7 +537,6 @@
               <option value="admin">Admin</option>
             </select>
           </div>
-
           <div class="modal-actions">
             <button id="cancelarEditarUsuario" class="btn-secondary">Cancelar</button>
             <button id="guardarEditarUsuario" class="btn-primary">Guardar</button>
@@ -295,84 +544,205 @@
         </div>
       </div>
 
-      <!-- GESTIÓN JUEGOS -->
+      <!-- GESTIÓN JUEGOS - CORREGIDO: ahora los items serán horizontales -->
       <section id="juegos" class="section-admin">
-        <h3>🎮 Gestión de Juegos</h3>
-
-        <div class="admin-content">
-          <!-- LISTA DE JUEGOS -->
-          <div>
-            <h4 class="section-subtitle">Juegos en la base de datos</h4>
-            <ul id="listaJuegos" class="lista-items">
-              <!-- Juegos cargados desde admin-juegos.js -->
-            </ul>
-          </div>
-
-          <!-- INFO + BOTÓN -->
-          <div class="text-center mt-4">
-            <p class="text-muted mb-3">
-              Agregar, editar o eliminar videojuegos del catálogo.
-            </p>
-
+        <div class="admin-header">
+          <h3>🎮 Gestión de Juegos</h3>
+          <div class="action-buttons">
             <button id="btnAñadirJuego" class="btn-primary">
               + Añadir Juego
             </button>
           </div>
         </div>
+
+        <div class="admin-content">
+          <h4 class="section-subtitle">Juegos en la base de datos</h4>
+          <ul id="listaJuegos" class="lista-items">
+            <!-- EJEMPLO de cómo se verán los juegos con botones horizontales -->
+            <li class="juego-item">
+              <div class="item-info">
+                <span class="item-title">The Legend of Zelda: Breath of the Wild</span>
+                <div class="item-details">
+                  <span>59.99€</span>
+                  <span class="estado-badge estado-disponible">Disponible</span>
+                  <span>Switch</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarJuego(1)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarJuego(1)">🗑️ Eliminar</button>
+              </div>
+            </li>
+            <li class="juego-item">
+              <div class="item-info">
+                <span class="item-title">God of War Ragnarök</span>
+                <div class="item-details">
+                  <span>69.99€</span>
+                  <span class="estado-badge estado-preventa">Preventa</span>
+                  <span>PS5</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarJuego(2)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarJuego(2)">🗑️ Eliminar</button>
+              </div>
+            </li>
+            <li class="juego-item">
+              <div class="item-info">
+                <span class="item-title">Elden Ring</span>
+                <div class="item-details">
+                  <span>49.99€</span>
+                  <span class="estado-badge estado-agotado">Agotado</span>
+                  <span>PC, PS5, Xbox</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarJuego(3)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarJuego(3)">🗑️ Eliminar</button>
+              </div>
+            </li>
+          </ul>
+        </div>
       </section>
 
       <!-- MODAL AÑADIR/EDITAR JUEGO -->
       <div id="modalJuego" class="modal hidden">
-        <div class="modal-content">
-          <h2 class="modal-title">Añadir Nuevo Juego</h2>
-
+        <div class="modal-content modal-lg">
+          <h2 class="modal-title" id="modalJuegoTitle">Añadir Nuevo Juego</h2>
           <form id="formNuevoJuego">
+            <input type="hidden" id="juegoId">
+            
             <div class="form-group">
-              <label>Nombre</label>
+              <label>Nombre *</label>
               <input id="nombreJuego" type="text" required>
             </div>
 
             <div class="form-group">
-              <label>Descripción</label>
-              <textarea id="descripcionJuego" required></textarea>
+              <label>Descripción *</label>
+              <textarea id="descripcionJuego" rows="3" required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Precio (€) *</label>
+                <input id="precioJuego" type="number" step="0.01" required>
+              </div>
+
+              <div class="form-group">
+                <label>Género</label>
+                <input id="generoJuego" type="text" placeholder="Ej: Acción, Aventura...">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Plataforma</label>
+                <input id="plataformaJuego" type="text" placeholder="Ej: PC, PS5, Xbox...">
+              </div>
+
+              <div class="form-group">
+                <label>Desarrolladora</label>
+                <input id="desarrolladoraJuego" type="text" placeholder="Ej: Nintendo, FromSoftware...">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>PEGI</label>
+                <select id="pegiJuego">
+                  <option value="">Seleccionar PEGI</option>
+                  <option value="3">PEGI 3</option>
+                  <option value="7">PEGI 7</option>
+                  <option value="12">PEGI 12</option>
+                  <option value="16">PEGI 16</option>
+                  <option value="18">PEGI 18</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Estado</label>
+                <select id="estadoJuego">
+                  <option value="">Seleccionar estado</option>
+                  <option value="disponible">Disponible</option>
+                  <option value="preventa">Preventa</option>
+                  <option value="agotado">Agotado</option>
+                  <option value="proximamente">Próximamente</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
-              <label>Precio (€)</label>
-              <input id="precioJuego" type="number" step="0.01" required>
+              <label>URL de la imagen</label>
+              <input id="imagenJuego" type="url" placeholder="https://ejemplo.com/imagen.jpg">
+              <small style="color: var(--text-muted); display: block; margin-top: 4px;">Opcional</small>
             </div>
 
             <div class="modal-actions">
               <button type="button" id="cancelarJuego" class="btn-secondary">Cancelar</button>
-              <button type="submit" class="btn-primary">Guardar</button>
+              <button type="submit" class="btn-primary">Guardar Juego</button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- GESTIÓN MERCHANDISING -->
+      <!-- GESTIÓN MERCHANDISING - CORREGIDO: ahora los items serán horizontales -->
       <section id="merchandising" class="section-admin">
-        <h3>👕 Gestión de Merchandising</h3>
-
-        <div class="admin-content">
-          <!-- LISTA DE PRODUCTOS -->
-          <div>
-            <h4 class="section-subtitle">Productos en la base de datos</h4>
-            <ul id="listaMerch" class="lista-items">
-              <!-- Productos cargados desde admin-merch.js -->
-            </ul>
-          </div>
-
-          <!-- INFO + BOTÓN -->
-          <div class="text-center mt-4">
-            <p class="text-muted mb-3">
-              Agregar, editar o eliminar productos de merchandising.
-            </p>
-
+        <div class="admin-header">
+          <h3>👕 Gestión de Merchandising</h3>
+          <div class="action-buttons">
             <button id="btnAñadirMerch" class="btn-primary">
               + Añadir Producto
             </button>
           </div>
+        </div>
+
+        <div class="admin-content">
+          <h4 class="section-subtitle">Productos en la base de datos</h4>
+          <ul id="listaMerch" class="lista-items">
+            <!-- EJEMPLO de cómo se verán los productos con botones horizontales -->
+            <li class="merch-item">
+              <div class="item-info">
+                <span class="item-title">Camiseta GameWorld Edición Limitada</span>
+                <div class="item-details">
+                  <span class="price">29.99€</span>
+                  <span class="stock-badge stock-high">Stock: 15</span>
+                  <span>ROPA</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarMerch(1)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarMerch(1)">🗑️ Eliminar</button>
+              </div>
+            </li>
+            <li class="merch-item">
+              <div class="item-info">
+                <span class="item-title">Figura Coleccionable - Master Chief</span>
+                <div class="item-details">
+                  <span class="price">89.99€</span>
+                  <span class="stock-badge stock-medium">Stock: 5</span>
+                  <span>COLECCIONABLE</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarMerch(2)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarMerch(2)">🗑️ Eliminar</button>
+              </div>
+            </li>
+            <li class="merch-item">
+              <div class="item-info">
+                <span class="item-title">Taza Pixel Art</span>
+                <div class="item-details">
+                  <span class="price">14.99€</span>
+                  <span class="stock-badge stock-low">Stock: 2</span>
+                  <span>DECORACIÓN</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-edit btn-small" onclick="editarMerch(3)">✏️ Editar</button>
+                <button class="btn-delete btn-small" onclick="eliminarMerch(3)">🗑️ Eliminar</button>
+              </div>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -380,34 +750,28 @@
       <div id="modalMerch" class="modal hidden">
         <div class="modal-content">
           <h2 class="modal-title">Añadir Producto de Merchandising</h2>
-
           <form id="formNuevoMerch">
             <div class="form-group">
               <label>Nombre del producto</label>
               <input id="nombreMerch" type="text" required>
             </div>
-
             <div class="form-group">
               <label>Descripción</label>
               <textarea id="descripcionMerch" rows="3" required></textarea>
             </div>
-
             <div class="form-group">
               <label>Precio (€)</label>
               <input id="precioMerch" type="number" step="0.01" required>
             </div>
-
             <div class="form-group">
               <label>URL de la imagen</label>
               <input id="imagenMerch" type="url" placeholder="https://ejemplo.com/imagen.jpg">
-              <small style="color: var(--text-muted); display: block; margin-top: 4px;">Opcional - Si no se proporciona, se usará una imagen por defecto</small>
+              <small style="color: var(--text-muted); display: block; margin-top: 4px;">Opcional</small>
             </div>
-
             <div class="form-group">
               <label>Stock</label>
               <input id="stockMerch" type="number" min="0" value="10" required>
             </div>
-
             <div class="form-group">
               <label>Categoría</label>
               <select id="categoriaMerch" required>
@@ -419,7 +783,6 @@
                 <option value="MERCH">Merch general</option>
               </select>
             </div>
-
             <div class="modal-actions">
               <button type="button" id="cancelarMerch" class="btn-secondary">Cancelar</button>
               <button type="submit" class="btn-primary">Guardar</button>
@@ -430,24 +793,28 @@
 
       <!-- PLAYLISTS -->
       <section id="playlists" class="section-admin">
-        <h3>🎵 Gestión de Playlists</h3>
+        <div class="admin-header">
+          <h3>🎵 Gestión de Playlists</h3>
+          <div class="action-buttons">
+            <button id="btnAñadirMusica" class="btn-primary">
+              + Añadir Música
+            </button>
+          </div>
+        </div>
 
         <div class="admin-content">
-          <div class="flex-row">
+          <div class="flex-row mb-4">
             <select id="selectEliminarPlaylist" class="select-input">
               <option value="">Selecciona una playlist para eliminar</option>
             </select>
-
             <button id="btnEliminarPlaylist" class="btn-danger">
               Eliminar
             </button>
           </div>
 
-          <div id="listaPlaylists" class="lista-items mt-4"></div>
-
-          <button id="btnAñadirMusica" class="btn-primary mt-4">
-            + Añadir Música desde API
-          </button>
+          <div id="listaPlaylists" class="lista-items">
+            <!-- Las playlists se cargarán dinámicamente -->
+          </div>
         </div>
       </section>
 
@@ -455,14 +822,11 @@
       <div id="modalMusica" class="modal hidden">
         <div class="modal-content modal-lg">
           <h2 class="modal-title">Buscar Música en FreeSound</h2>
-
           <div class="flex-row mb-4">
             <input type="text" id="inputBusquedaMusica" placeholder="Ej: Zelda, Minecraft..." class="search-input">
             <button id="btnBuscarMusica" class="btn-primary">Buscar</button>
           </div>
-
           <div id="listaResultadosMusica" class="results-list"></div>
-
           <div class="modal-actions">
             <button id="cerrarModalMusica" class="btn-secondary">Cerrar</button>
           </div>
@@ -477,35 +841,80 @@
     </div>
   </div>
 
-  <!-- Script para quitar el loader de verificación -->
-  <script>
-    window.addEventListener('load', function() {
-      document.body.classList.add('access-allowed');
-    });
-  </script>
-
   <!-- SCRIPTS -->
   <script type="module" src="js/admin-juegos.js"></script>
   <script type="module" src="js/admin-merch.js"></script>
   <script type="module" src="js/admin-musica.js"></script>
   <script type="module" src="js/admin-usuarios.js"></script>
   
-  <!-- Script para cerrar sesión -->
+  <!-- Script para el menú desplegable y cerrar sesión -->
   <script>
-    document.getElementById('cerrarSesion')?.addEventListener('click', function() {
-      // Limpiar datos de sesión
-      localStorage.removeItem('nombreUsuario');
-      localStorage.removeItem('emailUsuario');
-      localStorage.removeItem('rolUsuario');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('supabase.auth.token');
-      localStorage.removeItem('sb-access-token');
-      sessionStorage.removeItem('supabase.auth.token');
-      sessionStorage.removeItem('sb-access-token');
+    // Configurar el menú desplegable
+    document.addEventListener('DOMContentLoaded', function() {
+      const userButton = document.getElementById('user-menu-button');
+      const userMenu = document.getElementById('user-menu');
+      const nombreUsuarioNav = document.getElementById('nombreUsuarioNav');
       
-      // Redirigir al login
-      window.location.href = 'login.html';
+      // Obtener nombre de usuario del localStorage
+      const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Admin';
+      nombreUsuarioNav.textContent = nombreUsuario;
+      
+      // Toggle del menú al hacer clic en el botón
+      if (userButton) {
+        userButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          userMenu.classList.toggle('hidden');
+        });
+      }
+      
+      // Cerrar menú al hacer clic fuera
+      document.addEventListener('click', function(e) {
+        if (!userButton?.contains(e.target) && !userMenu?.contains(e.target)) {
+          userMenu?.classList.add('hidden');
+        }
+      });
+      
+      // Cerrar sesión
+      const cerrarSesionBtn = document.getElementById('cerrarSesion');
+      if (cerrarSesionBtn) {
+        cerrarSesionBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          localStorage.removeItem('nombreUsuario');
+          localStorage.removeItem('emailUsuario');
+          localStorage.removeItem('rolUsuario');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('supabase.auth.token');
+          localStorage.removeItem('sb-access-token');
+          sessionStorage.removeItem('supabase.auth.token');
+          sessionStorage.removeItem('sb-access-token');
+          localStorage.removeItem('carrito');
+          
+          window.location.href = 'index.html';
+        });
+      }
     });
+
+    // Funciones de ejemplo (serán reemplazadas por los módulos reales)
+    function editarJuego(id) {
+      console.log('Editar juego', id);
+      // Aquí irá la lógica real
+    }
+
+    function eliminarJuego(id) {
+      console.log('Eliminar juego', id);
+      // Aquí irá la lógica real
+    }
+
+    function editarMerch(id) {
+      console.log('Editar merch', id);
+      // Aquí irá la lógica real
+    }
+
+    function eliminarMerch(id) {
+      console.log('Eliminar merch', id);
+      // Aquí irá la lógica real
+    }
   </script>
 </body>
 </html>

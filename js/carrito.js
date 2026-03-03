@@ -1,3 +1,4 @@
+// js/carrito.js
 import { supabase } from "./connection.js";
 
 // Control de navbar y footer con scroll
@@ -102,70 +103,83 @@ async function cargarCarrito() {
       <div class="cart-empty">
         <div class="cart-empty-icon">🛒</div>
         <h3>Tu carrito está vacío</h3>
-        <p>Explora nuestro catálogo y encuentra los mejores juegos</p>
-        <a href="catalogo.html" class="btn-primary">Ir al Catálogo</a>
+        <p>Explora nuestro catálogo y encuentra los mejores juegos y productos</p>
+        <div class="cart-empty-buttons">
+        </div>
       </div>
     `;
     subtotalElement.textContent = '0.00€';
     totalElement.textContent = '0.00€';
     puntosElement.textContent = '0';
     if (checkoutBtn) checkoutBtn.disabled = true;
-    return;
-  }
-  
-  let html = '';
-  let subtotal = 0;
-  let puntosTotales = 0;
-  
-  carrito.forEach((item, index) => {
-    const precio = parseFloat(item.precio) || 0;
-    const cantidad = item.cantidad || 1;
-    const subtotalItem = precio * cantidad;
-    subtotal += subtotalItem;
-    puntosTotales += (item.puntos || Math.floor(precio * 6)) * cantidad;
+  } else {
+    let html = '';
+    let subtotal = 0;
+    let puntosTotales = 0;
     
-    html += `
-      <div class="cart-item" data-index="${index}">
-        <div class="cart-item-info">
-          <img src="${item.imagen || 'media/default-game.jpg'}" alt="${item.nombre}" class="cart-item-image">
-          <div class="cart-item-details">
-            <h4 class="cart-item-title">${item.nombre}</h4>
-            <p class="cart-item-platform"><i>📱</i> ${item.plataforma || 'Nintendo Switch'}</p>
+    carrito.forEach((item, index) => {
+      const precio = parseFloat(item.precio) || 0;
+      const cantidad = item.cantidad || 1;
+      const subtotalItem = precio * cantidad;
+      subtotal += subtotalItem;
+      
+      // Calcular puntos según el tipo de producto
+      if (item.tipo === 'merch') {
+        puntosTotales += Math.floor(precio * 5) * cantidad; // Merch da menos puntos
+      } else {
+        puntosTotales += (item.puntos || Math.floor(precio * 6)) * cantidad;
+      }
+      
+      // Determinar icono según tipo
+      const icono = item.tipo === 'merch' ? '📦' : '📱';
+      const plataformaOMarca = item.tipo === 'merch' 
+        ? (item.categoria || 'Merchandising')
+        : (item.plataforma || 'Nintendo Switch');
+      
+      html += `
+        <div class="cart-item" data-index="${index}">
+          <div class="cart-item-info">
+            <img src="${item.imagen || 'media/default-product.jpg'}" alt="${item.nombre}" class="cart-item-image">
+            <div class="cart-item-details">
+              <h4 class="cart-item-title">${item.nombre}</h4>
+              <p class="cart-item-platform"><i>${icono}</i> ${plataformaOMarca}</p>
+              ${item.tipo === 'merch' ? '<span class="product-type-badge">MERCH</span>' : ''}
+            </div>
           </div>
+          
+          <div class="cart-item-price">
+            ${precio.toFixed(2)}€
+          </div>
+          
+          <div class="cart-item-quantity">
+            <button class="quantity-btn" onclick="actualizarCantidad(${index}, -1)">−</button>
+            <span class="quantity-value">${cantidad}</span>
+            <button class="quantity-btn" onclick="actualizarCantidad(${index}, 1)">+</button>
+          </div>
+          
+          <div class="cart-item-total">
+            ${subtotalItem.toFixed(2)}€
+          </div>
+          
+          <button class="btn-remove-item" onclick="eliminarDelCarrito(${index})">
+            🗑️
+          </button>
         </div>
-        
-        <div class="cart-item-price">
-          ${precio.toFixed(2)}€
-        </div>
-        
-        <div class="cart-item-quantity">
-          <button class="quantity-btn" onclick="actualizarCantidad(${index}, -1)">−</button>
-          <span class="quantity-value">${cantidad}</span>
-          <button class="quantity-btn" onclick="actualizarCantidad(${index}, 1)">+</button>
-        </div>
-        
-        <div class="cart-item-total">
-          ${subtotalItem.toFixed(2)}€
-        </div>
-        
-        <button class="btn-remove-item" onclick="eliminarDelCarrito(${index})">
-          🗑️
-        </button>
-      </div>
-    `;
-  });
-  
-  carritoContainer.innerHTML = html;
-  subtotalElement.textContent = subtotal.toFixed(2) + '€';
-  totalElement.textContent = subtotal.toFixed(2) + '€';
-  puntosElement.textContent = puntosTotales;
-  
-  if (checkoutBtn) {
-    checkoutBtn.disabled = false;
-    checkoutBtn.onclick = procesarPago;
+      `;
+    });
+    
+    carritoContainer.innerHTML = html;
+    subtotalElement.textContent = subtotal.toFixed(2) + '€';
+    totalElement.textContent = subtotal.toFixed(2) + '€';
+    puntosElement.textContent = puntosTotales;
+    
+    if (checkoutBtn) {
+      checkoutBtn.disabled = false;
+      checkoutBtn.onclick = procesarPago;
+    }
   }
   
-  // Cargar productos recomendados
+  // Cargar productos recomendados (juegos y merch) - SIEMPRE se carga, incluso con carrito vacío
   await cargarRecomendados();
 }
 
@@ -180,6 +194,14 @@ window.actualizarCantidad = function(index, cambio) {
   if (nuevaCantidad < 1) {
     eliminarDelCarrito(index);
     return;
+  }
+  
+  // Verificar stock si es merch
+  if (carrito[index].tipo === 'merch' && carrito[index].stock !== undefined) {
+    if (nuevaCantidad > carrito[index].stock) {
+      mostrarNotificacion(`No hay más stock disponible de ${carrito[index].nombre}`, 'error');
+      return;
+    }
   }
   
   carrito[index].cantidad = nuevaCantidad;
@@ -206,7 +228,7 @@ window.eliminarDelCarrito = function(index) {
 };
 
 // Función para vaciar carrito
-function vaciarCarrito() {
+window.vaciarCarrito = function() {
   mostrarModalConfirmacion(
     'Vaciar carrito',
     '¿Estás seguro de que quieres vaciar el carrito? Esta acción no se puede deshacer.',
@@ -217,7 +239,7 @@ function vaciarCarrito() {
       mostrarNotificacion('Carrito vaciado');
     }
   );
-}
+};
 
 // Función para procesar pago
 function procesarPago() {
@@ -236,61 +258,216 @@ function procesarPago() {
   );
 }
 
-// Función para cargar recomendados
+// Variables para el carrusel
+let currentScrollPosition = 0;
+const scrollAmount = 300;
+
+// Función para inicializar el carrusel (MEJORADA)
+function inicializarCarrusel() {
+  const carouselContainer = document.querySelector('.carousel-container');
+  const prevBtn = document.querySelector('.carousel-btn.prev');
+  const nextBtn = document.querySelector('.carousel-btn.next');
+  
+  if (!carouselContainer || !prevBtn || !nextBtn) {
+    console.log('No se encontraron elementos del carrusel');
+    return;
+  }
+  
+  console.log('Carrusel inicializado correctamente');
+  
+  // Función para actualizar el estado de los botones
+  const updateButtons = () => {
+    const maxScroll = carouselContainer.scrollWidth - carouselContainer.clientWidth;
+    const currentScroll = carouselContainer.scrollLeft;
+    
+    // Botón anterior
+    if (currentScroll <= 5) {
+      prevBtn.classList.add('disabled');
+      prevBtn.style.opacity = '0.5';
+      prevBtn.style.pointerEvents = 'none';
+    } else {
+      prevBtn.classList.remove('disabled');
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+    }
+    
+    // Botón siguiente
+    if (currentScroll >= maxScroll - 5) {
+      nextBtn.classList.add('disabled');
+      nextBtn.style.opacity = '0.5';
+      nextBtn.style.pointerEvents = 'none';
+    } else {
+      nextBtn.classList.remove('disabled');
+      nextBtn.style.opacity = '1';
+      nextBtn.style.pointerEvents = 'auto';
+    }
+  };
+  
+  // Eliminar event listeners anteriores (para evitar duplicados)
+  const newPrevBtn = prevBtn.cloneNode(true);
+  const newNextBtn = nextBtn.cloneNode(true);
+  prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+  nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+  
+  // Volver a seleccionar los botones
+  const updatedPrevBtn = document.querySelector('.carousel-btn.prev');
+  const updatedNextBtn = document.querySelector('.carousel-btn.next');
+  
+  // Event listeners para los botones
+  updatedPrevBtn.addEventListener('click', () => {
+    const newPosition = Math.max(0, carouselContainer.scrollLeft - scrollAmount);
+    carouselContainer.scrollTo({
+      left: newPosition,
+      behavior: 'smooth'
+    });
+  });
+  
+  updatedNextBtn.addEventListener('click', () => {
+    const maxScroll = carouselContainer.scrollWidth - carouselContainer.clientWidth;
+    const newPosition = Math.min(maxScroll, carouselContainer.scrollLeft + scrollAmount);
+    carouselContainer.scrollTo({
+      left: newPosition,
+      behavior: 'smooth'
+    });
+  });
+  
+  // Actualizar al hacer scroll manual
+  carouselContainer.addEventListener('scroll', () => {
+    updateButtons();
+  });
+  
+  // Actualizar al redimensionar la ventana
+  window.addEventListener('resize', () => {
+    updateButtons();
+  });
+  
+  // Inicializar estado de los botones
+  setTimeout(updateButtons, 200);
+}
+
+// Función para cargar recomendados (SIEMPRE muestra productos)
+// Función para cargar recomendados (SOLO productos que NO están en el carrito)
 async function cargarRecomendados() {
   const container = document.getElementById('productos-recomendados');
   if (!container) return;
   
   try {
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    const idsEnCarrito = carrito.map(item => item.id).filter(id => id);
     
-    let query = supabase
+    // Obtener IDs de juegos y merch en el carrito para EXCLUIRLOS
+    const idsJuegosEnCarrito = carrito
+      .filter(item => !item.tipo || item.tipo !== 'merch')
+      .map(item => item.id)
+      .filter(id => id);
+      
+    const idsMerchEnCarrito = carrito
+      .filter(item => item.tipo === 'merch')
+      .map(item => parseInt(item.id.replace('merch_', '')))
+      .filter(id => !isNaN(id));
+    
+    console.log('IDs en carrito - Juegos:', idsJuegosEnCarrito, 'Merch:', idsMerchEnCarrito); // Debug
+    
+    // Cargar juegos disponibles (EXCLUYENDO los que ya están en el carrito)
+    let juegosQuery = supabase
       .from("Juegos")
       .select("*")
       .eq("estado", "Disponible");
     
-    if (idsEnCarrito.length > 0) {
-      query = query.not('id', 'in', `(${idsEnCarrito.join(',')})`);
+    if (idsJuegosEnCarrito.length > 0) {
+      juegosQuery = juegosQuery.not('id', 'in', `(${idsJuegosEnCarrito.join(',')})`);
     }
     
-    const { data: juegos, error } = await query;
-      
-    if (error) throw error;
+    // Cargar merch disponible (EXCLUYENDO los que ya están en el carrito)
+    let merchQuery = supabase
+      .from("merchandising")
+      .select("*")
+      .gt("stock", 0);
     
-    const juegosDisponibles = juegos?.filter(juego => 
-      juego.estado === "Disponible" && !idsEnCarrito.includes(juego.id)
+    if (idsMerchEnCarrito.length > 0) {
+      merchQuery = merchQuery.not('id', 'in', `(${idsMerchEnCarrito.join(',')})`);
+    }
+    
+    // Ejecutar ambas consultas en paralelo
+    const [juegosResult, merchResult] = await Promise.all([
+      juegosQuery,
+      merchQuery
+    ]);
+    
+    const juegosDisponibles = juegosResult.data?.filter(juego => 
+      juego.estado === "Disponible"
     ) || [];
     
-    if (juegosDisponibles.length === 0) {
+    const merchDisponible = merchResult.data?.filter(producto => 
+      producto.stock > 0
+    ) || [];
+    
+    // Combinar y mezclar aleatoriamente
+    const todosProductos = [
+      ...juegosDisponibles.map(j => ({ ...j, tipo: 'juego' })),
+      ...merchDisponible.map(m => ({ ...m, tipo: 'merch' }))
+    ];
+    
+    if (todosProductos.length === 0) {
       container.innerHTML = `
         <div class="no-recommendations">
-          <p class="text-muted">No hay juegos disponibles para recomendar</p>
+          <p class="text-muted">No hay más productos disponibles</p>
         </div>
       `;
       return;
     }
     
-    const juegosAleatorios = [...juegosDisponibles]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 4);
+    // Mezclar productos aleatoriamente
+    const productosAleatorios = [...todosProductos].sort(() => Math.random() - 0.5);
     
-    container.innerHTML = juegosAleatorios.map(juego => {
-      const juegoJSON = JSON.stringify(juego).replace(/'/g, "&apos;");
-      
-      return `
-      <div class="recommended-card" onclick='agregarAlCarritoRecomendado(${juegoJSON})'>
-        <img src="${juego.imagen || 'media/default-game.jpg'}" alt="${juego.nombre}" loading="lazy">
-        <div class="recommended-info">
-          <h4>${juego.nombre}</h4>
-          <div class="recommended-details">
-            <span class="price">${juego.precio?.toFixed(2) || '0.00'}€</span>
-            <span class="platform-tag">${juego.plataforma || 'NS'}</span>
-          </div>
-          <span class="available-badge">Disponible</span>
+    // Crear estructura del carrusel
+    container.innerHTML = `
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev">❮</button>
+        <div class="carousel-container">
+          ${productosAleatorios.map(producto => {
+            const icono = producto.tipo === 'merch' ? '📦' : '📱';
+            const etiqueta = producto.tipo === 'merch' 
+              ? (producto.categoria || 'MERCH')
+              : (producto.plataforma || 'NS');
+            
+            let productoJSON;
+            if (producto.tipo === 'merch') {
+              const merchData = {
+                id: producto.id,
+                nombre: producto.nombre,
+                precio: producto.precio,
+                imagen: producto.imagen,
+                stock: producto.stock,
+                categoria: producto.categoria || 'Merchandising',
+                descripcion: producto.descripcion || '',
+                tipo: 'merch'
+              };
+              productoJSON = JSON.stringify(merchData).replace(/'/g, "&apos;");
+            } else {
+              productoJSON = JSON.stringify(producto).replace(/'/g, "&apos;");
+            }
+            
+            return `
+              <div class="recommended-card" onclick='agregarAlCarritoRecomendado(${productoJSON}, "${producto.tipo}")'>
+                <img src="${producto.imagen || 'media/default-product.jpg'}" alt="${producto.nombre}" loading="lazy">
+                <div class="recommended-info">
+                  <h4>${producto.nombre}</h4>
+                  <div class="recommended-details">
+                    <span class="price">${producto.precio?.toFixed(2) || '0.00'}€</span>
+                    <span class="platform-tag">${icono} ${etiqueta}</span>
+                  </div>
+                  <span class="available-badge">${producto.tipo === 'merch' ? 'En stock' : 'Disponible'}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
+        <button class="carousel-btn next">❯</button>
       </div>
-    `}).join('');
+    `;
+    
+    // Inicializar el carrusel después de añadir los productos
+    setTimeout(inicializarCarrusel, 200);
     
   } catch (error) {
     console.error('Error cargando recomendados:', error);
@@ -303,32 +480,67 @@ async function cargarRecomendados() {
 }
 
 // Función para agregar al carrito desde recomendados
-window.agregarAlCarritoRecomendado = function(juego) {
-  if (juego.estado !== "Disponible") {
-    mostrarNotificacion('Este juego ya no está disponible', 'error');
-    cargarRecomendados();
-    return;
-  }
-  
+window.agregarAlCarritoRecomendado = function(producto, tipo) {
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  const existe = carrito.findIndex(item => item.id === juego.id);
-  
-  if (existe !== -1) {
-    carrito[existe].cantidad = (carrito[existe].cantidad || 1) + 1;
-    mostrarNotificacion(`✓ ${juego.nombre} - Cantidad actualizada`);
+  if (tipo === 'merch') {
+    // Validar stock para merch
+    if (producto.stock <= 0) {
+      mostrarNotificacion('Producto agotado', 'error');
+      cargarRecomendados();
+      return;
+    }
+    
+    const existeIndex = carrito.findIndex(item => item.id === `merch_${producto.id}`);
+    
+    if (existeIndex !== -1) {
+      if (carrito[existeIndex].cantidad >= producto.stock) {
+        mostrarNotificacion(`No hay más stock disponible de ${producto.nombre}`, 'error');
+        return;
+      }
+      carrito[existeIndex].cantidad = (carrito[existeIndex].cantidad || 1) + 1;
+      mostrarNotificacion(`✓ ${producto.nombre} - Cantidad actualizada`);
+    } else {
+      carrito.push({
+        id: `merch_${producto.id}`,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        imagen: producto.imagen,
+        categoria: producto.categoria || 'Merchandising',
+        cantidad: 1,
+        stock: producto.stock,
+        descripcion: producto.descripcion || '',
+        tipo: 'merch'
+      });
+      mostrarNotificacion(`✓ ${producto.nombre} añadido al carrito`);
+    }
   } else {
-    carrito.push({
-      id: juego.id,
-      nombre: juego.nombre,
-      precio: juego.precio,
-      imagen: juego.imagen,
-      plataforma: juego.plataforma,
-      puntos: juego.puntos || Math.floor((juego.precio || 0) * 6),
-      cantidad: 1,
-      estado: juego.estado
-    });
-    mostrarNotificacion(`✓ ${juego.nombre} añadido al carrito`);
+    // Lógica para juegos
+    if (producto.estado !== "Disponible") {
+      mostrarNotificacion('Este juego ya no está disponible', 'error');
+      cargarRecomendados();
+      return;
+    }
+    
+    const existe = carrito.findIndex(item => item.id === producto.id);
+    
+    if (existe !== -1) {
+      carrito[existe].cantidad = (carrito[existe].cantidad || 1) + 1;
+      mostrarNotificacion(`✓ ${producto.nombre} - Cantidad actualizada`);
+    } else {
+      carrito.push({
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        imagen: producto.imagen,
+        plataforma: producto.plataforma,
+        puntos: producto.puntos || Math.floor((producto.precio || 0) * 6),
+        cantidad: 1,
+        estado: producto.estado,
+        tipo: 'juego'
+      });
+      mostrarNotificacion(`✓ ${producto.nombre} añadido al carrito`);
+    }
   }
   
   localStorage.setItem('carrito', JSON.stringify(carrito));
@@ -354,17 +566,20 @@ function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
     btnConfirmar.removeEventListener('click', confirmHandler);
   };
   
-  btnConfirmar.addEventListener('click', confirmHandler);
+  // Limpiar event listeners anteriores
+  const newBtnConfirmar = btnConfirmar.cloneNode(true);
+  btnConfirmar.parentNode.replaceChild(newBtnConfirmar, btnConfirmar);
+  
+  newBtnConfirmar.addEventListener('click', confirmHandler);
+  
   btnCancelar.addEventListener('click', () => {
     cerrarModal();
-    btnConfirmar.removeEventListener('click', confirmHandler);
-  });
+  }, { once: true });
   
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
       cerrarModal();
-      btnConfirmar.removeEventListener('click', confirmHandler);
-    });
+    }, { once: true });
   }
   
   modal.classList.remove('hidden');
@@ -408,7 +623,9 @@ window.addEventListener("load", async () => {
   // Event listener para vaciar carrito
   const vaciarBtn = document.getElementById('vaciar-carrito');
   if (vaciarBtn) {
-    vaciarBtn.addEventListener('click', vaciarCarrito);
+    const newVaciarBtn = vaciarBtn.cloneNode(true);
+    vaciarBtn.parentNode.replaceChild(newVaciarBtn, vaciarBtn);
+    newVaciarBtn.addEventListener('click', vaciarCarrito);
   }
 });
 
@@ -445,4 +662,4 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-console.log("Script de carrito cargado correctamente");
+console.log("Script de carrito cargado correctamente (con carrusel)");

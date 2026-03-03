@@ -2,6 +2,10 @@ import { supabase } from "./connection.js";
 
 const API_KEY = "9PqEyX5bQYe7e43EsASkUBftzDaRcrb2sSojP5RA";
 
+// Ocultar loader
+const loader = document.getElementById("loader");
+if (loader) loader.style.display = "none";
+
 // Elementos DOM
 const modalMusica = document.getElementById("modalMusica");
 const btnAbrirMusica = document.getElementById("btnAñadirMusica");
@@ -108,7 +112,6 @@ async function cargarMusica() {
 
   const { data, error } = await supabase.from("musica").select("*");
 
-  // Actualizar contador
   const contador = document.getElementById("contadorPlaylists");
   if (contador && data) contador.textContent = data.length;
 
@@ -125,13 +128,11 @@ async function cargarMusica() {
   }
 
   data.forEach(m => {
-    // Listado visual
     const div = document.createElement("div");
     div.className = "playlist-item";
     div.textContent = `🎵 ${m.nombre}`;
     listaPlaylists.appendChild(div);
 
-    // Select
     const option = document.createElement("option");
     option.value = m.id;
     option.textContent = m.nombre;

@@ -75,16 +75,18 @@ window.addEventListener('load', () => {
     }
   }
 
-  // Función para mostrar/ocultar el enlace del carrito según el rol
+  // Función para mostrar el enlace del carrito para TODOS los usuarios
   function gestionarVisibilidadCarrito() {
     const carritoLink = document.getElementById('carrito-link');
     if (!carritoLink) return;
 
-    // El carrito solo se muestra para usuarios no admin y que no sean invitados
-    if (rol !== 'admin' && nombreUsuario !== 'Invitado') {
-      carritoLink.style.display = 'flex';
-    } else {
-      carritoLink.style.display = 'none';
+    // El carrito ahora es visible para TODOS los usuarios (invitados, usuarios normales y administradores)
+    carritoLink.style.display = 'flex';
+    
+    // Si es invitado, aseguramos que el carrito funcione correctamente
+    if (nombreUsuario === "Invitado") {
+      // Podemos añadir una clase especial si queremos estilos diferentes para invitados
+      carritoLink.classList.add('carrito-invitado');
     }
   }
 
@@ -221,7 +223,7 @@ window.addEventListener('load', () => {
           nombre: "Admin",
           opinion: "¡Bienvenidos a GameWorld! 🎮",
           fecha: new Date().toISOString(),
-          fotoPerfil: "media/default-profile.png"
+          fotoPerfil: "Fotos/caricatura.png"
         }
       ];
       localStorage.setItem('testimonios', JSON.stringify(ejemploTestimonios));
