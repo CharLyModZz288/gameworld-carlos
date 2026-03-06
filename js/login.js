@@ -28,7 +28,8 @@ form.addEventListener("submit", async (e) => {
 
     // ✅ Guardar usuario, rol y EMAIL
     localStorage.setItem("nombreUsuario", usuario.username);
-    localStorage.setItem("emailUsuario", usuario.email); // <-- AÑADIDO
+    localStorage.setItem("emailUsuario", usuario.email);
+    localStorage.setItem("userId", usuario.id);
     
     const rolNormalizado = (usuario.rol || "user").toString().toLowerCase().trim();
     localStorage.setItem("rolUsuario", rolNormalizado);

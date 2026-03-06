@@ -5,54 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Merchandising - GameWorld</title>
 
-  <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
-  <script>
-    (function() {
-      function checkDirectAccess() {
-        try {
-          const referrer = document.referrer;
-
-          if (!referrer) {
-            console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-
-          const currentDomain = window.location.hostname;
-          const referrerDomain = new URL(referrer).hostname;
-
-          if (referrerDomain !== currentDomain) {
-            console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-
-          const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
-          const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
-
-          if (!allowedPages.includes(referrerPath)) {
-            console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-
-          console.log('✅ Acceso permitido - Navegación interna');
-
-          document.addEventListener('DOMContentLoaded', function() {
-            document.body.style.overflow = 'auto';
-          });
-
-          return true;
-        } catch (error) {
-          console.error('Error en verificación:', error);
-          return true;
-        }
-      }
-
-      checkDirectAccess();
-    })();
-  </script>
-
   <!-- Fuentes de Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +12,6 @@
 
   <!-- HOJA DE ESTILO CORRECTA: merch.css -->
   <link rel="stylesheet" href="css/merch.css">
-
 
 </head>
 <body>

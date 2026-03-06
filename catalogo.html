@@ -5,104 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo - GameWorld</title>
   
-  <!-- === PROTECCIÓN CONTRA ACCESO DIRECTO POR URL === -->
-  <script>
-    (function() {
-      function checkDirectAccess() {
-        try {
-          const referrer = document.referrer;
-          
-          if (!referrer) {
-            console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          const currentDomain = window.location.hostname;
-          const referrerDomain = new URL(referrer).hostname;
-          
-          if (referrerDomain !== currentDomain) {
-            console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
-          const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
-          
-          if (!allowedPages.includes(referrerPath)) {
-            console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
-            window.location.replace('/index.html');
-            return false;
-          }
-          
-          console.log('✅ Acceso permitido - Navegación interna');
-          
-          document.addEventListener('DOMContentLoaded', function() {
-            document.body.style.overflow = 'auto';
-          });
-          
-          return true;
-        } catch (error) {
-          console.error('Error en verificación:', error);
-          return true;
-        }
-      }
-      
-      checkDirectAccess();
-    })();
-  </script>
-  
   <!-- Tus estilos originales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/catalogo.css">
   
-  <!-- Estilo para loader de verificación -->
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0f;
-      background-image: url(../Fotos/Fondo.jpg);
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-    }
-    
-    #access-check {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: #0a0a0f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      transition: opacity 0.3s ease;
-    }
-    
-    .check-spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid #00ffff33;
-      border-top-color: #00ffff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    body.access-allowed #access-check {
-      opacity: 0;
-      pointer-events: none;
-    }
-  </style>
 </head>
 <body>
   <!-- Loader de verificación -->
@@ -170,7 +78,7 @@
   </div>
 
   <!-- Script principal -->
-  <script type="module" src="js/script.js"></script>
+  <script type="module" src="js/catalogo.js"></script>
   
   <!-- Script para quitar el loader de verificación -->
   <script>

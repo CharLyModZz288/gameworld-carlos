@@ -1375,3 +1375,396 @@ tr.user-row:hover {
     flex-direction: column;
   }
 }
+
+
+body {
+  margin: 0;
+  background: #0a0a0f;
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+/* LOADER */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #0a0a0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  flex-direction: column;
+}
+
+.loader-circle {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #00ffff33;
+  border-top-color: #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+#loader-text {
+  color: #00ffff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mejoras visuales para el panel admin */
+.page-container {
+  opacity: 1;
+}
+
+/* Estilos para el formulario de juegos */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Badges */
+.estado-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.estado-disponible { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+.estado-preventa { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.estado-agotado { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.estado-proximamente { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+
+/* Select inputs */
+select {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Orbitron', sans-serif;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+select option {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+/* Estilos para el menú de usuario */
+.user-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-button {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 30px;
+  padding: 0.5rem 1.2rem;
+  color: var(--text);
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.user-button:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--primary);
+}
+
+.user-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.user-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(10, 10, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  min-width: 180px;
+  margin-top: 8px;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.user-menu a {
+  display: block;
+  padding: 0.8rem 1.2rem;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-menu a:last-child {
+  border-bottom: none;
+}
+
+.user-menu a:hover {
+  background: rgba(99, 102, 241, 0.15);
+  padding-left: 1.5rem;
+}
+
+.user-menu .logout {
+  color: #ef4444;
+}
+
+.user-menu .logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ESTILOS PARA BOTONES HORIZONTALES */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-header h3 {
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary, .btn-danger, .btn-secondary, .btn-edit, .btn-delete {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-danger, .btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover, .btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-secondary, .btn-edit {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--text);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.btn-secondary:hover, .btn-edit:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* ESTILOS CORREGIDOS PARA ITEMS HORIZONTALES */
+.lista-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.juego-item, .merch-item, .playlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  transition: all 0.3s ease;
+}
+
+.juego-item:hover, .merch-item:hover, .playlist-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stock-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stock-high { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+.stock-medium { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+.flex-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.select-input {
+  min-width: 250px;
+  flex: 1;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Estilos para la tabla de usuarios */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th {
+  background: rgba(99, 102, 241, 0.2);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Botones pequeños para acciones */
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.action-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Info adicional */
+.item-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.item-details {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.price {
+  color: var(--primary);
+  font-weight: 600;
+}

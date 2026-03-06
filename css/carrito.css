@@ -737,7 +737,6 @@ a {
   margin-bottom: 0.5rem;
   color: var(--text-light);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 2.5rem;
@@ -1235,4 +1234,47 @@ a {
   .carousel-btn.next {
     right: -10px;
   }
+}
+
+
+body {
+  margin: 0;
+  background: #0a0a0f;
+  background-image: url(../Fotos/Fondo.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+#access-check {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #0a0a0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  transition: opacity 0.3s ease;
+}
+
+.check-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #00ffff33;
+  border-top-color: #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+body.access-allowed #access-check {
+  opacity: 0;
+  pointer-events: none;
 }

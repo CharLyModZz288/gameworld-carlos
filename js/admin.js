@@ -1,14 +1,34 @@
 window.addEventListener('load', () => {
-  // Ocultar loader
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'none';
-
   // Obtener datos del usuario desde localStorage
   const usuario = localStorage.getItem('nombreUsuario');
   const rol = localStorage.getItem('rolUsuario');
 
+  // Verificar solo rol de administrador
+  const rolRaw = rol ? rol.toString().toLowerCase().trim() : '';
+  
+  if (!usuario) {
+    window.location.replace('/login.html');
+    return;
+  }
+  
+  if (rolRaw !== 'admin') {
+    alert('🚫 Acceso denegado. Solo administradores.');
+    window.location.replace('/catalogo.html');
+    return;
+  }
+  
+  // Si pasa, mostrar contenido
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.overflow = 'auto';
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = 'none';
+  });
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'none';
+
+
   // Verificación de acceso
-  if (!usuario || rol !== 'admin') {
+  if (!usuario || rolRaw !== 'admin') {
     alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
     window.location.href = 'login.html';
     return;
