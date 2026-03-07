@@ -1,4 +1,12 @@
-window.addEventListener('load', () => {
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// Inicializar Supabase (usa las mismas credenciales que en connection.js)
+const supabaseUrl = "https://vforasnmcipqpqwdkygm.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3Jhc25tY2lwcXBxd2RreWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTIzMTYsImV4cCI6MjA3ODE4ODMxNn0.wP71pAkOFJ8YYNNN7lIRfSrJloqKFsKq3bIjphWBqFc";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+window.addEventListener('load', async () => {
   // Loader
   const loader = document.getElementById('loader');
   if (loader) {
@@ -16,15 +24,6 @@ window.addEventListener('load', () => {
   
   const nombreNav = document.getElementById("nombreUsuarioNav");
   if (nombreNav) nombreNav.textContent = nombreUsuario;
-
-  // Cargar foto de perfil
-  const perfilGuardado = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
-  const fotoPerfilActual = (perfilGuardado && perfilGuardado.foto) ? perfilGuardado.foto : "media/default-profile.png";
-  
-  const avatarFormulario = document.querySelector('.comment-form .comment-avatar img');
-  if (avatarFormulario) {
-    avatarFormulario.src = fotoPerfilActual;
-  }
 
   // Mostrar navbar correcta según login
   const nav = document.getElementById("nav");
@@ -51,14 +50,12 @@ window.addEventListener('load', () => {
   }
 
   // ---------- CARRITO DE COMPRAS ----------
-  // Función para inicializar el carrito
   function inicializarCarrito() {
     if (!localStorage.getItem('carrito')) {
       localStorage.setItem('carrito', JSON.stringify([]));
     }
   }
 
-  // Función para actualizar el contador del carrito
   function actualizarContadorCarrito() {
     const contadorElement = document.getElementById('carrito-contador');
     if (!contadorElement) return;
@@ -75,27 +72,21 @@ window.addEventListener('load', () => {
     }
   }
 
-  // Función para mostrar el enlace del carrito para TODOS los usuarios
   function gestionarVisibilidadCarrito() {
     const carritoLink = document.getElementById('carrito-link');
     if (!carritoLink) return;
 
-    // El carrito ahora es visible para TODOS los usuarios (invitados, usuarios normales y administradores)
     carritoLink.style.display = 'flex';
     
-    // Si es invitado, aseguramos que el carrito funcione correctamente
     if (nombreUsuario === "Invitado") {
-      // Podemos añadir una clase especial si queremos estilos diferentes para invitados
       carritoLink.classList.add('carrito-invitado');
     }
   }
 
-  // Inicializar carrito
   inicializarCarrito();
   gestionarVisibilidadCarrito();
   actualizarContadorCarrito();
 
-  // Escuchar cambios en el carrito (para actualizar contador en tiempo real)
   window.addEventListener('storage', (e) => {
     if (e.key === 'carrito') {
       actualizarContadorCarrito();
@@ -112,7 +103,6 @@ window.addEventListener('load', () => {
     userMenuButton.addEventListener('click', (e) => {
       e.stopPropagation();
       userMenu.classList.toggle('hidden');
-      // Actualizar contador cuando se abre el menú
       setTimeout(actualizarContadorCarrito, 50);
     });
     
@@ -135,35 +125,43 @@ window.addEventListener('load', () => {
     });
   }
 
-  // ---------- COMENTARIOS ----------
+  // ---------- COMENTARIOS CON SUPABASE ----------
   const testimoniosContainer = document.getElementById('comentariosContainer');
 
-  function obtenerFotoPerfil(nombre) {
-    const perfil = JSON.parse(localStorage.getItem(`perfil_${nombre}`));
-    return perfil ? perfil.foto : "media/default-profile.png";
-  }
-
-  function mostrarTestimonios() {
+  // Función para cargar comentarios desde Supabase
+  async function cargarTestimonios() {
     if (!testimoniosContainer) return;
     
-    const testimonios = JSON.parse(localStorage.getItem('testimonios')) || [];
+    try {
+      testimoniosContainer.innerHTML = '<div class="loading-comments">Cargando comentarios...</div>';
+      
+      const { data: testimonios, error } = await supabase
+        .from('testimonios')
+        .select('*')
+        .order('fecha', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (testimonios.length === 0) {
+        testimoniosContainer.innerHTML = '<div class="no-comments">No hay comentarios aún. ¡Sé el primero en comentar!</div>';
+        return;
+      }
+      
+      mostrarTestimonios(testimonios);
+    } catch (error) {
+      console.error('Error al cargar testimonios:', error);
+      testimoniosContainer.innerHTML = '<div class="error-comments">Error al cargar los comentarios. Intenta de nuevo más tarde.</div>';
+    }
+  }
+
+  function mostrarTestimonios(testimonios) {
+    if (!testimoniosContainer) return;
     
     testimoniosContainer.innerHTML = '';
     
     testimonios.forEach(c => {
       const div = document.createElement('div');
       div.className = 'comment';
-      
-      const avatarDiv = document.createElement('div');
-      avatarDiv.className = 'comment-avatar';
-      
-      const img = document.createElement('img');
-      const fotoUsuario = c.fotoPerfil || obtenerFotoPerfil(c.nombre) || "media/default-profile.png";
-      img.src = fotoUsuario;
-      img.alt = `Avatar de ${c.nombre}`;
-      img.onerror = () => { img.src = "media/default-profile.png"; };
-      
-      avatarDiv.appendChild(img);
       
       const fecha = new Date(c.fecha).toLocaleString('es-ES', {
         day: '2-digit',
@@ -181,61 +179,90 @@ window.addEventListener('load', () => {
         <p class="text">${c.opinion}</p>
       `;
       
-      div.appendChild(avatarDiv);
       div.appendChild(contenido);
       testimoniosContainer.appendChild(div);
     });
   }
 
-  function agregarTestimonio() {
+  // Función para agregar comentario a Supabase
+  async function agregarTestimonio() {
     const input = document.getElementById('comentarioInput');
     if (!input) return;
     
     const opinion = input.value.trim();
-    if (!opinion) return;
+    if (!opinion) {
+      alert('Por favor escribe un comentario');
+      return;
+    }
     
-    const testimonios = JSON.parse(localStorage.getItem('testimonios')) || [];
-    const id = testimonios.length ? testimonios[testimonios.length-1].id + 1 : 1;
-    
-    const perfilActual = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
-    const fotoPerfilActual = (perfilActual && perfilActual.foto) ? perfilActual.foto : "media/default-profile.png";
-    
-    testimonios.push({
-      id, 
-      nombre: nombreUsuario, 
-      opinion, 
-      fecha: new Date().toISOString(),
-      fotoPerfil: fotoPerfilActual
-    });
-    
-    localStorage.setItem('testimonios', JSON.stringify(testimonios));
-    input.value = '';
-    mostrarTestimonios();
-  }
-
-  // Inicializar testimonios
-  function inicializarTestimonios() {
-    const testimonios = localStorage.getItem('testimonios');
-    if (!testimonios || JSON.parse(testimonios).length === 0) {
-      const ejemploTestimonios = [
-        {
-          id: 1,
-          nombre: "Admin",
-          opinion: "¡Bienvenidos a GameWorld! 🎮",
-          fecha: new Date().toISOString(),
-          fotoPerfil: "Fotos/caricatura.png"
-        }
-      ];
-      localStorage.setItem('testimonios', JSON.stringify(ejemploTestimonios));
+    try {
+      const nuevoComentario = {
+        nombre: nombreUsuario,
+        opinion: opinion,
+        fecha: new Date().toISOString()
+      };
+      
+      const { error } = await supabase
+        .from('testimonios')
+        .insert([nuevoComentario]);
+      
+      if (error) throw error;
+      
+      // Limpiar input y recargar comentarios
+      input.value = '';
+      await cargarTestimonios();
+      
+    } catch (error) {
+      console.error('Error al guardar comentario:', error);
+      alert('Error al guardar el comentario. Intenta de nuevo.');
     }
   }
 
-  inicializarTestimonios();
-  mostrarTestimonios();
+  // Verificar si hay un comentario inicial de bienvenida
+  async function inicializarTestimonios() {
+    try {
+      const { data: testimonios, error } = await supabase
+        .from('testimonios')
+        .select('*')
+        .limit(1);
+      
+      if (error) throw error;
+      
+      // Si no hay comentarios, crear uno de bienvenida
+      if (testimonios.length === 0) {
+        const comentarioInicial = {
+          nombre: "Admin",
+          opinion: "¡Bienvenidos a GameWorld! 🎮",
+          fecha: new Date().toISOString()
+        };
+        
+        const { error: insertError } = await supabase
+          .from('testimonios')
+          .insert([comentarioInicial]);
+        
+        if (insertError) throw insertError;
+      }
+      
+      // Cargar todos los comentarios
+      await cargarTestimonios();
+      
+    } catch (error) {
+      console.error('Error al inicializar testimonios:', error);
+      // Intentar cargar comentarios de todos modos
+      await cargarTestimonios();
+    }
+  }
+
+  // Inicializar testimonios solo si el usuario está logueado
+  if (nombreUsuario !== "Invitado") {
+    await inicializarTestimonios();
+  }
 
   // Event listeners para comentarios
   const boton = document.getElementById('guardarComentario');
-  if (boton) boton.addEventListener('click', agregarTestimonio);
+  if (boton) {
+    boton.addEventListener('click', agregarTestimonio);
+  }
   
   const textarea = document.getElementById('comentarioInput');
   if (textarea) {
