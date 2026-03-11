@@ -32,6 +32,15 @@ function checkDirectAccess() {
       return false;
     }
     
+    const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
+    const carrito = document.getElementById("carrito");
+    if(nombreUsuario=="Invitado"){
+      console.log('Acceso sin usuario registrado ocultar carrito.');
+      carrito.style.display = "none";
+    }else{
+      carrito.style.display = "flex";
+    }
+    
     console.log('✅ Acceso permitido - Navegación interna');
     
     document.addEventListener('DOMContentLoaded', function() {

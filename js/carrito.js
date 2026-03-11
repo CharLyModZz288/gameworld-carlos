@@ -15,6 +15,14 @@ function checkDirectAccess() {
       return false;
     }
     
+    const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
+    if(nombreUsuario=="Invitado"){
+      console.log('Acceso sin usuario registrado');
+      window.alert('Necesita registrarse en la pagina para acceder al carrito');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
     const currentDomain = window.location.hostname;
     const referrerDomain = new URL(referrer).hostname;
     

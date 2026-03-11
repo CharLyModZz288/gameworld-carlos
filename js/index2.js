@@ -1,9 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Inicializar Supabase (usa las mismas credenciales que en connection.js)
 const supabaseUrl = "https://vforasnmcipqpqwdkygm.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3Jhc25tY2lwcXBxd2RreWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTIzMTYsImV4cCI6MjA3ODE4ODMxNn0.wP71pAkOFJ8YYNNN7lIRfSrJloqKFsKq3bIjphWBqFc";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3Jhc25tY2lwcXBxd2RreWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTIzMTYsImV4cCI6MjA3ODE4ODMxNn0.wP71pAkOFJ8YYNNN7lIRfSrJloqKFsKq3bIjphWBqFc";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 window.addEventListener('load', async () => {
@@ -125,37 +123,89 @@ window.addEventListener('load', async () => {
     });
   }
 
-  // ---------- COMENTARIOS CON SUPABASE ----------
+  // ---------- COMENTARIOS CON SUPABASE (FILTRO POR FECHA Y PAGINACIÓN) ----------
   const testimoniosContainer = document.getElementById('comentariosContainer');
+  const filtroFecha = document.getElementById('filtroFecha');
+  const prevPage = document.getElementById('prevPage');
+  const nextPage = document.getElementById('nextPage');
+  const pageInfo = document.getElementById('pageInfo');
+  const totalComentarios = document.getElementById('totalComentarios');
 
-  // Función para cargar comentarios desde Supabase
-  async function cargarTestimonios() {
-    if (!testimoniosContainer) return;
-    
+  // Variables de estado
+  let currentPage = 1;
+  let itemsPerPage = 5;
+  let totalItems = 0;
+  let todosLosTestimonios = [];
+  let testimoniosFiltrados = [];
+
+  // Función para cargar todos los testimonios
+  async function cargarTodosLosTestimonios() {
     try {
-      testimoniosContainer.innerHTML = '<div class="loading-comments">Cargando comentarios...</div>';
-      
       const { data: testimonios, error } = await supabase
         .from('testimonios')
-        .select('*')
-        .order('fecha', { ascending: false });
+        .select('*');
       
       if (error) throw error;
       
-      if (testimonios.length === 0) {
-        testimoniosContainer.innerHTML = '<div class="no-comments">No hay comentarios aún. ¡Sé el primero en comentar!</div>';
-        return;
+      todosLosTestimonios = testimonios || [];
+      
+      // Calcular estadísticas
+      totalItems = todosLosTestimonios.length;
+      
+      if (totalComentarios) {
+        totalComentarios.textContent = `Total: ${totalItems}`;
       }
       
-      mostrarTestimonios(testimonios);
     } catch (error) {
       console.error('Error al cargar testimonios:', error);
-      testimoniosContainer.innerHTML = '<div class="error-comments">Error al cargar los comentarios. Intenta de nuevo más tarde.</div>';
     }
   }
 
+  // Función para aplicar filtros y ordenamiento
+  function aplicarFiltros() {
+    let filtrados = [...todosLosTestimonios];
+    
+    // Aplicar filtro de fecha
+    const ordenFecha = filtroFecha ? filtroFecha.value : 'nuevos';
+    if (ordenFecha === 'nuevos') {
+      filtrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    } else {
+      filtrados.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    }
+    
+    testimoniosFiltrados = filtrados;
+    totalItems = testimoniosFiltrados.length;
+    currentPage = 1;
+    
+    mostrarPaginaActual();
+  }
+
+  // Función para mostrar la página actual
+  function mostrarPaginaActual() {
+    if (!testimoniosContainer) return;
+    
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const testimoniosPagina = testimoniosFiltrados.slice(start, end);
+    
+    if (testimoniosPagina.length === 0 && currentPage > 1) {
+      currentPage--;
+      mostrarPaginaActual();
+      return;
+    }
+    
+    mostrarTestimonios(testimoniosPagina);
+    actualizarPaginacion();
+  }
+
+  // Función para mostrar los testimonios en el DOM
   function mostrarTestimonios(testimonios) {
     if (!testimoniosContainer) return;
+    
+    if (testimonios.length === 0) {
+      testimoniosContainer.innerHTML = '<div class="no-comments">No hay comentarios que coincidan con los filtros.</div>';
+      return;
+    }
     
     testimoniosContainer.innerHTML = '';
     
@@ -174,14 +224,35 @@ window.addEventListener('load', async () => {
       const contenido = document.createElement('div');
       contenido.className = 'comment-body';
       contenido.innerHTML = `
-        <span class="author">${c.nombre}</span>
-        <span class="date">${fecha}</span>
+        <div class="comment-header">
+          <div class="author-info">
+            <span class="author">${c.nombre}</span>
+            <span class="comment-date">${fecha}</span>
+          </div>
+        </div>
         <p class="text">${c.opinion}</p>
       `;
       
       div.appendChild(contenido);
       testimoniosContainer.appendChild(div);
     });
+  }
+
+  // Función para actualizar los controles de paginación
+  function actualizarPaginacion() {
+    const totalPages = Math.ceil(testimoniosFiltrados.length / itemsPerPage);
+    
+    if (pageInfo) {
+      pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
+    }
+    
+    if (prevPage) {
+      prevPage.disabled = currentPage <= 1;
+    }
+    
+    if (nextPage) {
+      nextPage.disabled = currentPage >= totalPages;
+    }
   }
 
   // Función para agregar comentario a Supabase
@@ -210,7 +281,8 @@ window.addEventListener('load', async () => {
       
       // Limpiar input y recargar comentarios
       input.value = '';
-      await cargarTestimonios();
+      await cargarTodosLosTestimonios();
+      aplicarFiltros();
       
     } catch (error) {
       console.error('Error al guardar comentario:', error);
@@ -229,7 +301,7 @@ window.addEventListener('load', async () => {
       if (error) throw error;
       
       // Si no hay comentarios, crear uno de bienvenida
-      if (testimonios.length === 0) {
+      if (!testimonios || testimonios.length === 0) {
         const comentarioInicial = {
           nombre: "Admin",
           opinion: "¡Bienvenidos a GameWorld! 🎮",
@@ -244,13 +316,41 @@ window.addEventListener('load', async () => {
       }
       
       // Cargar todos los comentarios
-      await cargarTestimonios();
+      await cargarTodosLosTestimonios();
+      aplicarFiltros();
       
     } catch (error) {
       console.error('Error al inicializar testimonios:', error);
-      // Intentar cargar comentarios de todos modos
-      await cargarTestimonios();
+      await cargarTodosLosTestimonios();
+      aplicarFiltros();
     }
+  }
+
+  // Event listeners para filtros
+  if (filtroFecha) {
+    filtroFecha.addEventListener('change', () => {
+      aplicarFiltros();
+    });
+  }
+  
+  // Event listeners para paginación
+  if (prevPage) {
+    prevPage.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        mostrarPaginaActual();
+      }
+    });
+  }
+  
+  if (nextPage) {
+    nextPage.addEventListener('click', () => {
+      const totalPages = Math.ceil(testimoniosFiltrados.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        mostrarPaginaActual();
+      }
+    });
   }
 
   // Inicializar testimonios solo si el usuario está logueado

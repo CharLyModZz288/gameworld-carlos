@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/index2.css">
   <script type="module" src="js/connection.js"></script>
-</head>
+ </head>
 <body>
 
   <!-- SEPARADORES LATERALES -->
@@ -61,6 +61,10 @@
 
             <div id="user-menu" class="user-menu hidden">
               <a href="perfil.html">Perfil</a>
+              <!-- FAVORITOS - Nueva opción en el menú -->
+              <a href="favoritos.html" class="favoritos-link">
+                <span>❤️ Favoritos</span>
+              </a>
               <!-- CARRITO - Visible para TODOS los usuarios -->
               <a href="carrito.html" id="carrito-link" class="carrito-link">
                 <span>🛒 Carrito</span>
@@ -120,8 +124,28 @@
           </div>
         </div>
 
+        <div class="comments-header">
+          <div class="stats-container" id="statsContainer">
+            <span class="stat-item" id="totalComentarios">Total: 0</span>
+          </div>
+          
+          <div class="comments-controls">
+            <select id="filtroFecha" class="filter-select">
+              <option value="nuevos">Más recientes primero</option>
+              <option value="antiguos">Más antiguos primero</option>
+            </select>
+          </div>
+        </div>
+
         <div id="comentariosContainer" class="comments-list">
           <div class="loading-comments">Cargando comentarios...</div>
+        </div>
+
+        <!-- PAGINACIÓN -->
+        <div class="pagination" id="pagination">
+          <button class="pagination-btn" id="prevPage" disabled>Anterior</button>
+          <span class="page-info" id="pageInfo">Página 1 de 1</span>
+          <button class="pagination-btn" id="nextPage" disabled>Siguiente</button>
         </div>
       </section>
 
