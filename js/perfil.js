@@ -41,16 +41,12 @@ window.addEventListener("load", async () => {
       userEmail = localStorage.getItem("emailUsuario");
       
       if (!userId || !userEmail) {
-        console.error("❌ No hay datos de usuario disponibles");
-        alert("Por favor, inicia sesión nuevamente");
-        window.location.href = "index.html";
-        return;
+        console.error("❌ No hay datos de usuario disponibles en localStorage");
+        console.warn("Usando modo de solo lectura - No se podrá cambiar la contraseña");
       }
     }
   } catch (error) {
     console.error("Error crítico al verificar sesión:", error);
-    alert("Error de autenticación. Por favor, recarga la página.");
-    return;
   }
 
   // =========================
@@ -60,6 +56,9 @@ window.addEventListener("load", async () => {
   const nombreInput = document.getElementById("nombre");
   const emailInput = document.getElementById("email");
   const bioInput = document.getElementById("bio");
+  const currentPasswordInput = document.getElementById("currentPassword");
+  const newPasswordInput = document.getElementById("newPassword");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
   const perfilForm = document.getElementById("perfilForm");
   const passwordForm = document.getElementById("passwordForm");
   const userMenuButton = document.getElementById("user-menu-button");
@@ -161,6 +160,12 @@ window.addEventListener("load", async () => {
         email: perfilData.email
       };
       
+      // Si también estamos actualizando la contraseña
+      if (perfilData.password) {
+        datos.password = perfilData.password;
+        datos.confir_contraseña = perfilData.password;
+      }
+      
       if (existingUser) {
         // UPDATE
         console.log("📝 Actualizando perfil existente (ID:", existingUser.id, ")");
@@ -176,8 +181,8 @@ window.addEventListener("load", async () => {
           id: userId,
           username: perfilData.username,
           email: perfilData.email,
-          password: localStorage.getItem("userPassword") || "temp_password",
-          confir_contraseña: localStorage.getItem("userPassword") || "temp_password",
+          password: perfilData.password || localStorage.getItem("userPassword") || "temp_password",
+          confir_contraseña: perfilData.password || localStorage.getItem("userPassword") || "temp_password",
           rol: 'user'
         };
         
@@ -204,6 +209,7 @@ window.addEventListener("load", async () => {
     // Cargar desde localStorage primero
     const nombreUsuario = localStorage.getItem("nombreUsuario") || "Usuario";
     const emailRegistrado = localStorage.getItem("emailUsuario") || userEmail || "";
+    const passwordGuardada = localStorage.getItem("userPassword") || "";
     
     const perfilGuardado = JSON.parse(localStorage.getItem(`perfil_${nombreUsuario}`));
     
@@ -213,11 +219,13 @@ window.addEventListener("load", async () => {
       if (nombreInput) nombreInput.value = perfilGuardado.nombre;
       if (emailInput) emailInput.value = perfilGuardado.email || emailRegistrado;
       if (bioInput) bioInput.value = perfilGuardado.bio || "";
+      if (currentPasswordInput) currentPasswordInput.value = passwordGuardada;
     } else {
       console.log("📦 No hay perfil en localStorage, usando valores por defecto");
       if (nombreNav) nombreNav.textContent = nombreUsuario;
       if (nombreInput) nombreInput.value = nombreUsuario;
       if (emailInput) emailInput.value = emailRegistrado;
+      if (currentPasswordInput) currentPasswordInput.value = passwordGuardada;
     }
 
     // Cargar desde Supabase
@@ -229,7 +237,13 @@ window.addEventListener("load", async () => {
         
         if (perfilSupabase.username && nombreInput) nombreInput.value = perfilSupabase.username;
         if (perfilSupabase.email && emailInput) emailInput.value = perfilSupabase.email;
+        if (perfilSupabase.password && currentPasswordInput) currentPasswordInput.value = perfilSupabase.password;
         if (nombreNav) nombreNav.textContent = perfilSupabase.username || nombreUsuario;
+
+        // Guardar contraseña en localStorage si existe
+        if (perfilSupabase.password) {
+          localStorage.setItem("userPassword", perfilSupabase.password);
+        }
 
         // Actualizar localStorage
         const perfilActualizado = {
@@ -313,15 +327,15 @@ window.addEventListener("load", async () => {
   }
 
   // =========================
-  // CAMBIAR CONTRASEÑA (VERSIÓN MEJORADA CON VERIFICACIÓN)
+  // EVENTO CAMBIAR CONTRASEÑA (NUEVO - IGUAL QUE GUARDAR PERFIL)
   // =========================
   if (passwordForm) {
     passwordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       
-      const currentPassword = document.getElementById("currentPassword")?.value;
-      const newPassword = document.getElementById("newPassword").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
+      const currentPassword = currentPasswordInput?.value;
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
       
       // Validaciones básicas
       if (!currentPassword) {
@@ -348,100 +362,47 @@ window.addEventListener("load", async () => {
         alert("❌ La nueva contraseña debe ser diferente a la actual");
         return;
       }
-
-      if (!session) {
-        alert("❌ No hay sesión activa");
-        return;
-      }
       
       const btnSubmit = e.target.querySelector('button[type="submit"]');
       const originalText = btnSubmit.textContent;
-      btnSubmit.textContent = 'Verificando...';
+      btnSubmit.textContent = 'Actualizando...';
       btnSubmit.disabled = true;
       
       try {
-        // PASO 1: Verificar que la contraseña actual es correcta
-        console.log("🔐 Verificando contraseña actual...");
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userEmail,
-          password: currentPassword
+        // PASO 1: Guardar en Supabase (IGUAL QUE EL PERFIL)
+        await guardarPerfilEnSupabase({
+          username: nombreInput.value,
+          email: emailInput.value,
+          password: newPassword  // Pasamos la nueva contraseña
         });
 
-        if (signInError) {
-          throw new Error("Contraseña actual incorrecta");
-        }
-        console.log("✅ Contraseña actual verificada");
-
-        // PASO 2: Actualizar contraseña en Auth de Supabase
-        console.log("🔄 Actualizando contraseña en Auth...");
-        const { error: authError } = await supabase.auth.updateUser({
-          password: newPassword
-        });
-
-        if (authError) throw authError;
-        console.log("✅ Contraseña actualizada en Auth");
-
-        // PASO 3: Buscar el usuario en la tabla users
-        console.log("🔍 Buscando usuario en tabla users...");
-        let userToUpdate = null;
-        
-        // Buscar por ID primero
-        if (userId) {
-          const { data, error } = await supabase
-            .from('users')
-            .select('id, username, email')
-            .eq('id', userId)
-            .maybeSingle();
-          
-          if (!error && data) userToUpdate = data;
-        }
-        
-        // Si no se encontró por ID, buscar por email
-        if (!userToUpdate && userEmail) {
-          const { data, error } = await supabase
-            .from('users')
-            .select('id, username, email')
-            .eq('email', userEmail)
-            .maybeSingle();
-          
-          if (!error && data) userToUpdate = data;
-        }
-
-        // PASO 4: Actualizar en la tabla users
-        if (userToUpdate) {
-          console.log("📝 Actualizando contraseña en tabla users...");
-          const { error: updateError } = await supabase
-            .from('users')
-            .update({ 
-              password: newPassword,
-              confir_contraseña: newPassword,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userToUpdate.id);
-
-          if (updateError) {
-            console.warn("⚠️ Error actualizando en tabla users:", updateError);
-            // No lanzamos error porque la contraseña ya se actualizó en Auth
-          } else {
-            console.log("✅ Contraseña actualizada en tabla users");
+        // PASO 2: Actualizar en Auth de Supabase (opcional pero recomendado)
+        if (session) {
+          try {
+            await supabase.auth.updateUser({ password: newPassword });
+            console.log("✅ Contraseña actualizada en Auth");
+          } catch (authError) {
+            console.warn("⚠️ No se pudo actualizar en Auth:", authError);
           }
-        } else {
-          console.warn("⚠️ No se encontró el usuario en la tabla users para actualizar la contraseña");
         }
 
-        // PASO 5: Actualizar en localStorage
+        // PASO 3: Actualizar en localStorage
         localStorage.setItem("userPassword", newPassword);
+        
+        // PASO 4: Actualizar el campo de contraseña actual
+        if (currentPasswordInput) {
+          currentPasswordInput.value = newPassword;
+        }
 
         alert('✅ Contraseña actualizada correctamente');
         
-        // Limpiar campos
-        document.getElementById("currentPassword").value = '';
-        document.getElementById("newPassword").value = '';
-        document.getElementById("confirmPassword").value = '';
+        // Limpiar solo los campos de nueva contraseña
+        newPasswordInput.value = '';
+        confirmPasswordInput.value = '';
         
       } catch (error) {
         console.error('❌ Error:', error);
-        alert('❌ ' + error.message);
+        alert('❌ Error al actualizar: ' + error.message);
       } finally {
         btnSubmit.textContent = originalText;
         btnSubmit.disabled = false;
@@ -505,16 +466,16 @@ window.addEventListener("load", async () => {
   // =========================
   // VALIDACIÓN DE CONTRASEÑAS EN TIEMPO REAL
   // =========================
-  const newPassword = document.getElementById("newPassword");
-  const confirmPassword = document.getElementById("confirmPassword");
-  const matchMessage = document.getElementById("passwordMatchMessage");
-
-  if (newPassword && confirmPassword && matchMessage) {
+  if (newPasswordInput && confirmPasswordInput) {
+    const matchMessage = document.getElementById("passwordMatchMessage");
+    
     function checkPasswordMatch() {
-      if (confirmPassword.value === '') {
+      if (!matchMessage) return;
+      
+      if (confirmPasswordInput.value === '') {
         matchMessage.textContent = '';
         matchMessage.className = 'password-match-message';
-      } else if (newPassword.value === confirmPassword.value) {
+      } else if (newPasswordInput.value === confirmPasswordInput.value) {
         matchMessage.textContent = '✅ Las contraseñas coinciden';
         matchMessage.className = 'password-match-message success';
       } else {
@@ -523,16 +484,16 @@ window.addEventListener("load", async () => {
       }
     }
 
-    newPassword.addEventListener('input', checkPasswordMatch);
-    confirmPassword.addEventListener('input', checkPasswordMatch);
+    newPasswordInput.addEventListener('input', checkPasswordMatch);
+    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
   }
 
   // =========================
   // MEDIDOR DE FORTALEZA DE CONTRASEÑA
   // =========================
   const passwordStrength = document.getElementById("passwordStrength");
-  if (newPassword && passwordStrength) {
-    newPassword.addEventListener('input', function() {
+  if (newPasswordInput && passwordStrength) {
+    newPasswordInput.addEventListener('input', function() {
       const value = this.value;
       const strengthBars = passwordStrength.querySelectorAll('.strength-bar');
       
@@ -540,9 +501,8 @@ window.addEventListener("load", async () => {
       if (value.length >= 6) strength++;
       if (value.match(/[A-Z]/)) strength++;
       if (value.match(/[0-9]/)) strength++;
-      if (value.match(/[^A-Za-z0-9]/)) strength++; // Caracter especial
+      if (value.match(/[^A-Za-z0-9]/)) strength++;
       
-      // Actualizar barras (máximo 4 ahora)
       strengthBars.forEach((bar, index) => {
         if (index < strength) {
           bar.style.backgroundColor = index === 0 ? '#ff4444' : 
