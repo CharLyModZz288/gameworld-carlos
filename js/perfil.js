@@ -144,7 +144,8 @@ window.addEventListener("load", async () => {
       
       const datos = {
         username: perfilData.username,
-        email:    perfilData.email
+        email:    perfilData.email,
+        bio:      perfilData.bio || null  // AÑADIDO: Guardar biografía
       };
       
       if (perfilData.password) {
@@ -165,6 +166,7 @@ window.addEventListener("load", async () => {
           id:                userId,
           username:          perfilData.username,
           email:             perfilData.email,
+          bio:               perfilData.bio || null,  // AÑADIDO: Guardar biografía
           password:          perfilData.password || "temp_password",
           confir_contraseña: perfilData.password || "temp_password",
           rol:               'user'
@@ -201,13 +203,12 @@ window.addEventListener("load", async () => {
       if (nombreInput) nombreInput.value       = perfilGuardado.nombre;
       if (emailInput)  emailInput.value        = perfilGuardado.email || emailRegistrado;
       if (bioInput)    bioInput.value          = perfilGuardado.bio || "";
-      // NO cargamos la contraseña en el campo actual
     } else {
       console.log("📦 No hay perfil en localStorage, usando valores por defecto");
       if (nombreNav)   nombreNav.textContent   = nombreUsuario;
       if (nombreInput) nombreInput.value       = nombreUsuario;
       if (emailInput)  emailInput.value        = emailRegistrado;
-      // NO cargamos la contraseña
+      if (bioInput)    bioInput.value          = "";  // AÑADIDO: Inicializar bio vacía
     }
 
     if (userEmail || userId) {
@@ -218,9 +219,9 @@ window.addEventListener("load", async () => {
         
         if (perfilSupabase.username && nombreInput) nombreInput.value = perfilSupabase.username;
         if (perfilSupabase.email && emailInput)     emailInput.value  = perfilSupabase.email;
+        if (perfilSupabase.bio && bioInput)         bioInput.value    = perfilSupabase.bio;  // AÑADIDO: Cargar biografía
         if (nombreNav)                               nombreNav.textContent = perfilSupabase.username || nombreUsuario;
 
-        // Guardamos la contraseña en localStorage pero NO la mostramos
         if (perfilSupabase.password) {
           localStorage.setItem("userPassword", perfilSupabase.password);
         }
@@ -228,13 +229,12 @@ window.addEventListener("load", async () => {
         const perfilActualizado = {
           nombre: perfilSupabase.username || nombreUsuario,
           email:  perfilSupabase.email    || emailRegistrado,
-          bio:    bioInput?.value || ""
+          bio:    perfilSupabase.bio      || ""  // AÑADIDO: Guardar biografía en localStorage
         };
         localStorage.setItem(`perfil_${perfilSupabase.username || nombreUsuario}`, JSON.stringify(perfilActualizado));
       }
     }
     
-    // Aseguramos que el campo de contraseña actual esté VACÍO
     if (currentPasswordInput) currentPasswordInput.value = '';
   }
 
@@ -271,7 +271,12 @@ window.addEventListener("load", async () => {
       btnSubmit.disabled = true;
 
       try {
-        await guardarPerfilEnSupabase({ username, email });
+        // AÑADIDO: Incluir bio en los datos guardados
+        await guardarPerfilEnSupabase({ 
+          username, 
+          email,
+          bio 
+        });
 
         const perfil = { nombre: username, email, bio };
         localStorage.setItem(`perfil_${username}`, JSON.stringify(perfil));
@@ -332,7 +337,6 @@ window.addEventListener("load", async () => {
         return;
       }
 
-      // Verificar que la contraseña actual sea correcta
       const storedPassword = localStorage.getItem("userPassword");
       if (currentPassword !== storedPassword) {
         alert("❌ La contraseña actual no es correcta");
@@ -345,9 +349,11 @@ window.addEventListener("load", async () => {
       btnSubmit.disabled = true;
       
       try {
+        // AÑADIDO: Incluir bio actual en la actualización de contraseña
         await guardarPerfilEnSupabase({
           username: nombreInput.value,
           email:    emailInput.value,
+          bio:      bioInput.value.trim(),  // AÑADIDO: Incluir biografía actual
           password: newPassword
         });
 
@@ -364,7 +370,6 @@ window.addEventListener("load", async () => {
         
         alert('✅ Contraseña actualizada correctamente');
         
-        // Limpiar todos los campos
         currentPasswordInput.value  = '';
         newPasswordInput.value      = '';
         confirmPasswordInput.value  = '';
