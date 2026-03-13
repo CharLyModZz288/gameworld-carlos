@@ -192,6 +192,84 @@ function añadirAlCarrito(juego) {
 // Hacer la función global para que pueda ser llamada desde el HTML
 window.añadirAlCarrito = añadirAlCarrito;
 
+// Función para añadir juego a favoritos (similar a añadirAlCarrito)
+async function añadirAFavorito(juego) {
+  console.log('Añadiendo a favoritos:', juego);
+
+  try {
+    const userId = localStorage.getItem("userId");
+    const nombreUsuario = localStorage.getItem("nombreUsuario");
+
+    if (!userId || nombreUsuario === "Invitado") {
+      mostrarNotificacion('Debes iniciar sesión para añadir a favoritos', 'error');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return false;
+    }
+
+    // Comprobar si el juego ya está en favoritos del usuario
+    const { data: existing, error: checkError } = await supabase
+      .from('favoritos')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('juego_id', juego.id)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error al comprobar favorito existente:', checkError);
+      mostrarNotificacion('Error al verificar favoritos', 'error');
+      return false;
+    }
+
+    // Si ya existe, mostramos mensaje y no hacemos nada
+    if (existing) {
+      mostrarNotificacion(`❤️ ${juego.nombre} ya está en tus favoritos`, 'error');
+      return false;
+    }
+
+    // Insertar el nuevo favorito
+    const { error: insertError } = await supabase
+      .from('favoritos')
+      .insert({
+        user_id: userId,
+        juego_id: juego.id,
+        fecha_agregado: new Date().toISOString()
+      });
+
+    if (insertError) {
+      console.error('Error al insertar favorito:', insertError);
+      mostrarNotificacion('Error al añadir a favoritos', 'error');
+      return false;
+    }
+
+    // Notificar éxito y actualizar UI
+    mostrarNotificacion(`❤️ ${juego.nombre} añadido a favoritos`, 'success');
+    actualizarBotonFavorito(juego.id, true);
+
+    return true;
+  } catch (error) {
+    console.error('Error inesperado en añadirAFavorito:', error);
+    mostrarNotificacion('Error inesperado', 'error');
+    return false;
+  }
+}
+
+// Función auxiliar para actualizar el botón de favorito en el modal
+function actualizarBotonFavorito(juegoId, esFavorito) {
+  const boton = document.querySelector(`.favorite-btn[data-juego-id="${juegoId}"]`);
+  if (boton) {
+    if (esFavorito) {
+      boton.classList.add('active');
+      boton.innerHTML = '❤️ Quitar';
+    } else {
+      boton.classList.remove('active');
+      boton.innerHTML = '❤️ Favorito';
+    }
+  }
+}
+
+// Hacer la función global
+window.añadirAFavorito = añadirAFavorito;
+
 // Cargar juegos
 window.addEventListener("load", async () => {
   console.log('Página cargada, inicializando...'); // Debug
@@ -295,9 +373,16 @@ window.abrirModal = function (juego) {
         class="modal-image"
       >
       <div class="modal-info">
-        <h2 class="modal-game-title">
-          ${juego.nombre}
-        </h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+          <h2 class="modal-game-title" style="margin: 0;">${juego.nombre}</h2>
+          <button class="reserve-btn available favourite favorite-inline" 
+              data-juego-id="${juego.id}" 
+              onclick="añadirJuegoFavorito()"
+              span="Favorito"
+              style="width: auto; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem; flex:0; margin-right: 2.5rem;">
+            ❤️
+          </button>
+        </div>
         <p class="modal-description">
           ${juego.descripcion || "Descripción no disponible"}
         </p>
@@ -364,6 +449,16 @@ window.añadirJuegoSeleccionado = function() {
   } else {
     console.error('No hay juego seleccionado');
     mostrarNotificacion('Error al añadir al carrito', 'error');
+  }
+};
+
+// Nueva función para añadir el juego seleccionado
+window.añadirJuegoFavorito = function() {
+  if (window.juegoSeleccionado) {
+    añadirAFavorito(window.juegoSeleccionado);
+  } else {
+    console.error('No hay juego seleccionado');
+    mostrarNotificacion('Error al añadir a favorito', 'error');
   }
 };
 

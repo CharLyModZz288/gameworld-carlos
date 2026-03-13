@@ -230,6 +230,84 @@ function añadirAlCarrito(producto) {
 // Hacer la función global para que pueda ser llamada desde el HTML
 window.añadirAlCarrito = añadirAlCarrito;
 
+// Función para añadir juego a favoritos (similar a añadirAlCarrito)
+async function añadirAFavorito(producto) {
+  console.log('Añadiendo a favoritos:', producto);
+
+  try {
+    const userId = localStorage.getItem("userId");
+    const nombreUsuario = localStorage.getItem("nombreUsuario");
+
+    if (!userId || nombreUsuario === "Invitado") {
+      mostrarNotificacion('Debes iniciar sesión para añadir a favoritos', 'error');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return false;
+    }
+
+    // Comprobar si el juego ya está en favoritos del usuario
+    const { data: existing, error: checkError } = await supabase
+      .from('favoritos')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('merch_id', producto.id)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error al comprobar favorito existente:', checkError);
+      mostrarNotificacion('Error al verificar favoritos', 'error');
+      return false;
+    }
+
+    // Si ya existe, mostramos mensaje y no hacemos nada
+    if (existing) {
+      mostrarNotificacion(`❤️ ${producto.nombre} ya está en tus favoritos`, 'error');
+      return false;
+    }
+
+    // Insertar el nuevo favorito
+    const { error: insertError } = await supabase
+      .from('favoritos')
+      .insert({
+        user_id: userId,
+        merch_id: producto.id,
+        fecha_agregado: new Date().toISOString()
+      });
+
+    if (insertError) {
+      console.error('Error al insertar favorito:', insertError);
+      mostrarNotificacion('Error al añadir a favoritos', 'error');
+      return false;
+    }
+
+    // Notificar éxito y actualizar UI
+    mostrarNotificacion(`❤️ ${producto.nombre} añadido a favoritos`, 'success');
+    actualizarBotonFavorito(producto.id, true);
+
+    return true;
+  } catch (error) {
+    console.error('Error inesperado en añadirAFavorito:', error);
+    mostrarNotificacion('Error inesperado', 'error');
+    return false;
+  }
+}
+
+// Función auxiliar para actualizar el botón de favorito en el modal
+function actualizarBotonFavorito(juegoId, esFavorito) {
+  const boton = document.querySelector(`.favorite-btn[data-juego-id="${juegoId}"]`);
+  if (boton) {
+    if (esFavorito) {
+      boton.classList.add('active');
+      boton.innerHTML = '❤️ Quitar';
+    } else {
+      boton.classList.remove('active');
+      boton.innerHTML = '❤️ Favorito';
+    }
+  }
+}
+
+// Hacer la función global
+window.añadirAFavorito = añadirAFavorito;
+
 // DATOS DE RESPALDO
 const datosRespaldo = [
   {
@@ -320,9 +398,18 @@ window.abrirModalProducto = function(producto) {
         class="modal-image"
       >
       <div class="modal-info">
-        <h2 class="modal-game-title">
-          ${producto.nombre}
-        </h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+          <h2 class="modal-game-title">
+            ${producto.nombre}
+          </h2>
+          <button class="reserve-btn available favourite favorite-inline" 
+              data-merch-id="${producto.id}" 
+              onclick="añadirProductoFavorito()"
+              span="Favorito"
+              style="width: auto; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem; flex:0; margin-right: 2.5rem;">
+            ❤️
+          </button>
+        </div>
         <p class="modal-description">
           ${producto.descripcion || "Descripción no disponible"}
         </p>
@@ -387,6 +474,17 @@ window.añadirProductoSeleccionado = function() {
     mostrarNotificacion('Error al añadir al carrito', 'error');
   }
 };
+
+// Nueva función para añadir el juego seleccionado
+window.añadirProductoFavorito = function() {
+  if (window.productoSeleccionado) {
+    añadirAFavorito(window.productoSeleccionado);
+  } else {
+    console.error('No hay juego seleccionado');
+    mostrarNotificacion('Error al añadir a favorito', 'error');
+  }
+};
+
 
 // Función para cerrar modal
 window.cerrarModal = function() {
