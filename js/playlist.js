@@ -1,23 +1,21 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll
+// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
-let scrollTimeout;
+let ticking = false;
+let rafId = null;
 
 // Verificar si se accede directamente por URL o mediante navegación interna
 function checkDirectAccess() {
   try {
-    // Obtener el referrer para saber de qué página viene
     const referrer = document.referrer;
     
-    // Si no hay referrer o viene de fuera del sitio, es acceso directo por URL
     if (!referrer) {
       console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
     
-    // Verificar que el referrer sea de nuestro propio sitio
     const currentDomain = window.location.hostname;
     const referrerDomain = new URL(referrer).hostname;
     
@@ -27,7 +25,6 @@ function checkDirectAccess() {
       return false;
     }
     
-    // Verificar que viene de una página válida de nuestra aplicación
     const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
     const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
     
@@ -37,10 +34,8 @@ function checkDirectAccess() {
       return false;
     }
     
-    // Si pasa todas las verificaciones, mostrar el contenido
     console.log('✅ Acceso permitido - Navegación interna');
     
-    // Mostrar el contenido
     document.addEventListener('DOMContentLoaded', function() {
       document.body.style.overflow = 'auto';
     });
@@ -48,48 +43,53 @@ function checkDirectAccess() {
     return true;
   } catch (error) {
     console.error('Error en verificación:', error);
-    // En caso de error, permitir acceso (mejor falso positivo que bloquear a usuarios legítimos)
     return true;
   }
 }
 
-// Ejecutar verificación
 checkDirectAccess();
 
 const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll
+// Función para manejar el scroll - OPTIMIZADA
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
   
-  if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
-    navbar.classList.remove('visible');
-  } else {
-    navbar.classList.add('visible');
+  if (Math.abs(scrollTop - lastScrollTop) > 5) {
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+      navbar.classList.remove('visible');
+    } else {
+      navbar.classList.add('visible');
+    }
+    
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
   
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
   const distanceToBottom = documentHeight - (scrollTop + windowHeight);
   
   if (distanceToBottom < 200) {
-    footer.classList.add('visible');
-    footer.classList.add('fade-in-up');
+    if (!footer.classList.contains('visible')) {
+      footer.classList.add('visible', 'fade-in-up');
+    }
   } else {
-    footer.classList.remove('visible');
-    footer.classList.remove('fade-in-up');
+    if (footer.classList.contains('visible')) {
+      footer.classList.remove('visible', 'fade-in-up');
+    }
   }
-  
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 }
 
 function optimizedScrollHandler() {
-  if (scrollTimeout) {
-    window.cancelAnimationFrame(scrollTimeout);
+  if (!ticking) {
+    rafId = requestAnimationFrame(() => {
+      handleScroll();
+      ticking = false;
+    });
+    ticking = true;
   }
-  scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
 // Función para generar duración aleatoria
@@ -108,10 +108,53 @@ function esDestacado() {
   return Math.random() > 0.7;
 }
 
-// Función para obtener género musical
-function obtenerGenero() {
+// Función para obtener género musical (normalizado)
+function obtenerGenero(generoInput) {
+  const genero = generoInput || '';
+  const generoLower = genero.toLowerCase();
+  
+  if (generoLower.includes('ost') || generoLower.includes('soundtrack') || generoLower.includes('banda sonora')) return 'OST';
+  if (generoLower.includes('rock')) return 'Rock';
+  if (generoLower.includes('electr') || generoLower.includes('dance') || generoLower.includes('edm')) return 'Electrónica';
+  if (generoLower.includes('orquest') || generoLower.includes('orchestra') || generoLower.includes('sinfónico')) return 'Orquestal';
+  if (generoLower.includes('chiptune') || generoLower.includes('8-bit') || generoLower.includes('16-bit')) return 'Chiptune';
+  if (generoLower.includes('ambient') || generoLower.includes('relajante') || generoLower.includes('lo-fi')) return 'Ambient';
+  
+  // Si no coincide con ninguno, asignar aleatorio
   const generos = ['OST', 'Rock', 'Electrónica', 'Orquestal', 'Chiptune', 'Ambient'];
   return generos[Math.floor(Math.random() * generos.length)];
+}
+
+// Iconos por género
+function getGeneroIcon(genero) {
+  const iconos = {
+    'OST': '🎮',
+    'Rock': '🎸',
+    'Electrónica': '⚡',
+    'Orquestal': '🎻',
+    'Chiptune': '🕹️',
+    'Ambient': '🌌',
+    'Pop': '🎤',
+    'Hip-Hop': '🎧',
+    'Clásica': '🎼'
+  };
+  return iconos[genero] || '🎵';
+}
+
+// Colores por género
+function getGeneroColor(genero) {
+  const colores = {
+    'OST': '#6366f1',
+    'Rock': '#ef4444',
+    'Electrónica': '#10b981',
+    'Orquestal': '#8b5cf6',
+    'Chiptune': '#f59e0b',
+    'Ambient': '#3b82f6',
+    'Pop': '#ec4899',
+    'Hip-Hop': '#f97316',
+    'Clásica': '#a855f7'
+  };
+  return colores[genero] || '#6366f1';
 }
 
 // DATOS DE RESPALDO
@@ -175,64 +218,33 @@ const datosRespaldo = [
     descripcion: "Música de mundos fantásticos",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
     origen: "GameWorld"
+  },
+  {
+    nombre: "⚡ EDM Gaming Mix",
+    genero: "Electrónica",
+    canciones: 28,
+    duracion: "130 min",
+    destacado: true,
+    descripcion: "Lo mejor de la música electrónica para jugar",
+    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+    origen: "GameWorld"
+  },
+  {
+    nombre: "🎻 Symphony of Games",
+    genero: "Orquestal",
+    canciones: 16,
+    duracion: "75 min",
+    destacado: false,
+    descripcion: "Versiones sinfónicas de temas clásicos",
+    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+    origen: "GameWorld"
   }
 ];
 
-// Función para crear tarjeta de playlist
-function crearTarjeta(track) {
-  const nombre = track.nombre || track.name || "Playlist sin título";
-  const genero = track.genero || obtenerGenero();
-  const canciones = track.canciones || generarCanciones();
-  const duracion = track.duracion || generarDuracion();
-  const destacado = track.destacado !== undefined ? track.destacado : esDestacado();
-  const audioUrl = track.audio || track.url || datosRespaldo[0].audio;
-  const descripcion = track.descripcion || "Soundtrack gamer épico";
-  
-  const trackData = {
-    nombre: nombre,
-    descripcion: descripcion,
-    genero: genero,
-    canciones: canciones,
-    duracion: duracion,
-    destacado: destacado,
-    audio: audioUrl,
-    origen: track.origen || "GameWorld"
-  };
-  
-  const trackJSON = JSON.stringify(trackData).replace(/'/g, "&apos;");
-  
-  return `
-    <div class="playlist-card" onclick='abrirModal(${trackJSON})'>
-      <div class="playlist-image-container">
-        <div class="playlist-icon">
-          🎧
-        </div>
-        <span class="playlist-genre-tag">${genero}</span>
-        ${destacado ? '<span class="playlist-featured-tag">DESTACADO</span>' : ''}
-      </div>
-      <div class="playlist-info">
-        <h3 class="playlist-title">
-          ${nombre}
-        </h3>
-        <div class="playlist-details">
-          <div class="playlist-tracks-row">
-            <span class="playlist-tracks-label">CANCIONES</span>
-            <span class="playlist-tracks-value">${canciones}</span>
-          </div>
-          <div class="playlist-duration-row">
-            <span class="playlist-duration-label">DURACIÓN</span>
-            <span class="playlist-duration-value">${duracion}</span>
-          </div>
-        </div>
-        <button class="playlist-button" onclick="event.stopPropagation(); abrirModal(${trackJSON})">
-          ESCUCHAR
-        </button>
-      </div>
-    </div>
-  `;
-}
-
 // Cargar playlists
+let playlistsCache = null;
+let cargaEnProgreso = false;
+
 window.addEventListener("load", async () => {
   const loader = document.getElementById("loader");
   const body = document.body;
@@ -253,11 +265,20 @@ window.addEventListener("load", async () => {
 
   // Mostrar mensaje de carga
   grid.innerHTML = `
-    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-      <div style="width: 60px; height: 60px; border: 4px solid #6366f133; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
-      <p style="color: #9ca3af; font-family: Orbitron;">Cargando playlists...</p>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Cargando playlists...</p>
     </div>
   `;
+
+  if (playlistsCache) {
+    renderizarPlaylists(playlistsCache);
+    if (loader) loader.classList.add("hidden");
+    return;
+  }
+
+  if (cargaEnProgreso) return;
+  cargaEnProgreso = true;
 
   // Intentar cargar de Supabase primero
   try {
@@ -266,28 +287,24 @@ window.addEventListener("load", async () => {
       .select("*")
       .order("id", { ascending: true });
 
+    cargaEnProgreso = false;
+
     if (error || !playlists || playlists.length === 0) {
       console.log("No hay datos en BD, cargando respaldo");
-      grid.innerHTML = '';
-      datosRespaldo.forEach(track => {
-        grid.innerHTML += crearTarjeta(track);
-      });
+      playlistsCache = datosRespaldo;
+      renderizarPlaylists(datosRespaldo);
     } else {
-      grid.innerHTML = '';
-      playlists.forEach(track => {
-        grid.innerHTML += crearTarjeta({
-          ...track,
-          origen: "Base de datos",
-          audio: track.url
-        });
-      });
+      playlistsCache = playlists;
+      renderizarPlaylists(playlists.map(track => ({
+        ...track,
+        origen: "Base de datos",
+        audio: track.url
+      })));
     }
   } catch (error) {
     console.error("Error cargando playlists:", error);
-    grid.innerHTML = '';
-    datosRespaldo.forEach(track => {
-      grid.innerHTML += crearTarjeta(track);
-    });
+    playlistsCache = datosRespaldo;
+    renderizarPlaylists(datosRespaldo);
   }
   
   // Ocultar loader
@@ -296,37 +313,151 @@ window.addEventListener("load", async () => {
   }
 });
 
+// ============================================
+// FUNCIÓN DE RENDERIZADO - POR GÉNEROS
+// ============================================
+function renderizarPlaylists(playlists) {
+  const grid = document.getElementById("gridPlaylists");
+  if (!grid) return;
+
+  // Agrupar playlists por género
+  const playlistsPorGenero = {};
+  
+  playlists.forEach(track => {
+    const genero = obtenerGenero(track.genero);
+    if (!playlistsPorGenero[genero]) {
+      playlistsPorGenero[genero] = [];
+    }
+    
+    const trackData = {
+      nombre: track.nombre || track.name || "Playlist sin título",
+      descripcion: track.descripcion || "Soundtrack gamer épico",
+      genero: genero,
+      canciones: track.canciones || generarCanciones(),
+      duracion: track.duracion || generarDuracion(),
+      destacado: track.destacado !== undefined ? track.destacado : esDestacado(),
+      audio: track.audio || track.url || datosRespaldo[0].audio,
+      origen: track.origen || "GameWorld"
+    };
+    
+    playlistsPorGenero[genero].push(trackData);
+  });
+
+  // Orden de géneros (personalizable)
+  const ordenGeneros = ['OST', 'Orquestal', 'Rock', 'Electrónica', 'Chiptune', 'Ambient', 'Pop', 'Hip-Hop', 'Clásica'];
+  
+  const generosOrdenados = Object.keys(playlistsPorGenero).sort((a, b) => {
+    const indexA = ordenGeneros.indexOf(a);
+    const indexB = ordenGeneros.indexOf(b);
+    
+    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+
+  // Usar DocumentFragment para mejor rendimiento
+  const fragment = document.createDocumentFragment();
+  
+  generosOrdenados.forEach(genero => {
+    const playlistsGen = playlistsPorGenero[genero];
+    const generoColor = getGeneroColor(genero);
+    const generoIcon = getGeneroIcon(genero);
+    
+    const section = document.createElement('div');
+    section.className = 'genero-section';
+    section.setAttribute('data-genero', genero);
+    
+    section.innerHTML = `
+      <div class="genero-header" style="border-bottom-color: ${generoColor}80;">
+        <span class="genero-icon" style="filter: drop-shadow(0 0 10px ${generoColor});">${generoIcon}</span>
+        <h2 class="genero-title" style="color: ${generoColor};">${genero}</h2>
+        <span class="genero-count" style="background: ${generoColor}20; color: ${generoColor}; border-color: ${generoColor};">${playlistsGen.length} playlists</span>
+      </div>
+      <div class="genero-playlists-grid">
+    `;
+    
+    playlistsGen.forEach(track => {
+      const trackJSON = JSON.stringify(track).replace(/'/g, "&apos;");
+      
+      const playlistHTML = `
+        <div class="playlist-card" onclick='abrirModal(${trackJSON})'>
+          <div class="playlist-image-container" style="background: linear-gradient(135deg, ${generoColor}, ${generoColor}80);">
+            <div class="playlist-icon">
+              ${generoIcon}
+            </div>
+            <span class="playlist-genre-tag" style="border-color: ${generoColor};">${genero}</span>
+            ${track.destacado ? '<span class="playlist-featured-tag">DESTACADO</span>' : ''}
+          </div>
+          <div class="playlist-info">
+            <h3 class="playlist-title">
+              ${track.nombre}
+            </h3>
+            <div class="playlist-details">
+              <div class="playlist-tracks-row">
+                <span class="playlist-tracks-label">CANCIONES</span>
+                <span class="playlist-tracks-value" style="color: ${generoColor};">${track.canciones}</span>
+              </div>
+              <div class="playlist-duration-row">
+                <span class="playlist-duration-label">DURACIÓN</span>
+                <span class="playlist-duration-value" style="background: ${generoColor}20; color: ${generoColor}; border-color: ${generoColor}80;">${track.duracion}</span>
+              </div>
+            </div>
+            <button class="playlist-button" style="border-color: ${generoColor}; color: ${generoColor};" 
+                    onmouseover="this.style.background='${generoColor}'; this.style.color='white';" 
+                    onmouseout="this.style.background='transparent'; this.style.color='${generoColor}';"
+                    onclick="event.stopPropagation(); abrirModal(${trackJSON})">
+              ESCUCHAR
+            </button>
+          </div>
+        </div>
+      `;
+      
+      const temp = document.createElement('div');
+      temp.innerHTML = playlistHTML;
+      section.querySelector('.genero-playlists-grid').appendChild(temp.firstElementChild);
+    });
+    
+    fragment.appendChild(section);
+  });
+
+  grid.innerHTML = '';
+  grid.appendChild(fragment);
+}
+
 // Función para abrir modal
 window.abrirModal = function (track) {
   const modal = document.getElementById("modalPlaylist");
   const contenido = document.getElementById("modalContenido");
+  const generoColor = getGeneroColor(track.genero);
+  const generoIcon = getGeneroIcon(track.genero);
 
   if (!modal || !contenido) return;
 
   contenido.innerHTML = `
-    <div style="padding: 2rem;">
-      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 5rem; margin-bottom: 1rem;">
-        🎵
+    <div class="modal-playlist-content">
+      <div class="modal-gradient-icon" style="background: linear-gradient(135deg, ${generoColor}, ${generoColor}80);">
+        ${generoIcon}
       </div>
-      <h2 style="font-size: 2rem; font-weight: 700; color: #6366f1; text-align: center; margin-bottom: 1rem; font-family: Orbitron;">${track.nombre}</h2>
-      <p style="color: #e5e7eb; line-height: 1.6; text-align: center; margin-bottom: 1.5rem; font-family: Orbitron;">${track.descripcion}</p>
+      <h2 class="modal-track-title" style="color: ${generoColor};">${track.nombre}</h2>
+      <p class="modal-description">${track.descripcion}</p>
       
-      <div style="display: flex; justify-content: center; gap: 2rem; margin: 1rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
-        <div style="text-align: center;">
-          <span style="display: block; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">Género</span>
-          <span style="font-size: 1.1rem; font-weight: 700; color: #8b5cf6;">${track.genero}</span>
+      <div class="modal-stats">
+        <div class="stat-item">
+          <span class="stat-label">Género</span>
+          <span class="stat-value" style="color: ${generoColor};">${track.genero}</span>
         </div>
-        <div style="text-align: center;">
-          <span style="display: block; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">Canciones</span>
-          <span style="font-size: 1.1rem; font-weight: 700; color: #8b5cf6;">${track.canciones}</span>
+        <div class="stat-item">
+          <span class="stat-label">Canciones</span>
+          <span class="stat-value" style="color: ${generoColor};">${track.canciones}</span>
         </div>
-        <div style="text-align: center;">
-          <span style="display: block; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">Duración</span>
-          <span style="font-size: 1.1rem; font-weight: 700; color: #8b5cf6;">${track.duracion}</span>
+        <div class="stat-item">
+          <span class="stat-label">Duración</span>
+          <span class="stat-value" style="color: ${generoColor};">${track.duracion}</span>
         </div>
       </div>
       
-      <p style="font-size: 0.9rem; color: #9ca3af; text-align: center; margin: 1rem 0; font-style: italic;">Fuente: ${track.origen}</p>
+      <p class="modal-source">Fuente: ${track.origen}</p>
       
       <audio controls style="width: 100%; margin-top: 1rem;">
         <source src="${track.audio}" type="audio/mpeg">
@@ -369,7 +500,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
   }
-});
+}, { passive: true });
 
 document.addEventListener("click", (e) => {
   const modal = document.getElementById("modalPlaylist");
@@ -392,8 +523,12 @@ document.body.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-window.addEventListener('resize', () => {
-  handleScroll();
+window.addEventListener('resize', () => {}, { passive: true });
+
+window.addEventListener('beforeunload', () => {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+  }
 });
 
-console.log("Script de playlists cargado correctamente");
+console.log("Script de playlists cargado correctamente (con géneros y optimizado)");

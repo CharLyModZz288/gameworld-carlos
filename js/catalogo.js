@@ -1,8 +1,9 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll
+// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
-let scrollTimeout;
+let ticking = false;
+let rafId = null;
 
 function checkDirectAccess() {
   try {
@@ -34,11 +35,8 @@ function checkDirectAccess() {
     
     const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
     const carrito = document.getElementById("carrito");
-    if(nombreUsuario=="Invitado"){
-      console.log('Acceso sin usuario registrado ocultar carrito.');
-      carrito.style.display = "none";
-    }else{
-      carrito.style.display = "flex";
+    if (carrito) {
+      carrito.style.display = nombreUsuario === "Invitado" ? "none" : "flex";
     }
     
     console.log('✅ Acceso permitido - Navegación interna');
@@ -60,43 +58,55 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll
+// Función para manejar el scroll - OPTIMIZADA con requestAnimationFrame
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
   
-  if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
-    navbar.classList.remove('visible');
-  } else {
-    navbar.classList.add('visible');
+  // Solo actualizar si hay un cambio significativo
+  if (Math.abs(scrollTop - lastScrollTop) > 5) {
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+      navbar.classList.remove('visible');
+    } else {
+      navbar.classList.add('visible');
+    }
+    
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
   
+  // Footer - optimizado
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
   const distanceToBottom = documentHeight - (scrollTop + windowHeight);
   
   if (distanceToBottom < 200) {
-    footer.classList.add('visible');
-    footer.classList.add('fade-in-up');
+    if (!footer.classList.contains('visible')) {
+      footer.classList.add('visible', 'fade-in-up');
+    }
   } else {
-    footer.classList.remove('visible');
-    footer.classList.remove('fade-in-up');
+    if (footer.classList.contains('visible')) {
+      footer.classList.remove('visible', 'fade-in-up');
+    }
   }
-  
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 }
 
+// Optimización: usar requestAnimationFrame correctamente
 function optimizedScrollHandler() {
-  if (scrollTimeout) {
-    window.cancelAnimationFrame(scrollTimeout);
+  if (!ticking) {
+    rafId = requestAnimationFrame(() => {
+      handleScroll();
+      ticking = false;
+    });
+    ticking = true;
   }
-  scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
-// Función para mostrar notificaciones
+// Función para mostrar notificaciones - OPTIMIZADA
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Eliminar notificaciones existentes
-  const notificacionesExistentes = document.querySelectorAll('.cart-notification');
-  notificacionesExistentes.forEach(notif => notif.remove());
+  // Eliminar notificaciones existentes de manera eficiente
+  const notificacionExistente = document.querySelector('.cart-notification');
+  if (notificacionExistente) {
+    notificacionExistente.remove();
+  }
   
   const notificacion = document.createElement('div');
   notificacion.className = 'cart-notification';
@@ -104,23 +114,33 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
     : 'linear-gradient(135deg, #ef4444, #dc2626)';
   notificacion.textContent = mensaje;
+  notificacion.style.willChange = 'transform, opacity';
   
   document.body.appendChild(notificacion);
   
+  // Usar setTimeout en lugar de requestAnimationFrame para el cleanup
   setTimeout(() => {
-    notificacion.remove();
-  }, 3000);
+    if (notificacion.parentNode) {
+      notificacion.style.opacity = '0';
+      notificacion.style.transform = 'translateX(100%)';
+      setTimeout(() => notificacion.remove(), 300);
+    }
+  }, 2700);
 }
 
-// Función para actualizar el contador del carrito
+// Función para actualizar el contador del carrito - OPTIMIZADA con memoización
+let cachedTotalItems = -1;
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   
-  // Actualizar contador en el navbar
-  const contadorNav = document.getElementById('carrito-contador-nav');
-  if (contadorNav) {
-    contadorNav.textContent = totalItems;
+  // Solo actualizar el DOM si el valor cambió
+  if (totalItems !== cachedTotalItems) {
+    const contadorNav = document.getElementById('carrito-contador-nav');
+    if (contadorNav) {
+      contadorNav.textContent = totalItems;
+    }
+    cachedTotalItems = totalItems;
   }
   
   return totalItems;
@@ -134,9 +154,9 @@ function inicializarCarrito() {
   actualizarContadorCarrito();
 }
 
-// Función para añadir al carrito
+// Función para añadir al carrito - OPTIMIZADA
 function añadirAlCarrito(juego) {
-  console.log('Añadiendo al carrito:', juego); // Debug
+  console.log('Añadiendo al carrito:', juego);
 
   // Verificar si el usuario está logueado
   const nombreUsuario = localStorage.getItem("nombreUsuario");
@@ -160,11 +180,9 @@ function añadirAlCarrito(juego) {
   const existeIndex = carrito.findIndex(item => item.id === juego.id);
   
   if (existeIndex !== -1) {
-    // Incrementar cantidad si ya existe
     carrito[existeIndex].cantidad = (carrito[existeIndex].cantidad || 1) + 1;
-    mostrarNotificacion(`✓ ${juego.nombre} - Cantidad actualizada en el carrito`);
+    mostrarNotificacion(`✓ ${juego.nombre} - Cantidad actualizada`);
   } else {
-    // Añadir nuevo item al carrito
     carrito.push({
       id: juego.id,
       nombre: juego.nombre,
@@ -180,19 +198,15 @@ function añadirAlCarrito(juego) {
     mostrarNotificacion(`✓ ${juego.nombre} añadido al carrito`);
   }
   
-  // Guardar en localStorage
   localStorage.setItem('carrito', JSON.stringify(carrito));
-  
-  // Actualizar contador
   actualizarContadorCarrito();
   
   return true;
 }
 
-// Hacer la función global para que pueda ser llamada desde el HTML
 window.añadirAlCarrito = añadirAlCarrito;
 
-// Función para añadir juego a favoritos (similar a añadirAlCarrito)
+// Función para añadir juego a favoritos
 async function añadirAFavorito(juego) {
   console.log('Añadiendo a favoritos:', juego);
 
@@ -206,7 +220,6 @@ async function añadirAFavorito(juego) {
       return false;
     }
 
-    // Comprobar si el juego ya está en favoritos del usuario
     const { data: existing, error: checkError } = await supabase
       .from('favoritos')
       .select('id')
@@ -220,13 +233,11 @@ async function añadirAFavorito(juego) {
       return false;
     }
 
-    // Si ya existe, mostramos mensaje y no hacemos nada
     if (existing) {
       mostrarNotificacion(`❤️ ${juego.nombre} ya está en tus favoritos`, 'error');
       return false;
     }
 
-    // Insertar el nuevo favorito
     const { error: insertError } = await supabase
       .from('favoritos')
       .insert({
@@ -241,7 +252,6 @@ async function añadirAFavorito(juego) {
       return false;
     }
 
-    // Notificar éxito y actualizar UI
     mostrarNotificacion(`❤️ ${juego.nombre} añadido a favoritos`, 'success');
     actualizarBotonFavorito(juego.id, true);
 
@@ -253,7 +263,6 @@ async function añadirAFavorito(juego) {
   }
 }
 
-// Función auxiliar para actualizar el botón de favorito en el modal
 function actualizarBotonFavorito(juegoId, esFavorito) {
   const boton = document.querySelector(`.favorite-btn[data-juego-id="${juegoId}"]`);
   if (boton) {
@@ -267,42 +276,51 @@ function actualizarBotonFavorito(juegoId, esFavorito) {
   }
 }
 
-// Hacer la función global
 window.añadirAFavorito = añadirAFavorito;
 
-// Cargar juegos
+// Cargar juegos - OPTIMIZADO con debounce y caché
+let juegosCache = null;
+let cargaEnProgreso = false;
+
 window.addEventListener("load", async () => {
-  console.log('Página cargada, inicializando...'); // Debug
+  console.log('Página cargada, inicializando...');
   
   const loader = document.getElementById("loader");
   const body = document.body;
   const grid = document.getElementById("gridJuegos");
 
-  // Inicializar carrito
   inicializarCarrito();
 
   body.classList.add("fade-in");
 
-  if (window.pageYOffset > 0) {
-    navbar.classList.add('visible');
-  }
-
+  // Optimización: solo agregar event listener una vez
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
 
   if (loader) {
     loader.classList.add("hidden");
   }
 
-  // Cargar juegos desde Supabase
-  console.log('Cargando juegos desde Supabase...'); // Debug
+  // Si ya tenemos caché, usar esa
+  if (juegosCache) {
+    renderizarJuegos(juegosCache);
+    return;
+  }
+
+  // Evitar múltiples cargas simultáneas
+  if (cargaEnProgreso) return;
+  cargaEnProgreso = true;
+
+  console.log('Cargando juegos desde Supabase...');
   
   const { data: juegos, error: juegosError } = await supabase
     .from("Juegos")
     .select("*")
     .order("id", { ascending: true });
 
+  cargaEnProgreso = false;
+
   if (juegosError) {
-    console.error('Error al cargar juegos:', juegosError); // Debug
+    console.error('Error al cargar juegos:', juegosError);
     grid.innerHTML = `
       <p class="loading-text" style="color: #ef4444;">
         Error al cargar los juegos: ${juegosError.message}
@@ -320,66 +338,139 @@ window.addEventListener("load", async () => {
     return;
   }
 
-  console.log('Juegos cargados:', juegos.length); // Debug
-
-  grid.innerHTML = juegos.map(juego => `
-    <div class="game-card">
-      <div class="game-image-container" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
-        <img
-          src="${juego.imagen}"
-          alt="${juego.nombre}"
-          loading="lazy"
-        >
-        <span class="game-platform-tag">${juego.plataforma?.toUpperCase() || "NINTENDO SWITCH"}</span>
-        ${juego.regalo ? '<span class="game-gift-tag">INCLUYE REGALO</span>' : ''}
-      </div>
-      <div class="game-info">
-        <h3 class="game-title">
-          ${juego.nombre}
-        </h3>
-        <div class="game-details">
-          <div class="game-price-row">
-            <span class="game-price-label">COMPRAR</span>
-            <span class="game-price-value">${juego.precio ? juego.precio.toFixed(2) : "0.00"}€</span>
-          </div>
-          <div class="game-points-row">
-            <span class="game-points-label">PUNTOS</span>
-            <span class="game-points-value">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
-          </div>
-        </div>
-        <button class="game-button" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
-          VER DETALLES
-        </button>
-      </div>
-    </div>
-  `).join("");
+  console.log('Juegos cargados:', juegos.length);
+  
+  // Guardar en caché
+  juegosCache = juegos;
+  
+  // Renderizar con fragment para mejor rendimiento
+  renderizarJuegos(juegos);
 });
 
-// Función para abrir modal - VERSIÓN CORREGIDA
+// Función separada para renderizar - OPTIMIZADA con DocumentFragment
+function renderizarJuegos(juegos) {
+  const grid = document.getElementById("gridJuegos");
+  if (!grid) return;
+
+  // Agrupar juegos por plataforma
+  const juegosPorPlataforma = {};
+  
+  juegos.forEach(juego => {
+    const plataforma = juego.plataforma || 'Otras plataformas';
+    if (!juegosPorPlataforma[plataforma]) {
+      juegosPorPlataforma[plataforma] = [];
+    }
+    juegosPorPlataforma[plataforma].push(juego);
+  });
+
+  // Ordenar plataformas
+  const ordenPlataformas = ['Nintendo Switch', 'PS5', 'PS4', 'Xbox Series X', 'Xbox One', 'PC', 'Otras plataformas'];
+  
+  const plataformasOrdenadas = Object.keys(juegosPorPlataforma).sort((a, b) => {
+    const indexA = ordenPlataformas.indexOf(a);
+    const indexB = ordenPlataformas.indexOf(b);
+    
+    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+
+  // Usar DocumentFragment para mejor rendimiento
+  const fragment = document.createDocumentFragment();
+  
+  plataformasOrdenadas.forEach(plataforma => {
+    const juegosPlataforma = juegosPorPlataforma[plataforma];
+    
+    let iconoPlataforma = '🎮';
+    if (plataforma.includes('Nintendo')) iconoPlataforma = '🟥';
+    if (plataforma.includes('PS5') || plataforma.includes('PS4')) iconoPlataforma = '🔵';
+    if (plataforma.includes('Xbox')) iconoPlataforma = '🟢';
+    if (plataforma.includes('PC')) iconoPlataforma = '💻';
+    
+    // Crear elementos del DOM directamente
+    const section = document.createElement('div');
+    section.className = 'platform-section';
+    section.setAttribute('data-platform', plataforma);
+    
+    section.innerHTML = `
+      <div class="platform-header">
+        <span class="platform-icon">${iconoPlataforma}</span>
+        <h2 class="platform-title">${plataforma}</h2>
+        <span class="platform-count">${juegosPlataforma.length} juegos</span>
+      </div>
+      <div class="platform-games-grid">
+    `;
+    
+    juegosPlataforma.forEach(juego => {
+      const juegoHTML = `
+        <div class="game-card">
+          <div class="game-image-container" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+            <img
+              src="${juego.imagen}"
+              alt="${juego.nombre}"
+              loading="lazy"
+            >
+            <span class="game-platform-tag">${juego.plataforma?.toUpperCase() || "NINTENDO SWITCH"}</span>
+            ${juego.regalo ? '<span class="game-gift-tag">INCLUYE REGALO</span>' : ''}
+          </div>
+          <div class="game-info">
+            <h3 class="game-title">
+              ${juego.nombre}
+            </h3>
+            <div class="game-details">
+              <div class="game-price-row">
+                <span class="game-price-label">COMPRAR</span>
+                <span class="game-price-value">${juego.precio ? juego.precio.toFixed(2) : "0.00"}€</span>
+              </div>
+              <div class="game-points-row">
+                <span class="game-points-label">PUNTOS</span>
+                <span class="game-points-value">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
+              </div>
+            </div>
+            <button class="game-button" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+              VER DETALLES
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Crear contenedor temporal para convertir string a nodos
+      const temp = document.createElement('div');
+      temp.innerHTML = juegoHTML;
+      section.querySelector('.platform-games-grid').appendChild(temp.firstElementChild);
+    });
+    
+    fragment.appendChild(section);
+  });
+
+  // Limpiar y añadir todo de una vez
+  grid.innerHTML = '';
+  grid.appendChild(fragment);
+}
+
+// Función para abrir modal - OPTIMIZADA
 window.abrirModal = function (juego) {
-  console.log('Abriendo modal para:', juego.nombre); // Debug
+  console.log('Abriendo modal para:', juego.nombre);
   
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
 
-  // Guardar el juego en una variable global
   window.juegoSeleccionado = juego;
 
+  // Usar template string para mejor rendimiento
   contenido.innerHTML = `
     <div class="modal-grid">
       <img
         src="${juego.imagen}"
         alt="${juego.nombre}"
         class="modal-image"
+        loading="lazy"
       >
       <div class="modal-info">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-          <h2 class="modal-game-title" style="margin: 0;">${juego.nombre}</h2>
-          <button class="reserve-btn available favourite favorite-inline" 
-              data-juego-id="${juego.id}" 
-              onclick="añadirJuegoFavorito()"
-              span="Favorito"
-              style="width: auto; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem; flex:0; margin-right: 2.5rem;">
+        <div class="modal-header">
+          <h2 class="modal-game-title">${juego.nombre}</h2>
+          <button class="favorite-btn-modal" onclick="añadirJuegoFavorito()">
             ❤️
           </button>
         </div>
@@ -402,18 +493,12 @@ window.abrirModal = function (juego) {
             ${juego.estado || "No disponible"}
           </span>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
-          <span style="color: var(--text-muted); font-size: 0.9rem;">Puntos al comprar:</span>
-          <span class="game-points-value" style="font-size: 1rem;">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
+        <div class="points-row">
+          <span>Puntos al comprar:</span>
+          <span class="game-points-value">${juego.puntos || Math.floor((juego.precio || 0) * 6)}</span>
         </div>
-        ${juego.regalo ? `
-          <div style="background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.1)); border: 1px solid #ef4444; border-radius: 8px; padding: 0.75rem; margin: 0.5rem 0;">
-            <p style="color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-              <span>🎁</span> Este juego incluye un regalo especial
-            </p>
-          </div>
-        ` : ''}
-        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        ${juego.regalo ? '<div class="gift-badge">🎁 Incluye regalo especial</div>' : ''}
+        <div class="modal-buttons">
           <button
             class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
             ${juego.estado !== "Disponible" ? "disabled" : ""}
@@ -422,9 +507,8 @@ window.abrirModal = function (juego) {
             🛒 ${juego.estado === "Disponible" ? "Añadir al carrito" : "No disponible"}
           </button>
           <button
-            class="reserve-btn available"
+            class="reserve-btn available secondary"
             onclick="window.location.href='carrito.html'"
-            style="background: transparent; border: 2px solid #6366f1;"
           >
             Ver Carrito
           </button>
@@ -442,7 +526,6 @@ window.abrirModal = function (juego) {
   }
 };
 
-// Nueva función para añadir el juego seleccionado
 window.añadirJuegoSeleccionado = function() {
   if (window.juegoSeleccionado) {
     añadirAlCarrito(window.juegoSeleccionado);
@@ -452,7 +535,6 @@ window.añadirJuegoSeleccionado = function() {
   }
 };
 
-// Nueva función para añadir el juego seleccionado
 window.añadirJuegoFavorito = function() {
   if (window.juegoSeleccionado) {
     añadirAFavorito(window.juegoSeleccionado);
@@ -462,7 +544,6 @@ window.añadirJuegoFavorito = function() {
   }
 };
 
-// Función para cerrar modal
 window.cerrarModal = function () {
   const modal = document.getElementById("modalJuego");
   modal.classList.add("hidden");
@@ -474,12 +555,12 @@ window.cerrarModal = function () {
   }
 };
 
-// Event listeners
+// Event listeners - OPTIMIZADOS
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
   }
-});
+}, { passive: true });
 
 document.addEventListener("click", (e) => {
   const modal = document.getElementById("modalJuego");
@@ -495,6 +576,7 @@ window.addEventListener("popstate", (e) => {
   }
 });
 
+// Optimización: solo prevenir touchmove si el modal está abierto
 document.body.addEventListener('touchmove', (e) => {
   const modal = document.getElementById("modalJuego");
   if (!modal.classList.contains('hidden')) {
@@ -503,8 +585,8 @@ document.body.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 window.addEventListener('resize', () => {
-  handleScroll();
-});
+  // No hacer nada en resize para evitar recálculos innecesarios
+}, { passive: true });
 
 // Escuchar cambios en localStorage desde otras pestañas
 window.addEventListener('storage', (e) => {
@@ -513,4 +595,11 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-console.log("Script de catálogo cargado correctamente");
+// Limpiar recursos al descargar la página
+window.addEventListener('beforeunload', () => {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+  }
+});
+
+console.log("Script de catálogo cargado correctamente (versión optimizada)");

@@ -60,6 +60,7 @@ window.addEventListener("load", async () => {
   const userMenu               = document.getElementById("user-menu");
   const userMenuContainer      = document.getElementById("user-menu-container");
   const cerrarSesionBtn        = document.getElementById("cerrarSesion");
+  const purchasesContainer     = document.getElementById("purchasesContainer");
 
   // =========================
   // CARGAR PERFIL DESDE SUPABASE
@@ -145,7 +146,7 @@ window.addEventListener("load", async () => {
       const datos = {
         username: perfilData.username,
         email:    perfilData.email,
-        bio:      perfilData.bio || null  // AÑADIDO: Guardar biografía
+        bio:      perfilData.bio || null
       };
       
       if (perfilData.password) {
@@ -166,7 +167,7 @@ window.addEventListener("load", async () => {
           id:                userId,
           username:          perfilData.username,
           email:             perfilData.email,
-          bio:               perfilData.bio || null,  // AÑADIDO: Guardar biografía
+          bio:               perfilData.bio || null,
           password:          perfilData.password || "temp_password",
           confir_contraseña: perfilData.password || "temp_password",
           rol:               'user'
@@ -185,6 +186,112 @@ window.addEventListener("load", async () => {
     } catch (error) {
       console.error("❌ Error guardando en Supabase:", error);
       throw error;
+    }
+  }
+
+  // =========================
+  // NUEVA FUNCIÓN: Cargar compras desde LOCALSTORAGE
+  // =========================
+  function cargarComprasUsuario() {
+    if (!purchasesContainer) return;
+    
+    try {
+      // Obtener email del usuario actual para filtrar
+      const emailActual = userEmail || localStorage.getItem("emailUsuario");
+      const nombreActual = localStorage.getItem("nombreUsuario") || "Usuario";
+      
+      if (!emailActual) {
+        purchasesContainer.innerHTML = `
+          <div class="no-purchases">
+            <p>Inicia sesión para ver tus compras</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Obtener todas las compras de localStorage
+      const todasLasCompras = JSON.parse(localStorage.getItem('compras_usuario')) || [];
+      
+      // Filtrar solo las compras del usuario actual
+      const comprasUsuario = todasLasCompras.filter(compra => 
+        compra.usuario_email === emailActual
+      );
+      
+      if (comprasUsuario.length === 0) {
+        purchasesContainer.innerHTML = `
+          <div class="no-purchases">
+            <div class="no-purchases-icon">🛒</div>
+            <h4>Aún no has realizado ninguna compra</h4>
+            <p>Explora nuestro catálogo y encuentra los mejores productos</p>
+            <a href="catalogo.html" class="browse-catalog-btn">Ver catálogo</a>
+          </div>
+        `;
+        return;
+      }
+      
+      // Ordenar por fecha (más reciente primero)
+      comprasUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      
+      // Mostrar las compras
+      let html = '';
+      
+      comprasUsuario.forEach(compra => {
+        const fecha = new Date(compra.fecha);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const estadoClass = compra.estado === 'pendiente' ? 'status-pending' : 
+                           compra.estado === 'completado' ? 'status-completed' : 
+                           'status-cancelled';
+        
+        const estadoIcono = compra.estado === 'pendiente' ? '⏳' : 
+                           compra.estado === 'completado' ? '✅' : '❌';
+        
+        html += `
+          <div class="purchase-card">
+            <div class="purchase-header">
+              <span class="purchase-date">📅 ${fechaFormateada}</span>
+              <span class="purchase-status ${estadoClass}">${estadoIcono} ${compra.estado}</span>
+            </div>
+            
+            <div class="purchase-products">
+              ${compra.productos.map(producto => `
+                <div class="purchase-product">
+                  <span class="product-name">${producto.nombre}</span>
+                  <span class="product-quantity">x${producto.cantidad}</span>
+                  <span class="product-price">${(producto.precio * producto.cantidad).toFixed(2)}€</span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="purchase-footer">
+              <span class="purchase-total-label">Total:</span>
+              <span class="purchase-total">${compra.total.toFixed(2)}€</span>
+            </div>
+            
+            ${compra.estado === 'pendiente' ? `
+              <div class="purchase-message">
+                ⏳ Recibirá próximamente los detalles para efectuar el pago
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      purchasesContainer.innerHTML = html;
+      
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      purchasesContainer.innerHTML = `
+        <div class="error-purchases">
+          <p>Error al cargar las compras</p>
+        </div>
+      `;
     }
   }
 
@@ -208,7 +315,7 @@ window.addEventListener("load", async () => {
       if (nombreNav)   nombreNav.textContent   = nombreUsuario;
       if (nombreInput) nombreInput.value       = nombreUsuario;
       if (emailInput)  emailInput.value        = emailRegistrado;
-      if (bioInput)    bioInput.value          = "";  // AÑADIDO: Inicializar bio vacía
+      if (bioInput)    bioInput.value          = "";
     }
 
     if (userEmail || userId) {
@@ -219,7 +326,7 @@ window.addEventListener("load", async () => {
         
         if (perfilSupabase.username && nombreInput) nombreInput.value = perfilSupabase.username;
         if (perfilSupabase.email && emailInput)     emailInput.value  = perfilSupabase.email;
-        if (perfilSupabase.bio && bioInput)         bioInput.value    = perfilSupabase.bio;  // AÑADIDO: Cargar biografía
+        if (perfilSupabase.bio && bioInput)         bioInput.value    = perfilSupabase.bio;
         if (nombreNav)                               nombreNav.textContent = perfilSupabase.username || nombreUsuario;
 
         if (perfilSupabase.password) {
@@ -229,13 +336,16 @@ window.addEventListener("load", async () => {
         const perfilActualizado = {
           nombre: perfilSupabase.username || nombreUsuario,
           email:  perfilSupabase.email    || emailRegistrado,
-          bio:    perfilSupabase.bio      || ""  // AÑADIDO: Guardar biografía en localStorage
+          bio:    perfilSupabase.bio      || ""
         };
         localStorage.setItem(`perfil_${perfilSupabase.username || nombreUsuario}`, JSON.stringify(perfilActualizado));
       }
     }
     
     if (currentPasswordInput) currentPasswordInput.value = '';
+    
+    // Cargar compras del usuario (DESDE LOCALSTORAGE)
+    cargarComprasUsuario();
   }
 
   // =========================
@@ -271,7 +381,6 @@ window.addEventListener("load", async () => {
       btnSubmit.disabled = true;
 
       try {
-        // AÑADIDO: Incluir bio en los datos guardados
         await guardarPerfilEnSupabase({ 
           username, 
           email,
@@ -349,11 +458,10 @@ window.addEventListener("load", async () => {
       btnSubmit.disabled = true;
       
       try {
-        // AÑADIDO: Incluir bio actual en la actualización de contraseña
         await guardarPerfilEnSupabase({
           username: nombreInput.value,
           email:    emailInput.value,
-          bio:      bioInput.value.trim(),  // AÑADIDO: Incluir biografía actual
+          bio:      bioInput.value.trim(),
           password: newPassword
         });
 

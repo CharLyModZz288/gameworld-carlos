@@ -1095,3 +1095,291 @@ body.access-allowed #access-check {
     width: 100%;
   }
 }
+/* ========================= */
+/* SECCIONES POR PLATAFORMA */
+/* ========================= */
+
+.platform-section {
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease;
+  width: 100%;
+}
+
+.platform-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+  position: relative;
+}
+
+.platform-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  animation: glowWidth 3s infinite ease-in-out;
+}
+
+@keyframes glowWidth {
+  0%, 100% { width: 100px; opacity: 0.5; }
+  50% { width: 200px; opacity: 1; }
+}
+
+.platform-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 10px var(--primary));
+}
+
+.platform-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.platform-count {
+  margin-left: auto;
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--primary);
+  padding: 0.25rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--primary);
+}
+
+.platform-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Estilos específicos por plataforma - Nintendo Switch */
+.platform-section[data-platform="Nintendo Switch"] .platform-header {
+  border-bottom-color: #e60012;
+}
+.platform-section[data-platform="Nintendo Switch"] .platform-header::after {
+  background: linear-gradient(90deg, #e60012, transparent);
+}
+.platform-section[data-platform="Nintendo Switch"] .platform-count {
+  background: rgba(230, 0, 18, 0.2);
+  color: #e60012;
+  border-color: #e60012;
+}
+.platform-section[data-platform="Nintendo Switch"] .platform-icon {
+  filter: drop-shadow(0 0 10px #e60012);
+}
+
+/* PlayStation */
+.platform-section[data-platform="PS5"] .platform-header,
+.platform-section[data-platform="PS4"] .platform-header {
+  border-bottom-color: #003791;
+}
+.platform-section[data-platform="PS5"] .platform-header::after,
+.platform-section[data-platform="PS4"] .platform-header::after {
+  background: linear-gradient(90deg, #003791, transparent);
+}
+.platform-section[data-platform="PS5"] .platform-count,
+.platform-section[data-platform="PS4"] .platform-count {
+  background: rgba(0, 55, 145, 0.2);
+  color: #003791;
+  border-color: #003791;
+}
+.platform-section[data-platform="PS5"] .platform-icon,
+.platform-section[data-platform="PS4"] .platform-icon {
+  filter: drop-shadow(0 0 10px #003791);
+}
+
+/* Xbox */
+.platform-section[data-platform="Xbox Series X"] .platform-header,
+.platform-section[data-platform="Xbox One"] .platform-header {
+  border-bottom-color: #107c10;
+}
+.platform-section[data-platform="Xbox Series X"] .platform-header::after,
+.platform-section[data-platform="Xbox One"] .platform-header::after {
+  background: linear-gradient(90deg, #107c10, transparent);
+}
+.platform-section[data-platform="Xbox Series X"] .platform-count,
+.platform-section[data-platform="Xbox One"] .platform-count {
+  background: rgba(16, 124, 16, 0.2);
+  color: #107c10;
+  border-color: #107c10;
+}
+.platform-section[data-platform="Xbox Series X"] .platform-icon,
+.platform-section[data-platform="Xbox One"] .platform-icon {
+  filter: drop-shadow(0 0 10px #107c10);
+}
+
+/* PC */
+.platform-section[data-platform="PC"] .platform-header {
+  border-bottom-color: #00a4ef;
+}
+.platform-section[data-platform="PC"] .platform-header::after {
+  background: linear-gradient(90deg, #00a4ef, transparent);
+}
+.platform-section[data-platform="PC"] .platform-count {
+  background: rgba(0, 164, 239, 0.2);
+  color: #00a4ef;
+  border-color: #00a4ef;
+}
+.platform-section[data-platform="PC"] .platform-icon {
+  filter: drop-shadow(0 0 10px #00a4ef);
+}
+
+/* Animación de entrada para cada sección */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.platform-section:nth-child(1) { animation-delay: 0.1s; }
+.platform-section:nth-child(2) { animation-delay: 0.2s; }
+.platform-section:nth-child(3) { animation-delay: 0.3s; }
+.platform-section:nth-child(4) { animation-delay: 0.4s; }
+.platform-section:nth-child(5) { animation-delay: 0.5s; }
+.platform-section:nth-child(6) { animation-delay: 0.6s; }
+.platform-section:nth-child(7) { animation-delay: 0.7s; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .platform-header {
+    flex-wrap: wrap;
+  }
+  
+  .platform-title {
+    font-size: 1.4rem;
+  }
+  
+  .platform-icon {
+    font-size: 1.6rem;
+  }
+  
+  .platform-count {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .platform-games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .platform-title {
+    font-size: 1.2rem;
+  }
+  
+  .platform-games-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ajuste para el grid principal */
+.games-grid {
+  display: block !important; /* Cambiamos a block para que las secciones se apilen */
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Mantener las tarjetas dentro de cada sección */
+.game-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #1f2937;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+/* Añadir al final de tu catalogo.css */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.favorite-btn-modal {
+  width: auto;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 2px solid #ef4444;
+  color: #ef4444;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorite-btn-modal:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.05);
+}
+
+.points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.gift-badge {
+  background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.1));
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  color: #ef4444;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.reserve-btn.secondary {
+  background: transparent;
+  border: 2px solid #6366f1;
+  color: #6366f1;
+}
+
+.reserve-btn.secondary:hover {
+  background: #6366f1;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .modal-buttons {
+    flex-direction: column;
+  }
+}

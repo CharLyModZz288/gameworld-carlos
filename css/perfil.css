@@ -483,3 +483,226 @@ body.access-allowed #access-check {
 body.access-allowed .page-container {
   opacity: 1;
 }
+/* ========================= */
+/* SECCIÓN DE COMPRAS        */
+/* ========================= */
+.purchases-title {
+  font-size: 2rem;
+  color: white;
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.purchases-container {
+  max-width: 900px;
+  margin: 0 auto 4rem;
+  padding: 0 1rem;
+}
+
+.loading-purchases {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(30, 30, 50, 0.5);
+  border-radius: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(99, 102, 241, 0.3);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-purchases p {
+  color: #a0a0a0;
+  font-size: 1.1rem;
+}
+
+.no-purchases {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(30, 30, 50, 0.5);
+  border-radius: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.no-purchases-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-purchases h4 {
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.no-purchases p {
+  color: #a0a0a0;
+  margin-bottom: 2rem;
+}
+
+.browse-catalog-btn {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.browse-catalog-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+.error-purchases {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #dc2626;
+  border-radius: 20px;
+  color: #ef4444;
+}
+
+.purchase-card {
+  background: rgba(20, 20, 35, 0.8);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.purchase-card:hover {
+  transform: translateY(-5px);
+  border-color: #6366f1;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+}
+
+.purchase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.purchase-date {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+.purchase-status {
+  padding: 0.25rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.status-cancelled {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.purchase-products {
+  margin-bottom: 1.5rem;
+}
+
+.purchase-product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.purchase-product:last-child {
+  border-bottom: none;
+}
+
+.product-name {
+  flex: 2;
+  color: white;
+  font-weight: 500;
+}
+
+.product-quantity {
+  flex: 0.5;
+  text-align: center;
+  color: #a0a0a0;
+}
+
+.product-price {
+  flex: 0.5;
+  text-align: right;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.purchase-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(99, 102, 241, 0.3);
+}
+
+.purchase-total-label {
+  color: white;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+}
+
+.purchase-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.purchase-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid #6366f1;
+  border-radius: 10px;
+  color: #a5b4fc;
+  text-align: center;
+  font-size: 0.95rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

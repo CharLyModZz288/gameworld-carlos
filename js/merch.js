@@ -1,8 +1,9 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll
+// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
-let scrollTimeout;
+let ticking = false;
+let rafId = null;
 
 function checkDirectAccess() {
   try {
@@ -34,11 +35,8 @@ function checkDirectAccess() {
     
     const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
     const carrito = document.getElementById("carrito");
-    if(nombreUsuario=="Invitado"){
-      console.log('Acceso sin usuario registrado ocultar carrito.');
-      carrito.style.display = "none";
-    }else{
-      carrito.style.display = "flex";
+    if (carrito) {
+      carrito.style.display = nombreUsuario === "Invitado" ? "none" : "flex";
     }
 
     console.log('✅ Acceso permitido - Navegación interna');
@@ -60,43 +58,51 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll
+// Función para manejar el scroll - OPTIMIZADA
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
   
-  if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
-    navbar.classList.remove('visible');
-  } else {
-    navbar.classList.add('visible');
+  if (Math.abs(scrollTop - lastScrollTop) > 5) {
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+      navbar.classList.remove('visible');
+    } else {
+      navbar.classList.add('visible');
+    }
+    
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
   
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
   const distanceToBottom = documentHeight - (scrollTop + windowHeight);
   
   if (distanceToBottom < 200) {
-    footer.classList.add('visible');
-    footer.classList.add('fade-in-up');
+    if (!footer.classList.contains('visible')) {
+      footer.classList.add('visible', 'fade-in-up');
+    }
   } else {
-    footer.classList.remove('visible');
-    footer.classList.remove('fade-in-up');
+    if (footer.classList.contains('visible')) {
+      footer.classList.remove('visible', 'fade-in-up');
+    }
   }
-  
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 }
 
 function optimizedScrollHandler() {
-  if (scrollTimeout) {
-    window.cancelAnimationFrame(scrollTimeout);
+  if (!ticking) {
+    rafId = requestAnimationFrame(() => {
+      handleScroll();
+      ticking = false;
+    });
+    ticking = true;
   }
-  scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
-// Función para mostrar notificaciones
+// Función para mostrar notificaciones - OPTIMIZADA
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Eliminar notificaciones existentes
-  const notificacionesExistentes = document.querySelectorAll('.cart-notification');
-  notificacionesExistentes.forEach(notif => notif.remove());
+  const notificacionExistente = document.querySelector('.cart-notification');
+  if (notificacionExistente) {
+    notificacionExistente.remove();
+  }
   
   const notificacion = document.createElement('div');
   notificacion.className = 'cart-notification';
@@ -104,23 +110,31 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
     : 'linear-gradient(135deg, #ef4444, #dc2626)';
   notificacion.textContent = mensaje;
+  notificacion.style.willChange = 'transform, opacity';
   
   document.body.appendChild(notificacion);
   
   setTimeout(() => {
-    notificacion.remove();
-  }, 3000);
+    if (notificacion.parentNode) {
+      notificacion.style.opacity = '0';
+      notificacion.style.transform = 'translateX(100%)';
+      setTimeout(() => notificacion.remove(), 300);
+    }
+  }, 2700);
 }
 
-// Función para actualizar el contador del carrito
+// Función para actualizar el contador del carrito - OPTIMIZADA
+let cachedTotalItems = -1;
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   
-  // Actualizar contador en el navbar
-  const contadorNav = document.getElementById('carrito-contador-nav');
-  if (contadorNav) {
-    contadorNav.textContent = totalItems;
+  if (totalItems !== cachedTotalItems) {
+    const contadorNav = document.getElementById('carrito-contador-nav');
+    if (contadorNav) {
+      contadorNav.textContent = totalItems;
+    }
+    cachedTotalItems = totalItems;
   }
   
   return totalItems;
@@ -170,9 +184,8 @@ function esNuevo() {
 
 // Función para añadir al carrito
 function añadirAlCarrito(producto) {
-  console.log('Añadiendo al carrito:', producto); // Debug
+  console.log('Añadiendo al carrito:', producto);
 
-  // Verificar si el usuario está logueado
   const nombreUsuario = localStorage.getItem("nombreUsuario");
   if (!nombreUsuario || nombreUsuario === "Invitado") {
     mostrarNotificacion('Debes iniciar sesión para comprar', 'error');
@@ -182,7 +195,6 @@ function añadirAlCarrito(producto) {
     return false;
   }
 
-  // Verificar si hay stock
   if (producto.stock <= 0) {
     mostrarNotificacion('Producto agotado', 'error');
     return false;
@@ -190,20 +202,16 @@ function añadirAlCarrito(producto) {
 
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  // Buscar si el producto ya está en el carrito
   const existeIndex = carrito.findIndex(item => item.id === `merch_${producto.id}`);
   
   if (existeIndex !== -1) {
-    // Verificar que no exceda el stock disponible
     if (carrito[existeIndex].cantidad >= producto.stock) {
       mostrarNotificacion(`No hay más stock disponible de ${producto.nombre}`, 'error');
       return false;
     }
-    // Incrementar cantidad si ya existe
     carrito[existeIndex].cantidad = (carrito[existeIndex].cantidad || 1) + 1;
-    mostrarNotificacion(`✓ ${producto.nombre} - Cantidad actualizada en el carrito`);
+    mostrarNotificacion(`✓ ${producto.nombre} - Cantidad actualizada`);
   } else {
-    // Añadir nuevo item al carrito
     carrito.push({
       id: `merch_${producto.id}`,
       nombre: producto.nombre,
@@ -218,19 +226,15 @@ function añadirAlCarrito(producto) {
     mostrarNotificacion(`✓ ${producto.nombre} añadido al carrito`);
   }
   
-  // Guardar en localStorage
   localStorage.setItem('carrito', JSON.stringify(carrito));
-  
-  // Actualizar contador
   actualizarContadorCarrito();
   
   return true;
 }
 
-// Hacer la función global para que pueda ser llamada desde el HTML
 window.añadirAlCarrito = añadirAlCarrito;
 
-// Función para añadir juego a favoritos (similar a añadirAlCarrito)
+// Función para añadir producto a favoritos
 async function añadirAFavorito(producto) {
   console.log('Añadiendo a favoritos:', producto);
 
@@ -244,7 +248,6 @@ async function añadirAFavorito(producto) {
       return false;
     }
 
-    // Comprobar si el juego ya está en favoritos del usuario
     const { data: existing, error: checkError } = await supabase
       .from('favoritos')
       .select('id')
@@ -258,13 +261,11 @@ async function añadirAFavorito(producto) {
       return false;
     }
 
-    // Si ya existe, mostramos mensaje y no hacemos nada
     if (existing) {
       mostrarNotificacion(`❤️ ${producto.nombre} ya está en tus favoritos`, 'error');
       return false;
     }
 
-    // Insertar el nuevo favorito
     const { error: insertError } = await supabase
       .from('favoritos')
       .insert({
@@ -279,7 +280,6 @@ async function añadirAFavorito(producto) {
       return false;
     }
 
-    // Notificar éxito y actualizar UI
     mostrarNotificacion(`❤️ ${producto.nombre} añadido a favoritos`, 'success');
     actualizarBotonFavorito(producto.id, true);
 
@@ -291,9 +291,8 @@ async function añadirAFavorito(producto) {
   }
 }
 
-// Función auxiliar para actualizar el botón de favorito en el modal
-function actualizarBotonFavorito(juegoId, esFavorito) {
-  const boton = document.querySelector(`.favorite-btn[data-juego-id="${juegoId}"]`);
+function actualizarBotonFavorito(productoId, esFavorito) {
+  const boton = document.querySelector(`.favorite-btn[data-producto-id="${productoId}"]`);
   if (boton) {
     if (esFavorito) {
       boton.classList.add('active');
@@ -305,7 +304,6 @@ function actualizarBotonFavorito(juegoId, esFavorito) {
   }
 }
 
-// Hacer la función global
 window.añadirAFavorito = añadirAFavorito;
 
 // DATOS DE RESPALDO
@@ -380,12 +378,11 @@ const datosRespaldo = [
 
 // Función para abrir modal
 window.abrirModalProducto = function(producto) {
-  console.log('Abriendo modal para:', producto.nombre); // Debug
+  console.log('Abriendo modal para:', producto.nombre);
   
   const modal = document.getElementById("modalProducto");
   const contenido = document.getElementById("modalContenido");
 
-  // Guardar el producto en una variable global
   window.productoSeleccionado = producto;
 
   const stockInfo = getStockInfo(producto.stock);
@@ -396,17 +393,14 @@ window.abrirModalProducto = function(producto) {
         src="${producto.imagen}"
         alt="${producto.nombre}"
         class="modal-image"
+        loading="lazy"
       >
       <div class="modal-info">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+        <div class="modal-header">
           <h2 class="modal-game-title">
             ${producto.nombre}
           </h2>
-          <button class="reserve-btn available favourite favorite-inline" 
-              data-merch-id="${producto.id}" 
-              onclick="añadirProductoFavorito()"
-              span="Favorito"
-              style="width: auto; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem; flex:0; margin-right: 2.5rem;">
+          <button class="favorite-btn-modal" onclick="añadirProductoFavorito()">
             ❤️
           </button>
         </div>
@@ -419,7 +413,7 @@ window.abrirModalProducto = function(producto) {
           ${producto.oferta ? '<span class="tag-secondary" style="background: #ef4444;">OFERTA</span>' : ''}
           ${!producto.oferta && producto.nuevo ? '<span class="tag-secondary" style="background: #10b981;">NUEVO</span>' : ''}
         </div>
-        <div class="price-section" style="margin-top: 1.5rem;">
+        <div class="price-section">
           <span class="price">
             ${producto.precio ? producto.precio.toFixed(2) : "0.00"}€
           </span>
@@ -427,16 +421,14 @@ window.abrirModalProducto = function(producto) {
             ${producto.stock > 0 ? 'Disponible' : 'Agotado'}
           </span>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
-          <span style="color: var(--text-muted); font-size: 0.9rem;">Stock disponible:</span>
-          <span class="game-points-value" style="font-size: 1rem;">${producto.stock || 0} unidades</span>
+        <div class="stock-row">
+          <span>Stock disponible:</span>
+          <span class="stock-value">${producto.stock || 0} unidades</span>
         </div>
-        <div style="background: rgba(99,102,241,0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 0.75rem; margin: 0.5rem 0;">
-          <p style="color: #6366f1; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-            <span>📦</span> ${stockInfo.text}
-          </p>
+        <div class="stock-message ${stockInfo.class}">
+          📦 ${stockInfo.text}
         </div>
-        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <div class="modal-buttons">
           <button
             class="reserve-btn ${producto.stock > 0 ? 'available' : 'unavailable'}"
             ${producto.stock <= 0 ? "disabled" : ""}
@@ -445,9 +437,8 @@ window.abrirModalProducto = function(producto) {
             🛒 ${producto.stock > 0 ? "Añadir al carrito" : "Agotado"}
           </button>
           <button
-            class="reserve-btn available"
+            class="reserve-btn available secondary"
             onclick="window.location.href='carrito.html'"
-            style="background: transparent; border: 2px solid #6366f1;"
           >
             Ver Carrito
           </button>
@@ -465,7 +456,6 @@ window.abrirModalProducto = function(producto) {
   }
 };
 
-// Nueva función para añadir el producto seleccionado
 window.añadirProductoSeleccionado = function() {
   if (window.productoSeleccionado) {
     añadirAlCarrito(window.productoSeleccionado);
@@ -475,18 +465,15 @@ window.añadirProductoSeleccionado = function() {
   }
 };
 
-// Nueva función para añadir el juego seleccionado
 window.añadirProductoFavorito = function() {
   if (window.productoSeleccionado) {
     añadirAFavorito(window.productoSeleccionado);
   } else {
-    console.error('No hay juego seleccionado');
+    console.error('No hay producto seleccionado');
     mostrarNotificacion('Error al añadir a favorito', 'error');
   }
 };
 
-
-// Función para cerrar modal
 window.cerrarModal = function() {
   const modal = document.getElementById("modalProducto");
   if (!modal) return;
@@ -500,15 +487,19 @@ window.cerrarModal = function() {
   }
 };
 
-// Cargar productos
+// ============================================
+// FUNCIÓN PRINCIPAL DE CARGA - CON CATEGORÍAS
+// ============================================
+let merchCache = null;
+let cargaEnProgreso = false;
+
 window.addEventListener("load", async () => {
-  console.log('Página cargada, inicializando...'); // Debug
+  console.log('Página cargada, inicializando...');
   
   const loader = document.getElementById("loader");
   const body = document.body;
   const grid = document.getElementById("gridMerch");
 
-  // Inicializar carrito
   inicializarCarrito();
 
   if (!grid) {
@@ -524,7 +515,6 @@ window.addEventListener("load", async () => {
 
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
 
-  // Mostrar mensaje de carga
   grid.innerHTML = `
     <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
       <div style="width: 60px; height: 60px; border: 4px solid #6366f133; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
@@ -532,154 +522,141 @@ window.addEventListener("load", async () => {
     </div>
   `;
 
-  // Intentar cargar de Supabase primero
+  if (merchCache) {
+    renderizarMerch(merchCache);
+    if (loader) loader.classList.add("hidden");
+    return;
+  }
+
+  if (cargaEnProgreso) return;
+  cargaEnProgreso = true;
+
   try {
     const { data: merch, error } = await supabase
       .from("merchandising")
       .select("*")
       .order("id", { ascending: true });
 
+    cargaEnProgreso = false;
+
     if (error || !merch || merch.length === 0) {
       console.log("No hay datos en BD, cargando respaldo");
-      grid.innerHTML = '';
-      datosRespaldo.forEach(item => {
-        const categoria = getCategoria(item.nombre, item.categoria);
-        const stockInfo = getStockInfo(item.stock);
-        
-        const productoData = {
-          id: item.id,
-          nombre: item.nombre,
-          descripcion: item.descripcion,
-          precio: item.precio,
-          imagen: item.imagen,
-          stock: item.stock,
-          categoria: categoria,
-          oferta: item.oferta,
-          nuevo: item.nuevo
-        };
-        
-        grid.innerHTML += `
-          <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
-            <div class="merch-image-container">
-              <img src="${item.imagen}" alt="${item.nombre}" loading="lazy">
-              <span class="merch-category-tag">${categoria}</span>
-              ${item.oferta ? '<span class="merch-offer-tag">OFERTA</span>' : ''}
-              ${!item.oferta && item.nuevo ? '<span class="merch-new-tag">NUEVO</span>' : ''}
-            </div>
-            
-            <div class="merch-info">
-              <h3 class="merch-title">${item.nombre}</h3>
-              <p class="merch-description">${item.descripcion}</p>
-              
-              <div class="merch-details">
-                <div class="merch-price-row">
-                  <span class="merch-price-label">PRECIO</span>
-                  <span class="merch-price-value">${item.precio.toFixed(2)}€</span>
-                </div>
-                <div class="merch-stock-row">
-                  <span class="merch-stock-label">STOCK</span>
-                  <span class="merch-stock-value ${stockInfo.class}">${stockInfo.text}</span>
-                </div>
-              </div>
-              
-              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
-                VER PRODUCTO
-              </button>
-            </div>
-          </div>
-        `;
-      });
+      merchCache = datosRespaldo;
+      renderizarMerch(datosRespaldo);
     } else {
-      grid.innerHTML = '';
-      merch.forEach(item => {
-        const categoria = getCategoria(item.nombre, item.categoria);
-        const stockInfo = getStockInfo(item.stock);
-        const oferta = item.oferta !== undefined ? item.oferta : tieneOferta();
-        const nuevo = item.nuevo !== undefined ? item.nuevo : esNuevo();
-        
-        const productoData = {
-          id: item.id,
-          nombre: item.nombre,
-          descripcion: item.descripcion,
-          precio: item.precio,
-          imagen: item.imagen,
-          stock: item.stock,
-          categoria: categoria,
-          oferta: oferta,
-          nuevo: nuevo
-        };
-        
-        grid.innerHTML += `
-          <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
-            <div class="merch-image-container">
-              ${item.imagen 
-                ? `<img src="${item.imagen}" alt="${item.nombre}" loading="lazy">` 
-                : `<img src="https://via.placeholder.com/200x200/111827/6366f1?text=${encodeURIComponent(item.nombre.charAt(0))}" alt="${item.nombre}">`
-              }
-              <span class="merch-category-tag">${categoria}</span>
-              ${oferta ? '<span class="merch-offer-tag">OFERTA</span>' : ''}
-              ${!oferta && nuevo ? '<span class="merch-new-tag">NUEVO</span>' : ''}
-            </div>
-            
-            <div class="merch-info">
-              <h3 class="merch-title">${item.nombre}</h3>
-              <p class="merch-description">${item.descripcion || 'Producto exclusivo de GameWorld'}</p>
-              
-              <div class="merch-details">
-                <div class="merch-price-row">
-                  <span class="merch-price-label">PRECIO</span>
-                  <span class="merch-price-value">${item.precio ? item.precio.toFixed(2) : '0.00'}€</span>
-                </div>
-                <div class="merch-stock-row">
-                  <span class="merch-stock-label">STOCK</span>
-                  <span class="merch-stock-value ${stockInfo.class}">${stockInfo.text}</span>
-                </div>
-              </div>
-              
-              <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
-                VER PRODUCTO
-              </button>
-            </div>
-          </div>
-        `;
-      });
+      merchCache = merch;
+      renderizarMerch(merch);
     }
   } catch (error) {
     console.error("Error cargando productos:", error);
-    grid.innerHTML = '';
-    datosRespaldo.forEach(item => {
-      const categoria = getCategoria(item.nombre, item.categoria);
-      const stockInfo = getStockInfo(item.stock);
+    merchCache = datosRespaldo;
+    renderizarMerch(datosRespaldo);
+  }
+  
+  if (loader) {
+    loader.classList.add("hidden");
+  }
+});
+
+// ============================================
+// FUNCIÓN DE RENDERIZADO - CON CATEGORÍAS
+// ============================================
+function renderizarMerch(productos) {
+  const grid = document.getElementById("gridMerch");
+  if (!grid) return;
+
+  // Agrupar productos por categoría
+  const productosPorCategoria = {};
+  
+  productos.forEach(item => {
+    const categoria = getCategoria(item.nombre, item.categoria);
+    if (!productosPorCategoria[categoria]) {
+      productosPorCategoria[categoria] = [];
+    }
+    
+    const oferta = item.oferta !== undefined ? item.oferta : tieneOferta();
+    const nuevo = item.nuevo !== undefined ? item.nuevo : esNuevo();
+    
+    const productoData = {
+      id: item.id,
+      nombre: item.nombre,
+      descripcion: item.descripcion || 'Producto exclusivo de GameWorld',
+      precio: item.precio,
+      imagen: item.imagen,
+      stock: item.stock,
+      categoria: categoria,
+      oferta: oferta,
+      nuevo: nuevo
+    };
+    
+    productosPorCategoria[categoria].push(productoData);
+  });
+
+  // Orden de categorías
+  const ordenCategorias = ['COLECCIONABLE', 'ROPA', 'ACCESORIO', 'DECORACIÓN', 'MERCH', 'OTROS'];
+  
+  const categoriasOrdenadas = Object.keys(productosPorCategoria).sort((a, b) => {
+    const indexA = ordenCategorias.indexOf(a);
+    const indexB = ordenCategorias.indexOf(b);
+    
+    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+
+  // Usar DocumentFragment para mejor rendimiento
+  const fragment = document.createDocumentFragment();
+  
+  categoriasOrdenadas.forEach(categoria => {
+    const productosCat = productosPorCategoria[categoria];
+    
+    // Icono según categoría
+    let iconoCategoria = '📦';
+    if (categoria === 'COLECCIONABLE') iconoCategoria = '🏆';
+    if (categoria === 'ROPA') iconoCategoria = '👕';
+    if (categoria === 'ACCESORIO') iconoCategoria = '🔌';
+    if (categoria === 'DECORACIÓN') iconoCategoria = '🖼️';
+    if (categoria === 'MERCH') iconoCategoria = '🎁';
+    
+    const section = document.createElement('div');
+    section.className = 'category-section';
+    section.setAttribute('data-category', categoria);
+    
+    section.innerHTML = `
+      <div class="category-header">
+        <span class="category-icon">${iconoCategoria}</span>
+        <h2 class="category-title">${categoria}</h2>
+        <span class="category-count">${productosCat.length} productos</span>
+      </div>
+      <div class="category-products-grid">
+    `;
+    
+    productosCat.forEach(producto => {
+      const stockInfo = getStockInfo(producto.stock);
       
-      const productoData = {
-        id: item.id,
-        nombre: item.nombre,
-        descripcion: item.descripcion,
-        precio: item.precio,
-        imagen: item.imagen,
-        stock: item.stock,
-        categoria: categoria,
-        oferta: item.oferta,
-        nuevo: item.nuevo
-      };
+      const productoJSON = JSON.stringify(producto).replace(/'/g, "&apos;");
       
-      grid.innerHTML += `
-        <div class="merch-card" onclick='abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})'>
+      const productoHTML = `
+        <div class="merch-card" onclick='abrirModalProducto(${productoJSON})'>
           <div class="merch-image-container">
-            <img src="${item.imagen}" alt="${item.nombre}" loading="lazy">
+            ${producto.imagen 
+              ? `<img src="${producto.imagen}" alt="${producto.nombre}" loading="lazy">` 
+              : `<img src="https://via.placeholder.com/200x200/111827/6366f1?text=${encodeURIComponent(producto.nombre.charAt(0))}" alt="${producto.nombre}">`
+            }
             <span class="merch-category-tag">${categoria}</span>
-            ${item.oferta ? '<span class="merch-offer-tag">OFERTA</span>' : ''}
-            ${!item.oferta && item.nuevo ? '<span class="merch-new-tag">NUEVO</span>' : ''}
+            ${producto.oferta ? '<span class="merch-offer-tag">OFERTA</span>' : ''}
+            ${!producto.oferta && producto.nuevo ? '<span class="merch-new-tag">NUEVO</span>' : ''}
           </div>
           
           <div class="merch-info">
-            <h3 class="merch-title">${item.nombre}</h3>
-            <p class="merch-description">${item.descripcion}</p>
+            <h3 class="merch-title">${producto.nombre}</h3>
+            <p class="merch-description">${producto.descripcion}</p>
             
             <div class="merch-details">
               <div class="merch-price-row">
                 <span class="merch-price-label">PRECIO</span>
-                <span class="merch-price-value">${item.precio.toFixed(2)}€</span>
+                <span class="merch-price-value">${producto.precio ? producto.precio.toFixed(2) : '0.00'}€</span>
               </div>
               <div class="merch-stock-row">
                 <span class="merch-stock-label">STOCK</span>
@@ -687,27 +664,31 @@ window.addEventListener("load", async () => {
               </div>
             </div>
             
-            <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(productoData).replace(/'/g, "&apos;")})">
+            <button class="merch-button" onclick="event.stopPropagation(); abrirModalProducto(${productoJSON})">
               VER PRODUCTO
             </button>
           </div>
         </div>
       `;
+      
+      const temp = document.createElement('div');
+      temp.innerHTML = productoHTML;
+      section.querySelector('.category-products-grid').appendChild(temp.firstElementChild);
     });
-  }
-  
-  // Ocultar loader
-  if (loader) {
-    loader.classList.add("hidden");
-  }
-});
+    
+    fragment.appendChild(section);
+  });
+
+  grid.innerHTML = '';
+  grid.appendChild(fragment);
+}
 
 // Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
   }
-});
+}, { passive: true });
 
 document.addEventListener("click", (e) => {
   const modal = document.getElementById("modalProducto");
@@ -730,15 +711,18 @@ document.body.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-window.addEventListener('resize', () => {
-  handleScroll();
-});
+window.addEventListener('resize', () => {}, { passive: true });
 
-// Escuchar cambios en localStorage desde otras pestañas
 window.addEventListener('storage', (e) => {
   if (e.key === 'carrito') {
     actualizarContadorCarrito();
   }
 });
 
-console.log("Script de merchandising cargado correctamente");
+window.addEventListener('beforeunload', () => {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+  }
+});
+
+console.log("Script de merchandising cargado correctamente (con categorías y optimizado)");

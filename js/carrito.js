@@ -230,7 +230,7 @@ async function cargarCarrito() {
     }
   }
   
-  // Cargar productos recomendados (juegos y merch) - SIEMPRE se carga, incluso con carrito vacío
+  // Cargar productos recomendados
   await cargarRecomendados();
 }
 
@@ -292,19 +292,75 @@ window.vaciarCarrito = function() {
   );
 };
 
-// Función para procesar pago
-function procesarPago() {
+// =========================
+// NUEVA FUNCIÓN: Procesar pago y guardar en localStorage
+// =========================
+async function procesarPago() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   if (carrito.length === 0) return;
   
+  // Obtener usuario actual
+  const userId = localStorage.getItem('userId');
+  const userEmail = localStorage.getItem('emailUsuario');
+  const userName = localStorage.getItem('nombreUsuario');
+  
+  if (!userId && !userEmail) {
+    mostrarNotificacion('Debes iniciar sesión para comprar', 'error');
+    return;
+  }
+  
   mostrarModalConfirmacion(
     'Confirmar compra',
-    '¿Estás seguro de que quieres proceder con la compra? Esta acción simulará el proceso de pago.',
-    () => {
-      mostrarNotificacion('¡Compra realizada con éxito! (Modo demostración)');
-      localStorage.setItem('carrito', JSON.stringify([]));
-      cargarCarrito();
-      actualizarContadorCarrito();
+    '¿Estás seguro de que quieres proceder con la compra?',
+    async () => {
+      try {
+        // Calcular total
+        const total = carrito.reduce((sum, item) => {
+          return sum + (parseFloat(item.precio) * (item.cantidad || 1));
+        }, 0);
+        
+        // Preparar datos de la compra
+        const compraData = {
+          id: Date.now().toString(), // ID único basado en timestamp
+          usuario_id: userId || 'sin-id',
+          usuario_email: userEmail || 'usuario@email.com',
+          usuario_nombre: userName || 'Usuario',
+          productos: carrito.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            precio: item.precio,
+            cantidad: item.cantidad || 1,
+            tipo: item.tipo || 'juego'
+          })),
+          total: total,
+          fecha: new Date().toISOString(),
+          estado: 'pendiente'
+        };
+        
+        // =====================================
+        // GUARDAR EN LOCALSTORAGE (NO EN SUPABASE)
+        // =====================================
+        
+        // Obtener compras existentes
+        const comprasExistentes = JSON.parse(localStorage.getItem('compras_usuario')) || [];
+        
+        // Añadir nueva compra
+        comprasExistentes.push(compraData);
+        
+        // Guardar en localStorage
+        localStorage.setItem('compras_usuario', JSON.stringify(comprasExistentes));
+        
+        mostrarNotificacion('✅ ¡Compra realizada con éxito!');
+        
+        // Vaciar carrito
+        localStorage.setItem('carrito', JSON.stringify([]));
+        await cargarCarrito();
+        actualizarContadorCarrito();
+        
+      } catch (error) {
+        console.error('Error al procesar compra:', error);
+        mostrarNotificacion('❌ Error al procesar la compra', 'error');
+      }
     }
   );
 }
@@ -313,7 +369,7 @@ function procesarPago() {
 let currentScrollPosition = 0;
 const scrollAmount = 300;
 
-// Función para inicializar el carrusel (MEJORADA)
+// Función para inicializar el carrusel
 function inicializarCarrusel() {
   const carouselContainer = document.querySelector('.carousel-container');
   const prevBtn = document.querySelector('.carousel-btn.prev');
@@ -354,7 +410,7 @@ function inicializarCarrusel() {
     }
   };
   
-  // Eliminar event listeners anteriores (para evitar duplicados)
+  // Eliminar event listeners anteriores
   const newPrevBtn = prevBtn.cloneNode(true);
   const newNextBtn = nextBtn.cloneNode(true);
   prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
@@ -396,8 +452,7 @@ function inicializarCarrusel() {
   setTimeout(updateButtons, 200);
 }
 
-// Función para cargar recomendados (SIEMPRE muestra productos)
-// Función para cargar recomendados (SOLO productos que NO están en el carrito)
+// Función para cargar recomendados
 async function cargarRecomendados() {
   const container = document.getElementById('productos-recomendados');
   if (!container) return;
@@ -416,9 +471,9 @@ async function cargarRecomendados() {
       .map(item => parseInt(item.id.replace('merch_', '')))
       .filter(id => !isNaN(id));
     
-    console.log('IDs en carrito - Juegos:', idsJuegosEnCarrito, 'Merch:', idsMerchEnCarrito); // Debug
+    console.log('IDs en carrito - Juegos:', idsJuegosEnCarrito, 'Merch:', idsMerchEnCarrito);
     
-    // Cargar juegos disponibles (EXCLUYENDO los que ya están en el carrito)
+    // Cargar juegos disponibles
     let juegosQuery = supabase
       .from("Juegos")
       .select("*")
@@ -428,7 +483,7 @@ async function cargarRecomendados() {
       juegosQuery = juegosQuery.not('id', 'in', `(${idsJuegosEnCarrito.join(',')})`);
     }
     
-    // Cargar merch disponible (EXCLUYENDO los que ya están en el carrito)
+    // Cargar merch disponible
     let merchQuery = supabase
       .from("merchandising")
       .select("*")
@@ -713,4 +768,4 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-console.log("Script de carrito cargado correctamente (con carrusel)");
+console.log("Script de carrito cargado correctamente");
