@@ -11,7 +11,7 @@ function checkDirectAccess() {
     const referrer = document.referrer;
     
     if (!referrer) {
-      console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
+      console.log('Acceso directo por URL detectado - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
@@ -20,7 +20,7 @@ function checkDirectAccess() {
     const referrerDomain = new URL(referrer).hostname;
     
     if (referrerDomain !== currentDomain) {
-      console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+      console.log('Acceso desde dominio externo detectado - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
@@ -29,7 +29,7 @@ function checkDirectAccess() {
     const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
     
     if (!allowedPages.includes(referrerPath)) {
-      console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+      console.log('Acceso desde página no autorizada - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
@@ -40,7 +40,7 @@ function checkDirectAccess() {
       console.log('Acceso sin usuario registrado ocultar carrito.');
       carrito.style.display = "none";
       
-      console.log('🔒 Usuario no logueado - Redirigiendo a login');
+      console.log('Usuario no logueado - Redirigiendo a login');
       window.alert('Necesita iniciar sesión para ver sus favoritos');
       window.location.replace('/login.html');
       return false;
@@ -48,7 +48,7 @@ function checkDirectAccess() {
       carrito.style.display = "flex";
     }
     
-    console.log('✅ Acceso permitido - Navegación interna');
+    console.log('Acceso permitido - Navegación interna');
     
     document.addEventListener('DOMContentLoaded', function() {
       document.body.style.overflow = 'auto';
@@ -673,5 +673,3 @@ window.addEventListener('storage', (e) => {
     cargarFavoritos();
   }
 });
-
-console.log("Script de favoritos cargado correctamente");

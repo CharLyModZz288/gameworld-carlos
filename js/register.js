@@ -13,6 +13,7 @@ form.addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
+  // Validaciones
   const usernameRegex = /^[a-zA-Z0-9_]{4,}$/;
   if (!usernameRegex.test(username)) {
     showError("❌ El username debe tener mínimo 4 caracteres y solo puede contener letras, números o _");
@@ -35,50 +36,67 @@ form.addEventListener("submit", async (e) => {
   message.classList.add("hidden");
 
   try {
-    const { data: existingEmail } = await supabase
-      .from("users")
-      .select("email")
-      .eq("email", email)
-      .maybeSingle();
+    console.log("📝 1. Intentando crear usuario...");
+    
+    const { data: userData, error: createError } = await supabase.rpc("crear_usuario", {
+      p_email: email,
+      p_password: password,
+      p_username: username,
+    });
 
-    if (existingEmail) {
-      showError("❌ Este email ya está registrado");
+    if (createError) {
+      console.error("❌ Error al crear usuario:", createError);
+      
+      if (createError.message.includes("email ya está registrado")) {
+        showError("❌ Este email ya está registrado");
+      } else if (createError.message.includes("username ya está en uso")) {
+        showError("❌ Este nombre de usuario ya está en uso");
+      } else {
+        showError("❌ Error al registrar usuario: " + createError.message);
+      }
       return;
     }
 
-    const { data: existingUsername } = await supabase
-      .from("users")
-      .select("username")
-      .eq("username", username)
-      .maybeSingle();
+    console.log("✅ 2. Usuario creado exitosamente:", userData);
 
-    if (existingUsername) {
-      showError("❌ Este username ya está en uso");
+    // Ahora userData es un objeto con id, email, username, rol
+    if (!userData || !userData.id) {
+      console.error("❌ 3. Datos de usuario inválidos:", userData);
+      showError("❌ Error: No se recibieron datos del usuario");
       return;
     }
 
-    const { error } = await supabase
-      .from("users")
-      .insert([{ username, email, password }]);
-
-    if (error) throw error;
-
-    localStorage.setItem("emailUsuario", email); 
-
-    message.textContent = "✅ Usuario registrado correctamente";
+    console.log("📝 4. Guardando datos en localStorage...");
+    
+    // Guardar datos de sesión
+    localStorage.setItem("userId", userData.id);
+    localStorage.setItem("nombreUsuario", userData.username);
+    localStorage.setItem("emailUsuario", userData.email);
+    localStorage.setItem("rolUsuario", userData.rol);
+    localStorage.setItem("isLoggedIn", "true");
+    
+    console.log("✅ 5. Datos guardados:");
+    console.log("   - userId:", localStorage.getItem("userId"));
+    console.log("   - nombreUsuario:", localStorage.getItem("nombreUsuario"));
+    console.log("   - emailUsuario:", localStorage.getItem("emailUsuario"));
+    console.log("   - rolUsuario:", localStorage.getItem("rolUsuario"));
+    
+    // Mostrar mensaje de éxito
+    message.textContent = "✅ Usuario registrado correctamente. Redirigiendo...";
     message.className = "bg-green-600 text-white p-3 rounded text-center mt-3";
     message.classList.remove("hidden");
-
-    form.reset();
-
+    
+    console.log("📝 6. Redirigiendo a index.html en 1.5 segundos...");
+    
+    // Redirigir después de 1.5 segundos
     setTimeout(() => {
-      localStorage.setItem("nombreUsuario", username);
+      console.log("🚀 7. Redirigiendo ahora...");
       window.location.href = "index.html";
-    }, 2000);
+    }, 1500);
 
   } catch (err) {
-    console.error("❌ Error al registrar:", err);
-    showError("❌ Error al registrar usuario");
+    console.error("❌ Error inesperado:", err);
+    showError("❌ Error al registrar usuario. Intente nuevamente.");
   } finally {
     btnText.classList.remove("hidden");
     btnLoading.classList.add("hidden");
@@ -86,6 +104,7 @@ form.addEventListener("submit", async (e) => {
 });
 
 function showError(text) {
+  console.error("❌ Mostrando error:", text);
   message.textContent = text;
   message.className = "bg-red-600 text-white p-3 rounded text-center mt-3";
   message.classList.remove("hidden");

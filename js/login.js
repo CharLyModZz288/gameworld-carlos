@@ -9,36 +9,50 @@ form.addEventListener("submit", async (e) => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .eq("password", password);
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = "Verificando...";
+  submitBtn.disabled = true;
 
-  if (error) {
-    console.error("❌ Error al consultar la base de datos:", error);
-    errorText.textContent = "Error al iniciar sesión.";
-    errorText.classList.remove("hidden");
-    return;
-  }
+  try {
+    const { data, error } = await supabase.rpc("verificar_usuario", {
+      p_email: email,
+      p_password: password,
+    });
 
-  if (data.length > 0) {
-    const usuario = data[0];
-    errorText.classList.add("hidden");
+    if (error) {
+      console.error("❌ Error al verificar usuario:", error);
+      errorText.textContent = "Error al iniciar sesión. Intente nuevamente.";
+      errorText.classList.remove("hidden");
+      return;
+    }
 
-    localStorage.setItem("nombreUsuario", usuario.username);
-    localStorage.setItem("emailUsuario", usuario.email);
-    localStorage.setItem("userId", usuario.id);
     
-    const rolNormalizado = (usuario.rol || "user").toString().toLowerCase().trim();
-    localStorage.setItem("rolUsuario", rolNormalizado);
+    if (data && data.id) {  
+      const usuario = data;
+      errorText.classList.add("hidden");
 
-    console.log("Rol guardado:", rolNormalizado);
+      localStorage.setItem("nombreUsuario", usuario.username);
+      localStorage.setItem("emailUsuario", usuario.email);
+      localStorage.setItem("userId", usuario.id);
 
-    window.location.href = "index.html";
+      const rolNormalizado = (usuario.rol || "user").toString().toLowerCase().trim();
+      localStorage.setItem("rolUsuario", rolNormalizado);
 
-  } else {
-    errorText.textContent = "Correo o contraseña incorrectos";
+      console.log("✅ Usuario autenticado correctamente");
+      console.log("Rol guardado:", rolNormalizado);
+
+      window.location.href = "index.html";
+    } else {
+      errorText.textContent = "Correo o contraseña incorrectos";
+      errorText.classList.remove("hidden");
+    }
+  } catch (err) {
+    console.error("❌ Error inesperado:", err);
+    errorText.textContent = "Error al iniciar sesión. Intente nuevamente.";
     errorText.classList.remove("hidden");
+  } finally {
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
   }
 });

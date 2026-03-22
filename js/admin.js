@@ -3,7 +3,7 @@ function checkDirectAccess() {
     const referrer = document.referrer;
     
     if (!referrer) {
-      console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
+      console.log('Acceso directo por URL detectado - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
@@ -12,7 +12,7 @@ function checkDirectAccess() {
     const referrerDomain = new URL(referrer).hostname;
     
     if (referrerDomain !== currentDomain) {
-      console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+      console.log('Acceso desde dominio externo detectado - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
@@ -21,12 +21,12 @@ function checkDirectAccess() {
     const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
     
     if (!allowedPages.includes(referrerPath)) {
-      console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+      console.log('Acceso desde página no autorizada - Redirigiendo a index');
       window.location.replace('/index.html');
       return false;
     }
     
-    console.log('✅ Acceso permitido - Navegación interna');
+    console.log('Acceso permitido - Navegación interna');
     
     document.addEventListener('DOMContentLoaded', function() {
       document.body.style.overflow = 'auto';
