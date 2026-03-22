@@ -1,6 +1,5 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
 let ticking = false;
 let rafId = null;
@@ -58,7 +57,6 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll - OPTIMIZADA
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   
@@ -97,7 +95,6 @@ function optimizedScrollHandler() {
   }
 }
 
-// Función para mostrar notificaciones - OPTIMIZADA
 function mostrarNotificacion(mensaje, tipo = 'success') {
   const notificacionExistente = document.querySelector('.cart-notification');
   if (notificacionExistente) {
@@ -123,7 +120,6 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   }, 2700);
 }
 
-// Función para actualizar el contador del carrito - OPTIMIZADA
 let cachedTotalItems = -1;
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -140,7 +136,6 @@ function actualizarContadorCarrito() {
   return totalItems;
 }
 
-// Función para inicializar el carrito
 function inicializarCarrito() {
   if (!localStorage.getItem('carrito')) {
     localStorage.setItem('carrito', JSON.stringify([]));
@@ -148,7 +143,6 @@ function inicializarCarrito() {
   actualizarContadorCarrito();
 }
 
-// Función para determinar el stock y su estilo
 function getStockInfo(stock) {
   if (stock === undefined || stock === null) return { text: "Disponible", class: "stock-high" };
   
@@ -158,7 +152,6 @@ function getStockInfo(stock) {
   return { text: "Agotado", class: "stock-low" };
 }
 
-// Función para determinar la categoría del producto
 function getCategoria(nombre, categoria) {
   if (categoria) return categoria;
   
@@ -172,17 +165,14 @@ function getCategoria(nombre, categoria) {
   return 'MERCH';
 }
 
-// Función para determinar si tiene oferta
 function tieneOferta() {
   return Math.random() > 0.8;
 }
 
-// Función para determinar si es nuevo
 function esNuevo() {
   return Math.random() > 0.7;
 }
 
-// Función para añadir al carrito
 function añadirAlCarrito(producto) {
   console.log('Añadiendo al carrito:', producto);
 
@@ -234,7 +224,6 @@ function añadirAlCarrito(producto) {
 
 window.añadirAlCarrito = añadirAlCarrito;
 
-// Función para añadir producto a favoritos
 async function añadirAFavorito(producto) {
   console.log('Añadiendo a favoritos:', producto);
 
@@ -306,7 +295,6 @@ function actualizarBotonFavorito(productoId, esFavorito) {
 
 window.añadirAFavorito = añadirAFavorito;
 
-// DATOS DE RESPALDO
 const datosRespaldo = [
   {
     id: 1,
@@ -376,7 +364,6 @@ const datosRespaldo = [
   }
 ];
 
-// Función para abrir modal
 window.abrirModalProducto = function(producto) {
   console.log('Abriendo modal para:', producto.nombre);
   
@@ -487,9 +474,6 @@ window.cerrarModal = function() {
   }
 };
 
-// ============================================
-// FUNCIÓN PRINCIPAL DE CARGA - CON CATEGORÍAS
-// ============================================
 let merchCache = null;
 let cargaEnProgreso = false;
 
@@ -558,14 +542,10 @@ window.addEventListener("load", async () => {
   }
 });
 
-// ============================================
-// FUNCIÓN DE RENDERIZADO - CON CATEGORÍAS
-// ============================================
 function renderizarMerch(productos) {
   const grid = document.getElementById("gridMerch");
   if (!grid) return;
 
-  // Agrupar productos por categoría
   const productosPorCategoria = {};
   
   productos.forEach(item => {
@@ -592,7 +572,6 @@ function renderizarMerch(productos) {
     productosPorCategoria[categoria].push(productoData);
   });
 
-  // Orden de categorías
   const ordenCategorias = ['COLECCIONABLE', 'ROPA', 'ACCESORIO', 'DECORACIÓN', 'MERCH', 'OTROS'];
   
   const categoriasOrdenadas = Object.keys(productosPorCategoria).sort((a, b) => {
@@ -605,13 +584,11 @@ function renderizarMerch(productos) {
     return indexA - indexB;
   });
 
-  // Usar DocumentFragment para mejor rendimiento
   const fragment = document.createDocumentFragment();
   
   categoriasOrdenadas.forEach(categoria => {
     const productosCat = productosPorCategoria[categoria];
     
-    // Icono según categoría
     let iconoCategoria = '📦';
     if (categoria === 'COLECCIONABLE') iconoCategoria = '🏆';
     if (categoria === 'ROPA') iconoCategoria = '👕';
@@ -683,7 +660,6 @@ function renderizarMerch(productos) {
   grid.appendChild(fragment);
 }
 
-// Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();

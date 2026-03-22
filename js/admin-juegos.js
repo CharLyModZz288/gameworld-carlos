@@ -2,18 +2,15 @@ import { supabase } from "./connection.js";
 
 let juegoEditandoId = null;
 
-// Ocultar loader
 const loader = document.getElementById("loader");
 if (loader) loader.style.display = "none";
 
-// Elementos del modal
 const btnAbrir = document.getElementById("btnAñadirJuego");
 const modal = document.getElementById("modalJuego");
 const btnCancelar = document.getElementById("cancelarJuego");
 const form = document.getElementById("formNuevoJuego");
 const modalTitle = document.getElementById("modalJuegoTitle");
 
-// Inputs del formulario
 const juegoId = document.getElementById("juegoId");
 const nombreJuego = document.getElementById("nombreJuego");
 const descripcionJuego = document.getElementById("descripcionJuego");
@@ -25,7 +22,6 @@ const pegiJuego = document.getElementById("pegiJuego");
 const imagenJuego = document.getElementById("imagenJuego");
 const estadoJuego = document.getElementById("estadoJuego");
 
-// Abrir modal para añadir
 btnAbrir?.addEventListener("click", () => {
   juegoEditandoId = null;
   form.reset();
@@ -35,12 +31,10 @@ btnAbrir?.addEventListener("click", () => {
   modal.classList.add("flex");
 });
 
-// Cancelar
 btnCancelar?.addEventListener("click", () => {
   cerrarModal();
 });
 
-// Cerrar modal con Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
     cerrarModal();
@@ -55,10 +49,8 @@ function cerrarModal() {
   juegoId.value = "";
 }
 
-// Guardar juego
 form?.addEventListener("submit", guardarJuego);
 
-// Cargar juegos inicial
 cargarJuegos();
 
 /* ============================
@@ -75,7 +67,6 @@ async function cargarJuegos() {
     .select("*")
     .order("id", { ascending: true });
 
-  // Actualizar contador
   const contador = document.getElementById("contadorJuegos");
   if (contador && juegos) contador.textContent = juegos.length;
 
@@ -96,7 +87,6 @@ async function cargarJuegos() {
     const li = document.createElement("li");
     li.className = "juego-item";
     
-    // Determinar badge de estado
     let estadoBadge = '';
     if (juego.estado) {
       const estadoClass = {
@@ -108,7 +98,6 @@ async function cargarJuegos() {
       estadoBadge = `<span class="estado-badge ${estadoClass[juego.estado] || 'estado-proximamente'}">${juego.estado}</span>`;
     }
     
-    // Crear URL de imagen
     const imagenUrl = juego.imagen || `https://via.placeholder.com/60x60/111827/6366f1?text=${encodeURIComponent(juego.nombre?.charAt(0) || 'J')}`;
     
     li.innerHTML = `
@@ -149,7 +138,6 @@ async function cargarJuegos() {
 async function guardarJuego(e) {
   e.preventDefault();
 
-  // Recoger todos los valores del formulario
   const juegoData = {
     nombre: nombreJuego.value.trim(),
     descripcion: descripcionJuego.value.trim(),
@@ -162,7 +150,6 @@ async function guardarJuego(e) {
     estado: estadoJuego.value || null
   };
 
-  // Validaciones
   if (!juegoData.nombre || !juegoData.descripcion || isNaN(juegoData.precio)) {
     alert("El nombre, descripción y precio son obligatorios");
     return;
@@ -176,13 +163,11 @@ async function guardarJuego(e) {
   let error;
 
   if (juegoEditandoId) {
-    // Actualizar juego existente
     ({ error } = await supabase
       .from("Juegos")
       .update(juegoData)
       .eq("id", juegoEditandoId));
   } else {
-    // Insertar nuevo juego
     ({ error } = await supabase
       .from("Juegos")
       .insert([juegoData]));
@@ -216,7 +201,6 @@ window.editarJuego = async function (id) {
 
   juegoEditandoId = id;
   
-  // Rellenar el formulario con todos los campos
   juegoId.value = data.id || '';
   nombreJuego.value = data.nombre || '';
   descripcionJuego.value = data.descripcion || '';
@@ -228,7 +212,6 @@ window.editarJuego = async function (id) {
   imagenJuego.value = data.imagen || '';
   estadoJuego.value = data.estado || '';
 
-  // Cambiar título del modal
   if (modalTitle) modalTitle.textContent = "Editar Juego";
 
   modal.classList.remove("hidden");

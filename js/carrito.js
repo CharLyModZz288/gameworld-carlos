@@ -1,7 +1,5 @@
-// js/carrito.js
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll
 let lastScrollTop = 0;
 let scrollTimeout;
 
@@ -60,7 +58,6 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
@@ -92,9 +89,7 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
-// Función para mostrar notificaciones
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Eliminar notificaciones existentes
   const notificacionesExistentes = document.querySelectorAll('.cart-notification');
   notificacionesExistentes.forEach(notif => notif.remove());
   
@@ -112,12 +107,28 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   }, 3000);
 }
 
-// Función para actualizar el contador del carrito
+function juegoDisponible(juego) {
+  const estado = juego.estado;
+  
+  if (typeof estado === 'string') {
+    return estado.toLowerCase() === 'disponible';
+  }
+  
+  if (typeof estado === 'boolean') {
+    return estado === true;
+  }
+  
+  if (typeof estado === 'number') {
+    return estado === 1;
+  }
+  
+  return false;
+}
+
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   
-  // Actualizar contador en el navbar
   const contadorNav = document.getElementById('carrito-contador-nav');
   if (contadorNav) {
     contadorNav.textContent = totalItems;
@@ -126,7 +137,6 @@ function actualizarContadorCarrito() {
   return totalItems;
 }
 
-// Función para inicializar el carrito
 function inicializarCarrito() {
   if (!localStorage.getItem('carrito')) {
     localStorage.setItem('carrito', JSON.stringify([]));
@@ -134,7 +144,6 @@ function inicializarCarrito() {
   actualizarContadorCarrito();
 }
 
-// Función para cargar el carrito
 async function cargarCarrito() {
   const carritoContainer = document.getElementById('carrito-container');
   const subtotalElement = document.getElementById('subtotal');
@@ -146,7 +155,6 @@ async function cargarCarrito() {
   
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  // Actualizar contador
   actualizarContadorCarrito();
   
   if (carrito.length === 0) {
@@ -174,14 +182,12 @@ async function cargarCarrito() {
       const subtotalItem = precio * cantidad;
       subtotal += subtotalItem;
       
-      // Calcular puntos según el tipo de producto
       if (item.tipo === 'merch') {
-        puntosTotales += Math.floor(precio * 5) * cantidad; // Merch da menos puntos
+        puntosTotales += Math.floor(precio * 5) * cantidad; 
       } else {
         puntosTotales += (item.puntos || Math.floor(precio * 6)) * cantidad;
       }
       
-      // Determinar icono según tipo
       const icono = item.tipo === 'merch' ? '📦' : '📱';
       const plataformaOMarca = item.tipo === 'merch' 
         ? (item.categoria || 'Merchandising')
@@ -230,11 +236,9 @@ async function cargarCarrito() {
     }
   }
   
-  // Cargar productos recomendados
   await cargarRecomendados();
 }
 
-// Función para actualizar cantidad
 window.actualizarCantidad = function(index, cambio) {
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
@@ -247,7 +251,6 @@ window.actualizarCantidad = function(index, cambio) {
     return;
   }
   
-  // Verificar stock si es merch
   if (carrito[index].tipo === 'merch' && carrito[index].stock !== undefined) {
     if (nuevaCantidad > carrito[index].stock) {
       mostrarNotificacion(`No hay más stock disponible de ${carrito[index].nombre}`, 'error');
@@ -261,7 +264,6 @@ window.actualizarCantidad = function(index, cambio) {
   actualizarContadorCarrito();
 };
 
-// Función para eliminar del carrito
 window.eliminarDelCarrito = function(index) {
   mostrarModalConfirmacion(
     '¿Eliminar producto?',
@@ -278,7 +280,6 @@ window.eliminarDelCarrito = function(index) {
   );
 };
 
-// Función para vaciar carrito
 window.vaciarCarrito = function() {
   mostrarModalConfirmacion(
     'Vaciar carrito',
@@ -292,84 +293,128 @@ window.vaciarCarrito = function() {
   );
 };
 
-// =========================
-// NUEVA FUNCIÓN: Procesar pago y guardar en localStorage
-// =========================
 async function procesarPago() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   if (carrito.length === 0) return;
   
-  // Obtener usuario actual
   const userId = localStorage.getItem('userId');
-  const userEmail = localStorage.getItem('emailUsuario');
-  const userName = localStorage.getItem('nombreUsuario');
   
-  if (!userId && !userEmail) {
-    mostrarNotificacion('Debes iniciar sesión para comprar', 'error');
-    return;
-  }
+  console.log('=== INICIANDO PROCESO DE COMPRA ===');
+  console.log('Usuario ID:', userId);
+  console.log('Carrito:', carrito);
   
   mostrarModalConfirmacion(
     'Confirmar compra',
     '¿Estás seguro de que quieres proceder con la compra?',
     async () => {
       try {
-        // Calcular total
-        const total = carrito.reduce((sum, item) => {
+        const gastoTotal = carrito.reduce((sum, item) => {
           return sum + (parseFloat(item.precio) * (item.cantidad || 1));
         }, 0);
         
-        // Preparar datos de la compra
-        const compraData = {
-          id: Date.now().toString(), // ID único basado en timestamp
-          usuario_id: userId || 'sin-id',
-          usuario_email: userEmail || 'usuario@email.com',
-          usuario_nombre: userName || 'Usuario',
-          productos: carrito.map(item => ({
-            id: item.id,
-            nombre: item.nombre,
-            precio: item.precio,
+        console.log('Gasto total calculado:', gastoTotal);
+        
+        
+        console.log('Insertando en tabla compras...');
+        const { data: compra, error: errorCompra } = await supabase
+          .from('compras')
+          .insert([{
+            usuario_id: userId,
+            gasto_total: gastoTotal,
+            estado_pago: 'pendiente',
+            direccion_envio: ''
+          }])
+          .select();
+        
+        if (errorCompra) {
+          console.error('Error al insertar compra:', errorCompra);
+          throw new Error(`Error al guardar la compra: ${errorCompra.message}`);
+        }
+        
+        if (!compra || compra.length === 0) {
+          throw new Error('No se pudo crear el registro de compra');
+        }
+        
+        const compraId = compra[0].id;
+        console.log('Compra insertada correctamente con ID:', compraId);
+        
+        console.log('Preparando productos para insertar...');
+        const productosParaInsertar = carrito.map(item => {
+          let productoId = null;
+          if (item.tipo === 'merch' && typeof item.id === 'string' && item.id.startsWith('merch_')) {
+            productoId = parseInt(item.id.replace('merch_', ''));
+          } else if (item.tipo !== 'merch') {
+            productoId = item.id;
+          }
+          
+          return {
+            compra_id: compraId,
+            producto_id: productoId,
+            nombre_producto: item.nombre,
             cantidad: item.cantidad || 1,
-            tipo: item.tipo || 'juego'
-          })),
-          total: total,
-          fecha: new Date().toISOString(),
-          estado: 'pendiente'
-        };
+            precio_unitario: parseFloat(item.precio)
+          };
+        });
         
-        // =====================================
-        // GUARDAR EN LOCALSTORAGE (NO EN SUPABASE)
-        // =====================================
+        console.log('Productos a insertar:', productosParaInsertar);
         
-        // Obtener compras existentes
-        const comprasExistentes = JSON.parse(localStorage.getItem('compras_usuario')) || [];
+        console.log('Insertando en tabla productos_comprados...');
+        const { error: errorProductos } = await supabase
+          .from('productos_comprados')
+          .insert(productosParaInsertar);
         
-        // Añadir nueva compra
-        comprasExistentes.push(compraData);
+        if (errorProductos) {
+          console.error('Error al insertar productos:', errorProductos);
+          
+          console.log('Eliminando compra por error en productos...');
+          await supabase.from('compras').delete().eq('id', compraId);
+          
+          throw new Error(`Error al guardar los productos: ${errorProductos.message}`);
+        }
         
-        // Guardar en localStorage
-        localStorage.setItem('compras_usuario', JSON.stringify(comprasExistentes));
+        console.log('Productos insertados correctamente');
         
+        console.log('Actualizando stock de productos...');
+        for (const item of carrito) {
+          if (item.tipo === 'merch' && typeof item.id === 'string' && item.id.startsWith('merch_')) {
+            const merchId = parseInt(item.id.replace('merch_', ''));
+            const cantidad = item.cantidad || 1;
+            
+            const { data: merchActual } = await supabase
+              .from('merchandising')
+              .select('stock')
+              .eq('id', merchId)
+              .single();
+            
+            if (merchActual) {
+              const nuevoStock = merchActual.stock - cantidad;
+              
+              await supabase
+                .from('merchandising')
+                .update({ stock: nuevoStock })
+                .eq('id', merchId);
+            }
+          }
+        }
+        
+        console.log('=== COMPRA COMPLETADA CON ÉXITO ===');
         mostrarNotificacion('✅ ¡Compra realizada con éxito!');
         
-        // Vaciar carrito
         localStorage.setItem('carrito', JSON.stringify([]));
         await cargarCarrito();
         actualizarContadorCarrito();
         
       } catch (error) {
-        console.error('Error al procesar compra:', error);
-        mostrarNotificacion('❌ Error al procesar la compra', 'error');
+        console.error('=== ERROR EN PROCESO DE COMPRA ===');
+        console.error('Error:', error);
+        mostrarNotificacion(`❌ Error al procesar la compra: ${error.message}`, 'error');
       }
     }
   );
 }
 
-// Variables para el carrusel
-let currentScrollPosition = 0;
 const scrollAmount = 300;
 
-// Función para inicializar el carrusel
 function inicializarCarrusel() {
   const carouselContainer = document.querySelector('.carousel-container');
   const prevBtn = document.querySelector('.carousel-btn.prev');
@@ -382,12 +427,10 @@ function inicializarCarrusel() {
   
   console.log('Carrusel inicializado correctamente');
   
-  // Función para actualizar el estado de los botones
   const updateButtons = () => {
     const maxScroll = carouselContainer.scrollWidth - carouselContainer.clientWidth;
     const currentScroll = carouselContainer.scrollLeft;
     
-    // Botón anterior
     if (currentScroll <= 5) {
       prevBtn.classList.add('disabled');
       prevBtn.style.opacity = '0.5';
@@ -398,7 +441,6 @@ function inicializarCarrusel() {
       prevBtn.style.pointerEvents = 'auto';
     }
     
-    // Botón siguiente
     if (currentScroll >= maxScroll - 5) {
       nextBtn.classList.add('disabled');
       nextBtn.style.opacity = '0.5';
@@ -410,17 +452,14 @@ function inicializarCarrusel() {
     }
   };
   
-  // Eliminar event listeners anteriores
   const newPrevBtn = prevBtn.cloneNode(true);
   const newNextBtn = nextBtn.cloneNode(true);
   prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
   nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
   
-  // Volver a seleccionar los botones
   const updatedPrevBtn = document.querySelector('.carousel-btn.prev');
   const updatedNextBtn = document.querySelector('.carousel-btn.next');
   
-  // Event listeners para los botones
   updatedPrevBtn.addEventListener('click', () => {
     const newPosition = Math.max(0, carouselContainer.scrollLeft - scrollAmount);
     carouselContainer.scrollTo({
@@ -438,21 +477,13 @@ function inicializarCarrusel() {
     });
   });
   
-  // Actualizar al hacer scroll manual
-  carouselContainer.addEventListener('scroll', () => {
-    updateButtons();
-  });
+  carouselContainer.addEventListener('scroll', updateButtons);
   
-  // Actualizar al redimensionar la ventana
-  window.addEventListener('resize', () => {
-    updateButtons();
-  });
+  window.addEventListener('resize', updateButtons);
   
-  // Inicializar estado de los botones
   setTimeout(updateButtons, 200);
 }
 
-// Función para cargar recomendados
 async function cargarRecomendados() {
   const container = document.getElementById('productos-recomendados');
   if (!container) return;
@@ -460,7 +491,6 @@ async function cargarRecomendados() {
   try {
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     
-    // Obtener IDs de juegos y merch en el carrito para EXCLUIRLOS
     const idsJuegosEnCarrito = carrito
       .filter(item => !item.tipo || item.tipo !== 'merch')
       .map(item => item.id)
@@ -468,22 +498,24 @@ async function cargarRecomendados() {
       
     const idsMerchEnCarrito = carrito
       .filter(item => item.tipo === 'merch')
-      .map(item => parseInt(item.id.replace('merch_', '')))
-      .filter(id => !isNaN(id));
+      .map(item => {
+        if (typeof item.id === 'string' && item.id.startsWith('merch_')) {
+          return parseInt(item.id.replace('merch_', ''));
+        }
+        return null;
+      })
+      .filter(id => id !== null && !isNaN(id));
     
     console.log('IDs en carrito - Juegos:', idsJuegosEnCarrito, 'Merch:', idsMerchEnCarrito);
     
-    // Cargar juegos disponibles
     let juegosQuery = supabase
       .from("Juegos")
-      .select("*")
-      .eq("estado", "Disponible");
+      .select("*");
     
     if (idsJuegosEnCarrito.length > 0) {
       juegosQuery = juegosQuery.not('id', 'in', `(${idsJuegosEnCarrito.join(',')})`);
     }
     
-    // Cargar merch disponible
     let merchQuery = supabase
       .from("merchandising")
       .select("*")
@@ -493,21 +525,22 @@ async function cargarRecomendados() {
       merchQuery = merchQuery.not('id', 'in', `(${idsMerchEnCarrito.join(',')})`);
     }
     
-    // Ejecutar ambas consultas en paralelo
     const [juegosResult, merchResult] = await Promise.all([
       juegosQuery,
       merchQuery
     ]);
     
     const juegosDisponibles = juegosResult.data?.filter(juego => 
-      juego.estado === "Disponible"
+      juegoDisponible(juego)
     ) || [];
     
     const merchDisponible = merchResult.data?.filter(producto => 
       producto.stock > 0
     ) || [];
     
-    // Combinar y mezclar aleatoriamente
+    console.log('Juegos disponibles encontrados:', juegosDisponibles.length);
+    console.log('Merch disponible encontrado:', merchDisponible.length);
+    
     const todosProductos = [
       ...juegosDisponibles.map(j => ({ ...j, tipo: 'juego' })),
       ...merchDisponible.map(m => ({ ...m, tipo: 'merch' }))
@@ -522,10 +555,8 @@ async function cargarRecomendados() {
       return;
     }
     
-    // Mezclar productos aleatoriamente
     const productosAleatorios = [...todosProductos].sort(() => Math.random() - 0.5);
     
-    // Crear estructura del carrusel
     container.innerHTML = `
       <div class="carousel-wrapper">
         <button class="carousel-btn prev">❮</button>
@@ -572,7 +603,6 @@ async function cargarRecomendados() {
       </div>
     `;
     
-    // Inicializar el carrusel después de añadir los productos
     setTimeout(inicializarCarrusel, 200);
     
   } catch (error) {
@@ -585,12 +615,12 @@ async function cargarRecomendados() {
   }
 }
 
-// Función para agregar al carrito desde recomendados
 window.agregarAlCarritoRecomendado = function(producto, tipo) {
+  console.log('Agregando desde recomendados:', producto, 'Tipo:', tipo);
+  
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
   if (tipo === 'merch') {
-    // Validar stock para merch
     if (producto.stock <= 0) {
       mostrarNotificacion('Producto agotado', 'error');
       cargarRecomendados();
@@ -621,8 +651,8 @@ window.agregarAlCarritoRecomendado = function(producto, tipo) {
       mostrarNotificacion(`✓ ${producto.nombre} añadido al carrito`);
     }
   } else {
-    // Lógica para juegos
-    if (producto.estado !== "Disponible") {
+    if (!juegoDisponible(producto)) {
+      console.log('Juego no disponible - Estado:', producto.estado);
       mostrarNotificacion('Este juego ya no está disponible', 'error');
       cargarRecomendados();
       return;
@@ -654,7 +684,6 @@ window.agregarAlCarritoRecomendado = function(producto, tipo) {
   actualizarContadorCarrito();
 };
 
-// Función para mostrar modal de confirmación
 function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
   const modal = document.getElementById('modalConfirmacion');
   const modalTitulo = modal.querySelector('.modal-title');
@@ -672,7 +701,6 @@ function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
     btnConfirmar.removeEventListener('click', confirmHandler);
   };
   
-  // Limpiar event listeners anteriores
   const newBtnConfirmar = btnConfirmar.cloneNode(true);
   btnConfirmar.parentNode.replaceChild(newBtnConfirmar, btnConfirmar);
   
@@ -693,7 +721,6 @@ function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
   document.body.style.overflow = 'hidden';
 }
 
-// Función para cerrar modal
 window.cerrarModal = function() {
   const modal = document.getElementById('modalConfirmacion');
   modal.classList.add('hidden');
@@ -701,14 +728,12 @@ window.cerrarModal = function() {
   document.body.style.overflow = 'auto';
 };
 
-// Event listeners
 window.addEventListener("load", async () => {
   console.log('Página cargada, inicializando carrito...');
   
   const loader = document.getElementById("loader");
   const body = document.body;
 
-  // Inicializar carrito
   inicializarCarrito();
 
   body.classList.add("fade-in");
@@ -723,10 +748,8 @@ window.addEventListener("load", async () => {
     loader.classList.add("hidden");
   }
 
-  // Cargar carrito
   await cargarCarrito();
   
-  // Event listener para vaciar carrito
   const vaciarBtn = document.getElementById('vaciar-carrito');
   if (vaciarBtn) {
     const newVaciarBtn = vaciarBtn.cloneNode(true);
@@ -735,7 +758,6 @@ window.addEventListener("load", async () => {
   }
 });
 
-// Event listeners para el modal
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
@@ -760,7 +782,6 @@ window.addEventListener('resize', () => {
   handleScroll();
 });
 
-// Escuchar cambios en localStorage desde otras pestañas
 window.addEventListener('storage', (e) => {
   if (e.key === 'carrito') {
     cargarCarrito();

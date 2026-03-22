@@ -1,16 +1,52 @@
+function checkDirectAccess() {
+  try {
+    const referrer = document.referrer;
+    
+    if (!referrer) {
+      console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    const currentDomain = window.location.hostname;
+    const referrerDomain = new URL(referrer).hostname;
+    
+    if (referrerDomain !== currentDomain) {
+      console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
+    const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
+    
+    if (!allowedPages.includes(referrerPath)) {
+      console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    console.log('✅ Acceso permitido - Navegación interna');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.style.overflow = 'auto';
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error en verificación:', error);
+    return true;
+  }
+}
+
+checkDirectAccess();
 window.addEventListener("load", async () => {
   
-  // =========================
-  // INICIALIZAR SUPABASE
-  // =========================
   const supabase = window.supabase.createClient(
     'https://vforasnmcipqpqwdkygm.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3Jhc25tY2lwcXBxd2RreWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTIzMTYsImV4cCI6MjA3ODE4ODMxNn0.wP71pAkOFJ8YYNNN7lIRfSrJloqKFsKq3bIjphWBqFc'
   );
 
-  // =========================
-  // VERIFICAR SESIÓN DE SUPABASE
-  // =========================
   let session       = null;
   let userId        = null;
   let userEmail     = null;
@@ -44,9 +80,6 @@ window.addEventListener("load", async () => {
     console.error("Error crítico al verificar sesión:", error);
   }
 
-  // =========================
-  // ELEMENTOS DEL DOM
-  // =========================
   const nombreNav              = document.getElementById("nombreUsuarioNav");
   const nombreInput            = document.getElementById("nombre");
   const emailInput             = document.getElementById("email");
@@ -62,9 +95,6 @@ window.addEventListener("load", async () => {
   const cerrarSesionBtn        = document.getElementById("cerrarSesion");
   const purchasesContainer     = document.getElementById("purchasesContainer");
 
-  // =========================
-  // CARGAR PERFIL DESDE SUPABASE
-  // =========================
   async function cargarPerfilDesdeSupabase() {
     try {
       console.log("🔄 Cargando perfil desde Supabase...");
@@ -112,9 +142,6 @@ window.addEventListener("load", async () => {
     }
   }
 
-  // =========================
-  // GUARDAR PERFIL EN SUPABASE
-  // =========================
   async function guardarPerfilEnSupabase(perfilData) {
     if (!userId && !userEmail) throw new Error("No hay identificador de usuario");
 
@@ -189,18 +216,11 @@ window.addEventListener("load", async () => {
     }
   }
 
-  // =========================
-  // NUEVA FUNCIÓN: Cargar compras desde LOCALSTORAGE
-  // =========================
-  function cargarComprasUsuario() {
+  async function cargarComprasUsuario() {
     if (!purchasesContainer) return;
     
     try {
-      // Obtener email del usuario actual para filtrar
-      const emailActual = userEmail || localStorage.getItem("emailUsuario");
-      const nombreActual = localStorage.getItem("nombreUsuario") || "Usuario";
-      
-      if (!emailActual) {
+      if (!userId) {
         purchasesContainer.innerHTML = `
           <div class="no-purchases">
             <p>Inicia sesión para ver tus compras</p>
@@ -209,15 +229,35 @@ window.addEventListener("load", async () => {
         return;
       }
       
-      // Obtener todas las compras de localStorage
-      const todasLasCompras = JSON.parse(localStorage.getItem('compras_usuario')) || [];
+      console.log("🔄 Cargando compras del usuario:", userId);
       
-      // Filtrar solo las compras del usuario actual
-      const comprasUsuario = todasLasCompras.filter(compra => 
-        compra.usuario_email === emailActual
-      );
+      const { data: compras, error } = await supabase
+        .from('compras')
+        .select(`
+          id,
+          fecha_compra,
+          gasto_total,
+          estado_pago,
+          productos_comprados (
+            id,
+            producto_id,
+            nombre_producto,
+            cantidad,
+            precio_unitario,
+            subtotal
+          )
+        `)
+        .eq('usuario_id', userId)
+        .order('fecha_compra', { ascending: false });
       
-      if (comprasUsuario.length === 0) {
+      if (error) {
+        console.error("Error al cargar compras:", error);
+        throw error;
+      }
+      
+      console.log("Compras encontradas:", compras);
+      
+      if (!compras || compras.length === 0) {
         purchasesContainer.innerHTML = `
           <div class="no-purchases">
             <div class="no-purchases-icon">🛒</div>
@@ -229,14 +269,10 @@ window.addEventListener("load", async () => {
         return;
       }
       
-      // Ordenar por fecha (más reciente primero)
-      comprasUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      
-      // Mostrar las compras
       let html = '';
       
-      comprasUsuario.forEach(compra => {
-        const fecha = new Date(compra.fecha);
+      compras.forEach(compra => {
+        const fecha = new Date(compra.fecha_compra);
         const fechaFormateada = fecha.toLocaleDateString('es-ES', {
           year: 'numeric',
           month: 'long',
@@ -245,36 +281,44 @@ window.addEventListener("load", async () => {
           minute: '2-digit'
         });
         
-        const estadoClass = compra.estado === 'pendiente' ? 'status-pending' : 
-                           compra.estado === 'completado' ? 'status-completed' : 
+        const estadoClass = compra.estado_pago === 'pendiente' ? 'status-pending' : 
+                           compra.estado_pago === 'pagado' ? 'status-completed' : 
                            'status-cancelled';
         
-        const estadoIcono = compra.estado === 'pendiente' ? '⏳' : 
-                           compra.estado === 'completado' ? '✅' : '❌';
+        const estadoIcono = compra.estado_pago === 'pendiente' ? '⏳' : 
+                           compra.estado_pago === 'pagado' ? '✅' : '❌';
+        
+        const estadoTexto = compra.estado_pago === 'pendiente' ? 'Pendiente' :
+                           compra.estado_pago === 'pagado' ? 'Completado' :
+                           'Cancelado';
         
         html += `
           <div class="purchase-card">
             <div class="purchase-header">
               <span class="purchase-date">📅 ${fechaFormateada}</span>
-              <span class="purchase-status ${estadoClass}">${estadoIcono} ${compra.estado}</span>
+              <span class="purchase-status ${estadoClass}">${estadoIcono} ${estadoTexto}</span>
             </div>
             
             <div class="purchase-products">
-              ${compra.productos.map(producto => `
+              ${compra.productos_comprados.map(producto => `
                 <div class="purchase-product">
-                  <span class="product-name">${producto.nombre}</span>
+                  <span class="product-name">${producto.nombre_producto}</span>
                   <span class="product-quantity">x${producto.cantidad}</span>
-                  <span class="product-price">${(producto.precio * producto.cantidad).toFixed(2)}€</span>
+                  <span class="product-price">${(parseFloat(producto.precio_unitario) * producto.cantidad).toFixed(2)}€</span>
                 </div>
               `).join('')}
             </div>
             
             <div class="purchase-footer">
               <span class="purchase-total-label">Total:</span>
-              <span class="purchase-total">${compra.total.toFixed(2)}€</span>
+              <span class="purchase-total">${parseFloat(compra.gasto_total).toFixed(2)}€</span>
             </div>
             
-            ${compra.estado === 'pendiente' ? `
+            <div class="purchase-id">
+              <small>ID de compra: ${compra.id}</small>
+            </div>
+            
+            ${compra.estado_pago === 'pendiente' ? `
               <div class="purchase-message">
                 ⏳ Recibirá próximamente los detalles para efectuar el pago
               </div>
@@ -289,15 +333,12 @@ window.addEventListener("load", async () => {
       console.error('Error inesperado:', error);
       purchasesContainer.innerHTML = `
         <div class="error-purchases">
-          <p>Error al cargar las compras</p>
+          <p>Error al cargar las compras. Por favor, intenta de nuevo más tarde.</p>
         </div>
       `;
     }
   }
 
-  // =========================
-  // INICIALIZAR PERFIL EN LA UI
-  // =========================
   async function inicializarPerfil() {
     const nombreUsuario     = localStorage.getItem("nombreUsuario")   || "Usuario";
     const emailRegistrado   = localStorage.getItem("emailUsuario")    || userEmail || "";
@@ -344,13 +385,9 @@ window.addEventListener("load", async () => {
     
     if (currentPasswordInput) currentPasswordInput.value = '';
     
-    // Cargar compras del usuario (DESDE LOCALSTORAGE)
-    cargarComprasUsuario();
+    await cargarComprasUsuario();
   }
 
-  // =========================
-  // EVENTO GUARDAR PERFIL
-  // =========================
   if (perfilForm) {
     perfilForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -410,9 +447,6 @@ window.addEventListener("load", async () => {
     });
   }
 
-  // =========================
-  // EVENTO CAMBIAR CONTRASEÑA
-  // =========================
   if (passwordForm) {
     passwordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -492,9 +526,6 @@ window.addEventListener("load", async () => {
     });
   }
 
-  // =========================
-  // MENÚ USUARIO
-  // =========================
   if (userMenuButton && userMenu && userMenuContainer) {
     userMenuButton.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -506,9 +537,6 @@ window.addEventListener("load", async () => {
     });
   }
 
-  // =========================
-  // CERRAR SESIÓN
-  // =========================
   if (cerrarSesionBtn) {
     cerrarSesionBtn.addEventListener("click", async (e) => {
       e.preventDefault();
@@ -524,9 +552,6 @@ window.addEventListener("load", async () => {
     });
   }
 
-  // =========================
-  // TOGGLE PASSWORD VISIBILITY
-  // =========================
   document.querySelectorAll('.toggle-password').forEach(button => {
     button.addEventListener('click', function() {
       const targetId = this.dataset.target;
@@ -541,9 +566,6 @@ window.addEventListener("load", async () => {
     });
   });
 
-  // =========================
-  // VALIDACIÓN DE CONTRASEÑAS EN TIEMPO REAL
-  // =========================
   if (newPasswordInput && confirmPasswordInput) {
     const matchMessage = document.getElementById("passwordMatchMessage");
     
@@ -566,9 +588,6 @@ window.addEventListener("load", async () => {
     confirmPasswordInput.addEventListener('input', checkPasswordMatch);
   }
 
-  // =========================
-  // MEDIDOR DE FORTALEZA DE CONTRASEÑA
-  // =========================
   const passwordStrength = document.getElementById("passwordStrength");
   if (newPasswordInput && passwordStrength) {
     newPasswordInput.addEventListener('input', function() {
@@ -593,9 +612,6 @@ window.addEventListener("load", async () => {
     });
   }
 
-  // =========================
-  // INICIALIZAR TODO
-  // =========================
   console.log("🚀 Inicializando perfil...");
   await inicializarPerfil();
   console.log("✅ Perfil inicializado completamente");

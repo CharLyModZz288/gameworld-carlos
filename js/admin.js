@@ -1,127 +1,99 @@
-window.addEventListener('load', () => {
-  // Obtener datos del usuario desde localStorage
-  const usuario = localStorage.getItem('nombreUsuario');
-  const rol = localStorage.getItem('rolUsuario');
-
-  // Verificar solo rol de administrador
-  const rolRaw = rol ? rol.toString().toLowerCase().trim() : '';
-  
-  if (!usuario) {
-    window.location.replace('/login.html');
-    return;
+function checkDirectAccess() {
+  try {
+    const referrer = document.referrer;
+    
+    if (!referrer) {
+      console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    const currentDomain = window.location.hostname;
+    const referrerDomain = new URL(referrer).hostname;
+    
+    if (referrerDomain !== currentDomain) {
+      console.log('🔒 Acceso desde dominio externo detectado - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
+    const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
+    
+    if (!allowedPages.includes(referrerPath)) {
+      console.log('🔒 Acceso desde página no autorizada - Redirigiendo a index');
+      window.location.replace('/index.html');
+      return false;
+    }
+    
+    console.log('✅ Acceso permitido - Navegación interna');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.style.overflow = 'auto';
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error en verificación:', error);
+    return true;
   }
+}
+
+checkDirectAccess();
+
+document.addEventListener('DOMContentLoaded', function() {
+  const userButton = document.getElementById('user-menu-button');
+  const userMenu = document.getElementById('user-menu');
+  const nombreUsuarioNav = document.getElementById('nombreUsuarioNav');
   
-  if (rolRaw !== 'admin') {
-    alert('🚫 Acceso denegado. Solo administradores.');
-    window.location.replace('/catalogo.html');
-    return;
-  }
+  const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Admin';
+  nombreUsuarioNav.textContent = nombreUsuario;
   
-  // Si pasa, mostrar contenido
-  document.addEventListener('DOMContentLoaded', function() {
-    document.body.style.overflow = 'auto';
-    const loader = document.getElementById('loader');
-    if (loader) loader.style.display = 'none';
-  });
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'none';
-
-
-  // Verificación de acceso
-  if (!usuario || rolRaw !== 'admin') {
-    alert('🚫 Acceso denegado. Solo administradores pueden ingresar.');
-    window.location.href = 'login.html';
-    return;
-  }
-
-  console.log(`✅ Bienvenido al panel, ${usuario}`);
-
-  // Cerrar sesión
-  const btnCerrarSesion = document.getElementById('cerrarSesion');
-  if (btnCerrarSesion) {
-    btnCerrarSesion.addEventListener('click', () => {
-      localStorage.removeItem('nombreUsuario');
-      localStorage.removeItem('rolUsuario');
-      window.location.href = 'login.html';
+  if (userButton) {
+    userButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      userMenu.classList.toggle('hidden');
     });
   }
-
-  // Cargar estadísticas y usuarios desde la base de datos
-  cargarEstadisticas();
-  cargarUsuarios();
+  
+  document.addEventListener('click', function(e) {
+    if (!userButton?.contains(e.target) && !userMenu?.contains(e.target)) {
+      userMenu?.classList.add('hidden');
+    }
+  });
+  
+  const cerrarSesionBtn = document.getElementById('cerrarSesion');
+  if (cerrarSesionBtn) {
+    cerrarSesionBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      localStorage.removeItem('nombreUsuario');
+      localStorage.removeItem('emailUsuario');
+      localStorage.removeItem('rolUsuario');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('sb-access-token');
+      sessionStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('sb-access-token');
+      localStorage.removeItem('carrito');
+      
+      window.location.href = 'index.html';
+    });
+  }
 });
 
-// 🔹 Función para actualizar contadores desde API/JSON
-async function cargarEstadisticas() {
-  try {
-    // Cambia la URL por tu endpoint real o archivo JSON
-    const response = await fetch('/api/panel'); 
-    if (!response.ok) throw new Error('Error al cargar estadísticas');
-
-    const data = await response.json();
-
-    document.getElementById('contadorUsuarios').textContent = data.usuarios;
-    document.getElementById('contadorJuegos').textContent = data.juegos;
-    document.getElementById('contadorPlaylists').textContent = data.playlists;
-
-  } catch (error) {
-    console.error('No se pudieron cargar las estadísticas:', error);
-
-    document.getElementById('contadorUsuarios').textContent = '0';
-    document.getElementById('contadorJuegos').textContent = '0';
-    document.getElementById('contadorPlaylists').textContent = '0';
-  }
+function editarJuego(id) {
+  console.log('Editar juego', id);
 }
 
-// 🔹 Función para cargar la tabla de usuarios desde la API
-async function cargarUsuarios() {
-  try {
-    // Cambia la URL por tu endpoint real
-    const response = await fetch('/api/usuarios');
-    if (!response.ok) throw new Error('Error al cargar usuarios');
-
-    const usuarios = await response.json();
-    const tabla = document.getElementById('tablaUsuarios');
-    tabla.innerHTML = ''; // Limpiar tabla antes de insertar
-
-    usuarios.forEach(u => {
-      const tr = document.createElement('tr');
-      tr.classList.add('hover:bg-gray-800', 'transition');
-      tr.innerHTML = `
-        <td class="p-2">${u.id}</td>
-        <td class="p-2">${u.nombre}</td>
-        <td class="p-2">${u.email}</td>
-        <td class="p-2">${u.rol}</td>
-        <td class="p-2 text-center space-x-2">
-          <button class="bg-yellow-500 px-2 py-1 rounded text-black text-sm hover:bg-yellow-400" onclick="editarUsuario(${u.id})">Editar</button>
-          <button class="bg-red-600 px-2 py-1 rounded text-sm hover:bg-red-500" onclick="eliminarUsuario(${u.id})">Eliminar</button>
-        </td>
-      `;
-      tabla.appendChild(tr);
-    });
-  } catch (error) {
-    console.error('No se pudieron cargar los usuarios:', error);
-    const tabla = document.getElementById('tablaUsuarios');
-    tabla.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-400">Error al cargar usuarios</td></tr>`;
-  }
+function eliminarJuego(id) {
+  console.log('Eliminar juego', id);
 }
 
-// 🔹 Funciones de ejemplo para editar y eliminar usuarios
-window.editarUsuario = function(id) {
-  alert(`Editar usuario ID: ${id}`);
+function editarMerch(id) {
+  console.log('Editar merch', id);
 }
 
-window.eliminarUsuario = async function(id) {
-  if (!confirm('¿Seguro que deseas eliminar este usuario?')) return;
-
-  try {
-    const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Error al eliminar usuario');
-
-    alert('Usuario eliminado correctamente');
-    cargarUsuarios(); // Recargar tabla
-  } catch (err) {
-    console.error(err);
-    alert('No se pudo eliminar el usuario');
-  }
+function eliminarMerch(id) {
+  console.log('Eliminar merch', id);
 }

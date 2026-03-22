@@ -1,6 +1,5 @@
 import { supabase } from "./connection.js";
 
-// Ocultar loader
 const loader = document.getElementById("loader");
 if (loader) loader.style.display = "none";
 
@@ -15,10 +14,8 @@ const editRol = document.getElementById("editRol");
 const btnGuardar = document.getElementById("guardarEditarUsuario");
 const btnCancelar = document.getElementById("cancelarEditarUsuario");
 
-// Cargar usuarios al iniciar
 cargarUsuarios();
 
-// ---------------- CARGAR USUARIOS ----------------
 async function cargarUsuarios() {
   const { data, error } = await supabase
     .from("users")
@@ -47,12 +44,10 @@ async function cargarUsuarios() {
     const tr = document.createElement("tr");
     tr.className = "user-row";
 
-    // Determinar badge de rol
     const rolBadge = u.rol === 'admin' 
       ? '<span class="role-badge role-admin">Admin</span>'
       : '<span class="role-badge role-user">Usuario</span>';
 
-    // Avatar con inicial
     const inicial = (u.username || 'U').charAt(0).toUpperCase();
 
     tr.innerHTML = `
@@ -74,14 +69,14 @@ async function cargarUsuarios() {
       <td>${rolBadge}</td>
       <td class="text-center">
         <div class="user-actions">
-          <button class="btn-user-edit" data-user-id="${u.id}">
+          <button class="btn-edit" data-user-id="${u.id}">
             <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
             Editar
           </button>
           ${u.id !== 1 ? `
-            <button class="btn-user-delete" data-user-id="${u.id}">
+            <button class="btn-delete" data-user-id="${u.id}">
               <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
@@ -92,10 +87,9 @@ async function cargarUsuarios() {
       </td>
     `;
 
-    // Agregar event listeners si no es el admin principal
     if (u.id !== 1) {
-      const btnEditar = tr.querySelector(".btn-user-edit");
-      const btnEliminar = tr.querySelector(".btn-user-delete");
+      const btnEditar = tr.querySelector(".btn-edit");
+      const btnEliminar = tr.querySelector(".btn-delete");
       
       if (btnEditar) {
         btnEditar.addEventListener("click", () => abrirModalEditar(u));
@@ -110,33 +104,23 @@ async function cargarUsuarios() {
   });
 }
 
-// ---------------- MODAL ----------------
 function abrirModalEditar(user) {
   editUserId.value = user.id;
   editNombre.value = user.username || "";
   editEmail.value = user.email;
   editRol.value = user.rol || "usuario";
 
-  // Actualizar título del modal
   const modalTitle = modal.querySelector(".modal-title");
   if (modalTitle) {
     modalTitle.innerHTML = `✏️ Editar Usuario #${user.id}`;
   }
 
-  // Crear preview del usuario en el modal
   const modalContent = modal.querySelector(".modal-content");
   const existingPreview = modalContent.querySelector(".user-edit-preview");
   
   if (!existingPreview) {
     const preview = document.createElement("div");
     preview.className = "user-edit-preview";
-    preview.innerHTML = `
-      <div class="user-edit-avatar">${(user.username || 'U').charAt(0).toUpperCase()}</div>
-      <div class="user-edit-info">
-        <div class="user-edit-id">Editando usuario #${user.id}</div>
-        <div class="user-edit-name">${user.username || 'Sin nombre'}</div>
-      </div>
-    `;
     modalContent.insertBefore(preview, modalContent.firstChild);
   } else {
     const avatar = existingPreview.querySelector(".user-edit-avatar");
@@ -156,7 +140,6 @@ btnCancelar.addEventListener("click", () => {
   cerrarModal();
 });
 
-// Cerrar modal con Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
     cerrarModal();
@@ -167,20 +150,17 @@ function cerrarModal() {
   modal.classList.add("hidden");
   modal.classList.remove("flex");
   
-  // Eliminar preview del modal
   const preview = modal.querySelector(".user-edit-preview");
   if (preview) {
     preview.remove();
   }
   
-  // Resetear formulario
   editUserId.value = "";
   editNombre.value = "";
   editEmail.value = "";
   editRol.value = "usuario";
 }
 
-// ---------------- GUARDAR CAMBIOS ----------------
 btnGuardar.addEventListener("click", async () => {
   const id = editUserId.value;
   const username = editNombre.value.trim();
@@ -192,14 +172,12 @@ btnGuardar.addEventListener("click", async () => {
     return;
   }
 
-  // Validar email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     showAlert("❌ Email no válido", "error");
     return;
   }
 
-  // Mostrar loading en el botón
   const originalText = btnGuardar.textContent;
   btnGuardar.classList.add("btn-loading");
   btnGuardar.textContent = "Guardando...";
@@ -229,14 +207,12 @@ btnGuardar.addEventListener("click", async () => {
   cargarUsuarios();
 });
 
-// ---------------- ELIMINAR USUARIO ----------------
 async function eliminarUsuario(id) {
   if (id === 1) {
     showAlert("❌ No puedes eliminar al administrador principal", "warning");
     return;
   }
 
-  // Modal de confirmación personalizado
   const confirmacion = confirm("¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.");
   if (!confirmacion) return;
 
@@ -255,18 +231,14 @@ async function eliminarUsuario(id) {
   cargarUsuarios();
 }
 
-// ---------------- FUNCIÓN PARA MOSTRAR ALERTAS ----------------
 function showAlert(message, type = "info") {
-  // Crear elemento de alerta
   const alertDiv = document.createElement("div");
   alertDiv.className = `alert-${type}`;
   alertDiv.textContent = message;
   
-  // Insertar al principio de la sección de usuarios
   const usuariosSection = document.getElementById("usuarios");
   usuariosSection.insertBefore(alertDiv, usuariosSection.firstChild);
   
-  // Eliminar después de 3 segundos
   setTimeout(() => {
     alertDiv.style.opacity = "0";
     alertDiv.style.transition = "opacity 0.5s ease";
@@ -274,7 +246,6 @@ function showAlert(message, type = "info") {
   }, 3000);
 }
 
-// Cerrar modal si se hace clic fuera
 modal?.addEventListener("click", (e) => {
   if (e.target === modal) {
     cerrarModal();

@@ -1,11 +1,9 @@
-// auth.js
 import { supabase } from "./connection.js";
 
 export async function getAuthState() {
   try {
     console.log("🔍 Verificando estado de autenticación...");
     
-    // Obtener la sesión actual
     const { data, error } = await supabase.auth.getSession();
     
     if (error) {
@@ -30,7 +28,6 @@ export async function getAuthState() {
   }
 }
 
-// Función para verificar y redirigir
 export async function redirigirSegunLogin() {
   console.log("🔄 Iniciando redirección según login...");
   const { isLoggedIn } = await getAuthState();

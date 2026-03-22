@@ -1,18 +1,14 @@
 
-// Verificar si se accede directamente por URL o mediante navegación interna
 function checkDirectAccess() {
 try {
-    // Obtener el referrer para saber de qué página viene
     const referrer = document.referrer;
     
-    // Si no hay referrer o viene de fuera del sitio, es acceso directo por URL
     if (!referrer) {
     console.log('🔒 Acceso directo por URL detectado - Redirigiendo a index');
     window.location.replace('/index.html');
     return false;
     }
     
-    // Verificar que el referrer sea de nuestro propio sitio
     const currentDomain = window.location.hostname;
     const referrerDomain = new URL(referrer).hostname;
     
@@ -22,7 +18,6 @@ try {
     return false;
     }
     
-    // Verificar que viene de una página válida de nuestra aplicación
     const allowedPages = ['index.html', 'catalogo.html', 'playlists.html', 'merch.html', 'sobre.html', 'perfil.html'];
     const referrerPath = new URL(referrer).pathname.split('/').pop() || 'index.html';
     
@@ -32,10 +27,8 @@ try {
     return false;
     }
     
-    // Si pasa todas las verificaciones, mostrar el contenido
     console.log('✅ Acceso permitido - Navegación interna');
     
-    // Mostrar el contenido
     document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = 'auto';
     });
@@ -43,10 +36,121 @@ try {
     return true;
 } catch (error) {
     console.error('Error en verificación:', error);
-    // En caso de error, permitir acceso (mejor falso positivo que bloquear a usuarios legítimos)
     return true;
 }
 }
 
-// Ejecutar verificación
 checkDirectAccess();
+
+(function() {
+      'use strict';
+      
+      // Control de acceso
+      const accessCheck = document.getElementById('access-check');
+      setTimeout(() => {
+        if (accessCheck) {
+          accessCheck.style.opacity = '0';
+          setTimeout(() => {
+            accessCheck.style.display = 'none';
+          }, 300);
+        }
+        document.body.classList.add('access-allowed');
+      }, 1000);
+      
+      // Loader con progreso simulado
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        const progressBar = document.querySelector('.loader-progress');
+        
+        if (progressBar) {
+          let width = 0;
+          const interval = setInterval(() => {
+            if (width >= 100) {
+              clearInterval(interval);
+            } else {
+              width += 10;
+              progressBar.style.width = width + '%';
+            }
+          }, 50);
+        }
+        
+        if (loader) {
+          setTimeout(() => {
+            loader.classList.add('hidden');
+            document.body.classList.add('fade-in');
+          }, 500);
+        }
+      });
+      
+      // Menú móvil
+      const menuToggle = document.querySelector('.menu-toggle');
+      const navLinks = document.querySelector('.nav-links');
+      
+      if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', () => {
+          const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+          menuToggle.setAttribute('aria-expanded', !expanded);
+          navLinks.classList.toggle('show');
+        });
+      }
+      
+      // Animación de estadísticas al hacer scroll
+      const animateNumbers = () => {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        statNumbers.forEach(stat => {
+          const target = parseInt(stat.getAttribute('data-target'));
+          const rect = stat.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          
+          if (isVisible && !stat.classList.contains('animated')) {
+            stat.classList.add('animated');
+            let current = 0;
+            const increment = target / 30;
+            const updateNumber = () => {
+              if (current < target) {
+                current += increment;
+                stat.textContent = Math.floor(current);
+                requestAnimationFrame(updateNumber);
+              } else {
+                stat.textContent = target;
+              }
+            };
+            updateNumber();
+          }
+        });
+      };
+      
+      // Scroll reveal mejorado
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+      
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
+      
+      window.addEventListener('scroll', animateNumbers);
+      window.addEventListener('load', animateNumbers);
+      
+      // Prefetch de páginas importantes
+      if ('connection' in navigator && navigator.connection.saveData === false) {
+        const links = ['catalogo.html', 'playlists.html', 'merch.html'];
+        links.forEach(link => {
+          const prefetch = document.createElement('link');
+          prefetch.rel = 'prefetch';
+          prefetch.href = link;
+          document.head.appendChild(prefetch);
+        });
+      }
+    })();

@@ -1,11 +1,9 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
 let ticking = false;
 let rafId = null;
 
-// Verificar si se accede directamente por URL o mediante navegación interna
 function checkDirectAccess() {
   try {
     const referrer = document.referrer;
@@ -53,7 +51,6 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll - OPTIMIZADA
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   
@@ -92,40 +89,73 @@ function optimizedScrollHandler() {
   }
 }
 
-// Función para generar duración aleatoria
 function generarDuracion() {
   const minutos = Math.floor(Math.random() * 30) + 15;
   return `${minutos} min`;
 }
 
-// Función para generar número de canciones
 function generarCanciones() {
   return Math.floor(Math.random() * 15) + 5;
 }
 
-// Función para determinar si es destacado
 function esDestacado() {
   return Math.random() > 0.7;
 }
 
-// Función para obtener género musical (normalizado)
-function obtenerGenero(generoInput) {
-  const genero = generoInput || '';
-  const generoLower = genero.toLowerCase();
+// Función mejorada para asignar género fijo basado en el nombre de la playlist
+function obtenerGeneroFijo(playlist) {
+  // Si ya tiene un género definido en la base de datos, usarlo
+  if (playlist.genero_fijo) {
+    return playlist.genero_fijo;
+  }
   
-  if (generoLower.includes('ost') || generoLower.includes('soundtrack') || generoLower.includes('banda sonora')) return 'OST';
-  if (generoLower.includes('rock')) return 'Rock';
-  if (generoLower.includes('electr') || generoLower.includes('dance') || generoLower.includes('edm')) return 'Electrónica';
-  if (generoLower.includes('orquest') || generoLower.includes('orchestra') || generoLower.includes('sinfónico')) return 'Orquestal';
-  if (generoLower.includes('chiptune') || generoLower.includes('8-bit') || generoLower.includes('16-bit')) return 'Chiptune';
-  if (generoLower.includes('ambient') || generoLower.includes('relajante') || generoLower.includes('lo-fi')) return 'Ambient';
+  const nombre = (playlist.nombre || playlist.name || "").toLowerCase();
+  const generoOriginal = (playlist.genero || "").toLowerCase();
   
-  // Si no coincide con ninguno, asignar aleatorio
-  const generos = ['OST', 'Rock', 'Electrónica', 'Orquestal', 'Chiptune', 'Ambient'];
-  return generos[Math.floor(Math.random() * generos.length)];
+  // Mapeo de palabras clave a géneros fijos
+  const mapaGeneros = {
+    'epic gaming collection': 'OST',
+    'battle themes': 'Orquestal',
+    'ambient gaming': 'Ambient',
+    'rock edition': 'Rock',
+    '8-bit classics': 'Chiptune',
+    'fantasy worlds': 'Orquestal',
+    'edm gaming mix': 'Electrónica',
+    'symphony of games': 'Orquestal'
+  };
+  
+  // Verificar si el nombre coincide con algún mapa predefinido
+  for (const [clave, genero] of Object.entries(mapaGeneros)) {
+    if (nombre.includes(clave)) {
+      return genero;
+    }
+  }
+  
+  // Si tiene un género definido en la BD, usarlo para determinar categoría fija
+  if (generoOriginal) {
+    if (generoOriginal.includes('ost') || generoOriginal.includes('soundtrack')) return 'OST';
+    if (generoOriginal.includes('rock')) return 'Rock';
+    if (generoOriginal.includes('electr') || generoOriginal.includes('dance')) return 'Electrónica';
+    if (generoOriginal.includes('orquest') || generoOriginal.includes('orchestra')) return 'Orquestal';
+    if (generoOriginal.includes('chiptune') || generoOriginal.includes('bit')) return 'Chiptune';
+    if (generoOriginal.includes('ambient')) return 'Ambient';
+  }
+  
+  // Asignar por defecto basado en la primera letra del nombre (consistente)
+  const primeraLetra = nombre.charAt(0);
+  const generosPorLetra = {
+    'a': 'Ambient', 'b': 'Orquestal', 'c': 'Chiptune', 'd': 'Electrónica',
+    'e': 'OST', 'f': 'Orquestal', 'g': 'Rock', 'h': 'Electrónica',
+    'i': 'Ambient', 'j': 'Rock', 'k': 'Chiptune', 'l': 'Orquestal',
+    'm': 'OST', 'n': 'Electrónica', 'o': 'Rock', 'p': 'Ambient',
+    'q': 'Chiptune', 'r': 'Rock', 's': 'Orquestal', 't': 'Electrónica',
+    'u': 'Ambient', 'v': 'OST', 'w': 'Rock', 'x': 'Chiptune',
+    'y': 'Orquestal', 'z': 'Electrónica'
+  };
+  
+  return generosPorLetra[primeraLetra] || 'OST';
 }
 
-// Iconos por género
 function getGeneroIcon(genero) {
   const iconos = {
     'OST': '🎮',
@@ -141,7 +171,6 @@ function getGeneroIcon(genero) {
   return iconos[genero] || '🎵';
 }
 
-// Colores por género
 function getGeneroColor(genero) {
   const colores = {
     'OST': '#6366f1',
@@ -157,11 +186,11 @@ function getGeneroColor(genero) {
   return colores[genero] || '#6366f1';
 }
 
-// DATOS DE RESPALDO
 const datosRespaldo = [
   {
     nombre: "🎮 Epic Gaming Collection",
     genero: "OST",
+    genero_fijo: "OST",
     canciones: 25,
     duracion: "120 min",
     destacado: true,
@@ -172,6 +201,7 @@ const datosRespaldo = [
   {
     nombre: "⚔️ Battle Themes",
     genero: "Orquestal",
+    genero_fijo: "Orquestal",
     canciones: 18,
     duracion: "85 min",
     destacado: false,
@@ -182,6 +212,7 @@ const datosRespaldo = [
   {
     nombre: "🌌 Ambient Gaming",
     genero: "Ambient",
+    genero_fijo: "Ambient",
     canciones: 15,
     duracion: "70 min",
     destacado: true,
@@ -192,6 +223,7 @@ const datosRespaldo = [
   {
     nombre: "🎸 Rock Edition",
     genero: "Rock",
+    genero_fijo: "Rock",
     canciones: 20,
     duracion: "95 min",
     destacado: false,
@@ -202,6 +234,7 @@ const datosRespaldo = [
   {
     nombre: "🕹️ 8-bit Classics",
     genero: "Chiptune",
+    genero_fijo: "Chiptune",
     canciones: 30,
     duracion: "110 min",
     destacado: true,
@@ -212,6 +245,7 @@ const datosRespaldo = [
   {
     nombre: "🏰 Fantasy Worlds",
     genero: "Orquestal",
+    genero_fijo: "Orquestal",
     canciones: 22,
     duracion: "105 min",
     destacado: false,
@@ -222,6 +256,7 @@ const datosRespaldo = [
   {
     nombre: "⚡ EDM Gaming Mix",
     genero: "Electrónica",
+    genero_fijo: "Electrónica",
     canciones: 28,
     duracion: "130 min",
     destacado: true,
@@ -232,6 +267,7 @@ const datosRespaldo = [
   {
     nombre: "🎻 Symphony of Games",
     genero: "Orquestal",
+    genero_fijo: "Orquestal",
     canciones: 16,
     duracion: "75 min",
     destacado: false,
@@ -241,7 +277,6 @@ const datosRespaldo = [
   }
 ];
 
-// Cargar playlists
 let playlistsCache = null;
 let cargaEnProgreso = false;
 
@@ -263,7 +298,6 @@ window.addEventListener("load", async () => {
 
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
 
-  // Mostrar mensaje de carga
   grid.innerHTML = `
     <div class="loading-container">
       <div class="loading-spinner"></div>
@@ -280,7 +314,6 @@ window.addEventListener("load", async () => {
   if (cargaEnProgreso) return;
   cargaEnProgreso = true;
 
-  // Intentar cargar de Supabase primero
   try {
     const { data: playlists, error } = await supabase
       .from("musica")
@@ -294,12 +327,24 @@ window.addEventListener("load", async () => {
       playlistsCache = datosRespaldo;
       renderizarPlaylists(datosRespaldo);
     } else {
-      playlistsCache = playlists;
-      renderizarPlaylists(playlists.map(track => ({
-        ...track,
-        origen: "Base de datos",
-        audio: track.url
-      })));
+      // Procesar playlists de la base de datos asignando género fijo
+      const playlistsProcesadas = playlists.map(track => {
+        const trackData = {
+          ...track,
+          origen: "Base de datos",
+          audio: track.url,
+          nombre: track.nombre || track.name || "Playlist sin título",
+          descripcion: track.descripcion || "Soundtrack gamer épico",
+          canciones: track.canciones || generarCanciones(),
+          duracion: track.duracion || generarDuracion(),
+          destacado: track.destacado !== undefined ? track.destacado : esDestacado()
+        };
+        // Asignar género fijo usando el nombre y género original
+        trackData.genero_fijo = obtenerGeneroFijo(trackData);
+        return trackData;
+      });
+      playlistsCache = playlistsProcesadas;
+      renderizarPlaylists(playlistsProcesadas);
     }
   } catch (error) {
     console.error("Error cargando playlists:", error);
@@ -307,43 +352,34 @@ window.addEventListener("load", async () => {
     renderizarPlaylists(datosRespaldo);
   }
   
-  // Ocultar loader
   if (loader) {
     loader.classList.add("hidden");
   }
 });
 
-// ============================================
-// FUNCIÓN DE RENDERIZADO - POR GÉNEROS
-// ============================================
 function renderizarPlaylists(playlists) {
   const grid = document.getElementById("gridPlaylists");
   if (!grid) return;
 
-  // Agrupar playlists por género
   const playlistsPorGenero = {};
   
   playlists.forEach(track => {
-    const genero = obtenerGenero(track.genero);
+    // Usar el género fijo en lugar de generar uno aleatorio
+    const genero = track.genero_fijo || obtenerGeneroFijo(track);
+    
     if (!playlistsPorGenero[genero]) {
       playlistsPorGenero[genero] = [];
     }
     
     const trackData = {
-      nombre: track.nombre || track.name || "Playlist sin título",
-      descripcion: track.descripcion || "Soundtrack gamer épico",
+      ...track,
       genero: genero,
-      canciones: track.canciones || generarCanciones(),
-      duracion: track.duracion || generarDuracion(),
-      destacado: track.destacado !== undefined ? track.destacado : esDestacado(),
-      audio: track.audio || track.url || datosRespaldo[0].audio,
-      origen: track.origen || "GameWorld"
+      genero_fijo: genero
     };
     
     playlistsPorGenero[genero].push(trackData);
   });
 
-  // Orden de géneros (personalizable)
   const ordenGeneros = ['OST', 'Orquestal', 'Rock', 'Electrónica', 'Chiptune', 'Ambient', 'Pop', 'Hip-Hop', 'Clásica'];
   
   const generosOrdenados = Object.keys(playlistsPorGenero).sort((a, b) => {
@@ -356,7 +392,6 @@ function renderizarPlaylists(playlists) {
     return indexA - indexB;
   });
 
-  // Usar DocumentFragment para mejor rendimiento
   const fragment = document.createDocumentFragment();
   
   generosOrdenados.forEach(genero => {
@@ -425,7 +460,6 @@ function renderizarPlaylists(playlists) {
   grid.appendChild(fragment);
 }
 
-// Función para abrir modal
 window.abrirModal = function (track) {
   const modal = document.getElementById("modalPlaylist");
   const contenido = document.getElementById("modalContenido");
@@ -475,7 +509,6 @@ window.abrirModal = function (track) {
   }
 };
 
-// Función para cerrar modal
 window.cerrarModal = function () {
   const modal = document.getElementById("modalPlaylist");
   if (!modal) return;
@@ -495,7 +528,6 @@ window.cerrarModal = function () {
   }
 };
 
-// Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
@@ -531,4 +563,4 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
-console.log("Script de playlists cargado correctamente (con géneros y optimizado)");
+console.log("Script de playlists cargado correctamente (con géneros fijos y consistentes)");

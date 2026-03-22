@@ -12,44 +12,46 @@
  </head>
 <body>
 
-  <!-- SEPARADORES LATERALES -->
   <div class="side-left"></div>
   <div class="side-right"></div>
 
-  <!-- LOADER -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">GameWorld</div>
   </div>
 
-  <!-- CONTENIDO CENTRAL -->
   <div class="page-container">
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="main-container">
 
-      <!-- NAVBAR SIN LOGIN -->
       <nav id="nav" class="navbar">
-        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
         <div class="nav-links">
-          <a href="catalogo.html">Catálogo</a>
-          <a href="playlists.html">Playlists</a>
-          <a href="merch.html">Merchandising</a>
-          <a href="sobre.html">Sobre Nosotros</a>
+          <a href="catalogo.html" aria-label="Ver catálogo de juegos">🎮 Catálogo</a>
+          <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
+          <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
+          <a href="sobre.html" aria-label="Ver sobre nosotros">👥 Sobre Nosotros</a>
           <a href="login.html">Login</a>
         </div>
+        <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
       </nav>
       
-      <!-- NAVBAR CON USUARIO LOGUEADO -->
       <nav id="navLog" class="navbar hidden-nav">
-        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
 
         <div class="nav-links">
-          <a href="catalogo.html">Catálogo</a>
-          <a href="playlists.html">Playlists</a>
-          <a href="merch.html">Merchandising</a>
-          <a href="sobre.html">Sobre Nosotros</a>
+          <a href="catalogo.html" aria-label="Ver catálogo de juegos">🎮 Catálogo</a>
+          <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
+          <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
+          <a href="sobre.html" aria-label="Ver sobre nosotros">👥 Sobre Nosotros</a>
 
-          <!-- USUARIO -->
           <div class="user-menu-container" id="user-menu-container">
             <button id="user-menu-button" class="user-button">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,11 +63,9 @@
 
             <div id="user-menu" class="user-menu hidden">
               <a href="perfil.html">Perfil</a>
-              <!-- FAVORITOS - Nueva opción en el menú -->
               <a href="favoritos.html" class="favoritos-link">
                 <span>❤️ Favoritos</span>
               </a>
-              <!-- CARRITO - Visible para TODOS los usuarios -->
               <a href="carrito.html" id="carrito-link" class="carrito-link">
                 <span>🛒 Carrito</span>
                 <span id="carrito-contador" class="carrito-contador">0</span>
@@ -75,9 +75,9 @@
             </div>
           </div>
         </div>
+        <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
       </nav>
 
-      <!-- HERO -->
       <section class="hero">
         <video autoplay muted loop>
           <source src="media/bg-video.mp4" type="video/mp4">
@@ -89,7 +89,6 @@
         </div>
       </section>
 
-      <!-- GRID SECCIONES -->
       <div class="section-grid">
         <a href="catalogo.html" class="section-card">
           <div class="card-icon">🎮</div>
@@ -113,7 +112,6 @@
         </a>
       </div>
 
-      <!-- COMENTARIOS -->
       <section id="coment" class="comments">
         <h3>Deja tu comentario</h3>
 
@@ -141,7 +139,6 @@
           <div class="loading-comments">Cargando comentarios...</div>
         </div>
 
-        <!-- PAGINACIÓN -->
         <div class="pagination" id="pagination">
           <button class="pagination-btn" id="prevPage" disabled>Anterior</button>
           <span class="page-info" id="pageInfo">Página 1 de 1</span>
@@ -149,9 +146,8 @@
         </div>
       </section>
 
-      <!-- FOOTER -->
       <footer class="footer">
-        <p>© 2025 GameWorld. Todos los derechos reservados.</p>
+        <p>© 2026 GameWorld. Todos los derechos reservados.</p>
         <div class="footer-links">
           <a href="#">Twitter</a>
           <a href="#">Instagram</a>

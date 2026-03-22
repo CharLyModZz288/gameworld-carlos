@@ -1,10 +1,8 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll
 let lastScrollTop = 0;
 let scrollTimeout;
 
-// Variables globales
 let favoritos = [];
 let itemSeleccionado = null;
 
@@ -42,7 +40,6 @@ function checkDirectAccess() {
       console.log('Acceso sin usuario registrado ocultar carrito.');
       carrito.style.display = "none";
       
-      // Redirigir a login si no está logueado
       console.log('🔒 Usuario no logueado - Redirigiendo a login');
       window.alert('Necesita iniciar sesión para ver sus favoritos');
       window.location.replace('/login.html');
@@ -70,7 +67,6 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
@@ -102,9 +98,7 @@ function optimizedScrollHandler() {
   scrollTimeout = window.requestAnimationFrame(handleScroll);
 }
 
-// Función para mostrar notificaciones
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Eliminar notificaciones existentes
   const notificacionesExistentes = document.querySelectorAll('.favorite-notification');
   notificacionesExistentes.forEach(notif => notif.remove());
   
@@ -122,12 +116,10 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   }, 3000);
 }
 
-// Función para actualizar el contador del carrito
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   
-  // Actualizar contador en el navbar
   const contadorNav = document.getElementById('carrito-contador-nav');
   if (contadorNav) {
     contadorNav.textContent = totalItems;
@@ -136,7 +128,6 @@ function actualizarContadorCarrito() {
   return totalItems;
 }
 
-// Función para inicializar el carrito
 function inicializarCarrito() {
   if (!localStorage.getItem('carrito')) {
     localStorage.setItem('carrito', JSON.stringify([]));
@@ -144,26 +135,21 @@ function inicializarCarrito() {
   actualizarContadorCarrito();
 }
 
-// Función para navegación interna
 window.navegarA = function(pagina) {
   console.log('Navegando a:', pagina);
   
-  // Mostrar loader
   const loader = document.getElementById("loader");
   if (loader) {
     loader.classList.remove("hidden");
   }
   
-  // Usar History API para cambiar la URL
   window.history.pushState({}, '', pagina);
   
-  // Simular navegación - Recargar la página para este caso
   setTimeout(() => {
     window.location.href = pagina;
   }, 300);
 };
 
-// Función para cargar favoritos - VERSIÓN CORREGIDA
 async function cargarFavoritos() {
   console.log('Cargando favoritos...');
   
@@ -186,7 +172,6 @@ async function cargarFavoritos() {
   }
 
   try {
-    // Mostrar loader mientras carga
     grid.innerHTML = `
       <div class="loading-favorites">
         <div class="loader"></div>
@@ -194,7 +179,6 @@ async function cargarFavoritos() {
       </div>
     `;
 
-    // Obtener favoritos del usuario desde Supabase
     console.log('Cargando favoritos desde Supabase para usuario:', userId);
     
     const { data: favoritosData, error: favError } = await supabase
@@ -224,15 +208,12 @@ async function cargarFavoritos() {
       return;
     }
 
-    // Array para almacenar todos los favoritos
     const favoritosCompletos = [];
     
-    // Procesar cada favorito
     for (const fav of favoritosData) {
       console.log('Procesando favorito:', fav);
       
       if (fav.juego_id) {
-        // Es un juego
         const { data: juego, error: juegoError } = await supabase
           .from("Juegos")
           .select("*")
@@ -241,7 +222,7 @@ async function cargarFavoritos() {
         
         if (juegoError) {
           console.error('Error al cargar juego:', juegoError);
-          continue; // Saltar este favorito si hay error
+          continue;
         }
         
         if (juego) {
@@ -256,7 +237,6 @@ async function cargarFavoritos() {
       } 
       
       if (fav.merch_id) {
-        // Es merchandise
         const { data: merch, error: merchError } = await supabase
           .from("merchandising")
           .select("*")
@@ -265,7 +245,7 @@ async function cargarFavoritos() {
         
         if (merchError) {
           console.error('Error al cargar merch:', merchError);
-          continue; // Saltar este favorito si hay error
+          continue; 
         }
         
         if (merch) {
@@ -294,17 +274,14 @@ async function cargarFavoritos() {
       return;
     }
 
-    // Guardar en variable global y localStorage
     favoritos = favoritosCompletos;
     localStorage.setItem('favoritos', JSON.stringify(favoritosCompletos));
     
-    // Renderizar todos los favoritos
     renderizarFavoritos(favoritosCompletos);
 
   } catch (error) {
     console.error('Error al cargar favoritos:', error);
     
-    // Intentar cargar desde localStorage como fallback
     try {
       const favoritosLocal = JSON.parse(localStorage.getItem('favoritos')) || [];
       if (favoritosLocal.length > 0) {
@@ -335,7 +312,6 @@ async function cargarFavoritos() {
   }
 }
 
-// Función para renderizar favoritos (estilo similar al catálogo)
 function renderizarFavoritos(items) {
   const grid = document.getElementById("gridFavoritos");
   if (!grid) return;
@@ -365,7 +341,6 @@ function renderizarFavoritos(items) {
     const estado = item.estado || (item.stock > 0 ? 'Disponible' : 'No disponible');
     const fechaAgregado = item.fecha_agregado ? new Date(item.fecha_agregado).toLocaleDateString() : 'Recientemente';
     
-    // Determinar si el producto está disponible
     const disponible = tipo === 'juego' ? estado === 'Disponible' : item.stock > 0;
     
     return `
@@ -412,11 +387,9 @@ function renderizarFavoritos(items) {
   }).join("");
 }
 
-// Función para añadir al carrito
 window.añadirAlCarrito = function(item) {
   console.log('Añadiendo al carrito:', item);
 
-  // Verificar si el usuario está logueado
   const nombreUsuario = localStorage.getItem("nombreUsuario");
   if (!nombreUsuario || nombreUsuario === "Invitado") {
     mostrarNotificacion('Debes iniciar sesión para comprar', 'error');
@@ -429,7 +402,6 @@ window.añadirAlCarrito = function(item) {
   const tipo = item.tipo || 'juego';
   const nombre = item.nombre || item.titulo || 'Producto';
   
-  // Verificar disponibilidad
   if (tipo === 'juego' && item.estado !== "Disponible") {
     mostrarNotificacion('Este juego no está disponible', 'error');
     return false;
@@ -442,7 +414,6 @@ window.añadirAlCarrito = function(item) {
 
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  // Buscar si ya está en el carrito
   const existeIndex = carrito.findIndex(c => {
     if (tipo === 'merch') {
       return c.id === `merch_${item.id}`;
@@ -452,7 +423,6 @@ window.añadirAlCarrito = function(item) {
   });
   
   if (existeIndex !== -1) {
-    // Verificar stock para merch
     if (tipo === 'merch' && carrito[existeIndex].cantidad >= item.stock) {
       mostrarNotificacion(`No hay más stock disponible de ${nombre}`, 'error');
       return false;
@@ -488,7 +458,6 @@ window.añadirAlCarrito = function(item) {
   return true;
 };
 
-// Función para eliminar favorito
 window.eliminarFavorito = async function(id, tipo) {
   if (!confirm('¿Estás seguro de que quieres eliminar este producto de favoritos?')) {
     return;
@@ -497,7 +466,6 @@ window.eliminarFavorito = async function(id, tipo) {
   try {
     const userId = localStorage.getItem("userId");
     
-    // Eliminar de Supabase si hay userId
     if (userId) {
       let query = supabase
         .from('favoritos')
@@ -513,13 +481,10 @@ window.eliminarFavorito = async function(id, tipo) {
       await query;
     }
     
-    // Eliminar del array local
     favoritos = favoritos.filter(f => !(f.id == id && f.tipo === tipo));
     
-    // Actualizar localStorage
     localStorage.setItem('favoritos', JSON.stringify(favoritos));
     
-    // Re-renderizar
     renderizarFavoritos(favoritos);
     
     mostrarNotificacion('Producto eliminado de favoritos', 'success');
@@ -530,14 +495,12 @@ window.eliminarFavorito = async function(id, tipo) {
   }
 };
 
-// Función para abrir modal
 window.abrirModal = function(item) {
   console.log('Abriendo modal para:', item.nombre || item.titulo);
   
   const modal = document.getElementById("modalFavorito");
   const contenido = document.getElementById("modalContenido");
 
-  // Guardar el item en variable global
   window.itemSeleccionado = item;
 
   const tipo = item.tipo || 'juego';
@@ -606,7 +569,6 @@ window.abrirModal = function(item) {
   }
 };
 
-// Función para añadir item seleccionado desde modal
 window.añadirItemSeleccionado = function() {
   if (window.itemSeleccionado) {
     añadirAlCarrito(window.itemSeleccionado);
@@ -616,7 +578,6 @@ window.añadirItemSeleccionado = function() {
   }
 };
 
-// Función para cerrar modal
 window.cerrarModal = function() {
   const modal = document.getElementById("modalFavorito");
   modal.classList.add("hidden");
@@ -628,7 +589,6 @@ window.cerrarModal = function() {
   }
 };
 
-// Event listeners
 document.addEventListener("DOMContentLoaded", () => {
   console.log('DOM cargado, inicializando favoritos...');
   
@@ -642,7 +602,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
   cargarFavoritos();
 
-  // Reemplazar todos los enlaces de navegación para usar navegación interna
   setTimeout(() => {
     const navLinks = document.querySelectorAll('.nav-links a');
     navLinks.forEach(link => {
@@ -655,7 +614,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     
-    // También actualizar el logo
     const logoLink = document.querySelector('.logo a');
     if (logoLink) {
       const href = logoLink.getAttribute('href');
@@ -707,7 +665,6 @@ window.addEventListener('resize', () => {
   handleScroll();
 });
 
-// Escuchar cambios en localStorage desde otras pestañas
 window.addEventListener('storage', (e) => {
   if (e.key === 'carrito') {
     actualizarContadorCarrito();

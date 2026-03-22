@@ -5,7 +5,6 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 window.addEventListener('load', async () => {
-  // Loader
   const loader = document.getElementById('loader');
   if (loader) {
     setTimeout(() => {
@@ -15,7 +14,6 @@ window.addEventListener('load', async () => {
   
   document.body.classList.add('fade-in');
 
-  // Datos de usuario
   const nombreUsuario = localStorage.getItem("nombreUsuario") || "Invitado";
   const rolRaw = localStorage.getItem("rolUsuario") || "user";
   const rol = rolRaw.toString().toLowerCase().trim();
@@ -23,7 +21,6 @@ window.addEventListener('load', async () => {
   const nombreNav = document.getElementById("nombreUsuarioNav");
   if (nombreNav) nombreNav.textContent = nombreUsuario;
 
-  // Mostrar navbar correcta según login
   const nav = document.getElementById("nav");
   const navLog = document.getElementById("navLog");
   const coments = document.getElementById("coment");
@@ -41,13 +38,11 @@ window.addEventListener('load', async () => {
     if (coments) coments.style.display = "block";
   }
 
-  // Mostrar panel admin si corresponde
   if (rol === "admin") {
     const panelAdmin = document.getElementById("panel-admin");
     if (panelAdmin) panelAdmin.style.display = "block";
   }
 
-  // ---------- CARRITO DE COMPRAS ----------
   function inicializarCarrito() {
     if (!localStorage.getItem('carrito')) {
       localStorage.setItem('carrito', JSON.stringify([]));
@@ -91,7 +86,6 @@ window.addEventListener('load', async () => {
     }
   });
 
-  // MENU USUARIO
   const userMenuButton = document.getElementById('user-menu-button');
   const userMenu = document.getElementById('user-menu');
   const userMenuContainer = document.getElementById('user-menu-container');
@@ -123,7 +117,6 @@ window.addEventListener('load', async () => {
     });
   }
 
-  // ---------- COMENTARIOS CON SUPABASE (FILTRO POR FECHA Y PAGINACIÓN) ----------
   const testimoniosContainer = document.getElementById('comentariosContainer');
   const filtroFecha = document.getElementById('filtroFecha');
   const prevPage = document.getElementById('prevPage');
@@ -131,14 +124,12 @@ window.addEventListener('load', async () => {
   const pageInfo = document.getElementById('pageInfo');
   const totalComentarios = document.getElementById('totalComentarios');
 
-  // Variables de estado
   let currentPage = 1;
   let itemsPerPage = 5;
   let totalItems = 0;
   let todosLosTestimonios = [];
   let testimoniosFiltrados = [];
 
-  // Función para cargar todos los testimonios
   async function cargarTodosLosTestimonios() {
     try {
       const { data: testimonios, error } = await supabase
@@ -149,7 +140,6 @@ window.addEventListener('load', async () => {
       
       todosLosTestimonios = testimonios || [];
       
-      // Calcular estadísticas
       totalItems = todosLosTestimonios.length;
       
       if (totalComentarios) {
@@ -161,11 +151,9 @@ window.addEventListener('load', async () => {
     }
   }
 
-  // Función para aplicar filtros y ordenamiento
   function aplicarFiltros() {
     let filtrados = [...todosLosTestimonios];
     
-    // Aplicar filtro de fecha
     const ordenFecha = filtroFecha ? filtroFecha.value : 'nuevos';
     if (ordenFecha === 'nuevos') {
       filtrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
@@ -180,7 +168,6 @@ window.addEventListener('load', async () => {
     mostrarPaginaActual();
   }
 
-  // Función para mostrar la página actual
   function mostrarPaginaActual() {
     if (!testimoniosContainer) return;
     
@@ -198,7 +185,6 @@ window.addEventListener('load', async () => {
     actualizarPaginacion();
   }
 
-  // Función para mostrar los testimonios en el DOM
   function mostrarTestimonios(testimonios) {
     if (!testimoniosContainer) return;
     
@@ -238,7 +224,6 @@ window.addEventListener('load', async () => {
     });
   }
 
-  // Función para actualizar los controles de paginación
   function actualizarPaginacion() {
     const totalPages = Math.ceil(testimoniosFiltrados.length / itemsPerPage);
     
@@ -255,7 +240,6 @@ window.addEventListener('load', async () => {
     }
   }
 
-  // Función para agregar comentario a Supabase
   async function agregarTestimonio() {
     const input = document.getElementById('comentarioInput');
     if (!input) return;
@@ -279,7 +263,6 @@ window.addEventListener('load', async () => {
       
       if (error) throw error;
       
-      // Limpiar input y recargar comentarios
       input.value = '';
       await cargarTodosLosTestimonios();
       aplicarFiltros();
@@ -290,7 +273,6 @@ window.addEventListener('load', async () => {
     }
   }
 
-  // Verificar si hay un comentario inicial de bienvenida
   async function inicializarTestimonios() {
     try {
       const { data: testimonios, error } = await supabase
@@ -300,7 +282,6 @@ window.addEventListener('load', async () => {
       
       if (error) throw error;
       
-      // Si no hay comentarios, crear uno de bienvenida
       if (!testimonios || testimonios.length === 0) {
         const comentarioInicial = {
           nombre: "Admin",
@@ -315,7 +296,6 @@ window.addEventListener('load', async () => {
         if (insertError) throw insertError;
       }
       
-      // Cargar todos los comentarios
       await cargarTodosLosTestimonios();
       aplicarFiltros();
       
@@ -326,14 +306,12 @@ window.addEventListener('load', async () => {
     }
   }
 
-  // Event listeners para filtros
   if (filtroFecha) {
     filtroFecha.addEventListener('change', () => {
       aplicarFiltros();
     });
   }
   
-  // Event listeners para paginación
   if (prevPage) {
     prevPage.addEventListener('click', () => {
       if (currentPage > 1) {
@@ -353,12 +331,10 @@ window.addEventListener('load', async () => {
     });
   }
 
-  // Inicializar testimonios solo si el usuario está logueado
   if (nombreUsuario !== "Invitado") {
     await inicializarTestimonios();
   }
 
-  // Event listeners para comentarios
   const boton = document.getElementById('guardarComentario');
   if (boton) {
     boton.addEventListener('click', agregarTestimonio);

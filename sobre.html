@@ -2,232 +2,296 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sobre Nosotros - GameWorld</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Conoce GameWorld - Tu tienda gamer definitiva con videojuegos, música, merchandising y comunidad activa">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="author" content="GameWorld">
+  <title>Sobre Nosotros | GameWorld - Tienda Gamer Premium</title>
   
-  <!-- Tus estilos originales -->
+  <!-- Preconnect y recursos críticos -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- CSS Principal -->
   <link rel="stylesheet" href="css/sobre.css">
   
+  <!-- Preload de video para mejor rendimiento -->
+  <link rel="preload" as="video" href="media/bg-video.mp4" type="video/mp4">
 </head>
 <body>
-  <!-- Loader de verificación -->
-  <div id="access-check">
+  <!-- Sistema de verificación de acceso mejorado -->
+  <div id="access-check" aria-label="Verificando acceso">
     <div class="check-spinner"></div>
+    <p class="check-text">Verificando acceso seguro...</p>
   </div>
 
-  <!-- SEPARADORES LATERALES -->
-  <div class="side-left"></div>
-  <div class="side-right"></div>
+  <!-- Elementos decorativos optimizados -->
+  <div class="side-left" aria-hidden="true"></div>
+  <div class="side-right" aria-hidden="true"></div>
 
-  <!-- LOADER (se mantiene) -->
-  <div id="loader">
+  <!-- Loader mejorado con animación suave -->
+  <div id="loader" aria-label="Cargando contenido">
     <div class="loader-circle"></div>
     <div id="loader-text">GameWorld</div>
+    <div class="loader-progress"></div>
   </div>
 
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR -->
-      <nav class="navbar">
-        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+      <!-- Navegación mejorada con accesibilidad -->
+      <nav class="navbar" aria-label="Navegación principal">
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
         <div class="nav-links">
-          <a href="catalogo.html">Catálogo</a>
-          <a href="playlists.html">Playlists</a>
-          <a href="merch.html">Merchandising</a>
-          <a href="index.html">Inicio</a>
+          <a href="catalogo.html" aria-label="Ver catálogo de juegos">🎮 Catálogo</a>
+          <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
+          <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
+          <a href="index.html" aria-label="Volver al inicio">🏠 Inicio</a>
         </div>
+        <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
       </nav>
 
-      <!-- HERO -->
-      <section class="hero">
-        <video autoplay muted loop>
+      <!-- Hero Section mejorada -->
+      <section class="hero" aria-label="Presentación de GameWorld">
+        <video autoplay muted loop playsinline poster="media/bg-poster.jpg">
           <source src="media/bg-video.mp4" type="video/mp4">
+          Tu navegador no soporta videos HTML5.
         </video>
+        <div class="hero-overlay"></div>
         <div class="hero-content">
-          <h2>Conoce GameWorld</h2>
+          <div class="hero-badge">✨ Más de 100,000 Gamers Confían</div>
+          <h2>Conoce <span class="gradient-text">GameWorld</span></h2>
           <p>Somos tu tienda gamer definitiva: videojuegos, música, merchandising y comunidad.</p>
-          <a href="catalogo.html" class="btn-primary">Explorar Catálogo</a>
+          <div class="hero-buttons">
+            <a href="catalogo.html" class="btn-primary">Explorar Catálogo →</a>
+            <a href="#historia" class="btn-secondary">Nuestra Historia ↓</a>
+          </div>
         </div>
       </section>
 
-      <!-- MISIÓN Y VISIÓN -->
-      <section class="about-section">
-        <h2 class="section-title">Nuestra Filosofía</h2>
+      <!-- Sección Misión y Visión mejorada -->
+      <section class="about-section" aria-label="Misión y Visión">
+        <div class="section-header">
+          <span class="section-tag">Nuestra Esencia</span>
+          <h2 class="section-title">Filosofía <span class="gradient-text">GameWorld</span></h2>
+          <div class="section-divider"></div>
+        </div>
         
         <div class="mission-vision-grid">
-          <div class="mission-card">
-            <h3>🎯 Misión</h3>
-            <p>Proporcionar a los gamers la mejor experiencia de compra, con productos de calidad, música ambient y una comunidad activa que comparte la misma pasión por los videojuegos.</p>
+          <div class="mission-card card-hover">
+            <div class="card-icon">🎯</div>
+            <h3>Misión</h3>
+            <p>Proporcionar a los gamers la mejor experiencia de compra, con productos de calidad, música ambiente y una comunidad activa que comparte la misma pasión por los videojuegos.</p>
+            <div class="card-stats">
+              <span>⭐ 4.9/5 Satisfacción</span>
+              <span>🚀 50K+ Clientes</span>
+            </div>
           </div>
           
-          <div class="vision-card">
-            <h3>👁️ Visión</h3>
+          <div class="vision-card card-hover">
+            <div class="card-icon">👁️</div>
+            <h3>Visión</h3>
             <p>Convertirnos en la plataforma de referencia para la comunidad gamer hispanohablante, ofreciendo no solo productos sino también contenido, música y experiencias únicas.</p>
+            <div class="card-stats">
+              <span>🌍 Meta 2026</span>
+              <span>🎯 Expansión Global</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- VALORES -->
-      <section class="values-section">
-        <h2 class="section-title">Nuestros Valores</h2>
+      <!-- Valores con animaciones -->
+      <section class="values-section" aria-label="Valores de la empresa">
+        <div class="section-header">
+          <span class="section-tag">Nuestros Pilares</span>
+          <h2 class="section-title">Valores que nos <span class="gradient-text">Definen</span></h2>
+          <div class="section-divider"></div>
+        </div>
         
         <div class="values-grid">
-          <div class="value-card">
-            <h3>❤️ Pasión por los Juegos</h3>
+          <div class="value-card animate-on-scroll">
+            <div class="value-icon">❤️</div>
+            <h3>Pasión por los Juegos</h3>
             <p>Vivimos y respiramos videojuegos. Cada producto que ofrecemos está seleccionado con cuidado por verdaderos gamers.</p>
+            <div class="value-metric">🎮 500+ Títulos</div>
           </div>
           
-          <div class="value-card">
-            <h3>🤝 Comunidad</h3>
+          <div class="value-card animate-on-scroll">
+            <div class="value-icon">🤝</div>
+            <h3>Comunidad</h3>
             <p>Creemos en el poder de la comunidad. Fomentamos la interacción, los comentarios y la participación de todos nuestros usuarios.</p>
+            <div class="value-metric">👥 100K+ Miembros</div>
           </div>
           
-          <div class="value-card">
-            <h3>✨ Calidad</h3>
+          <div class="value-card animate-on-scroll">
+            <div class="value-icon">✨</div>
+            <h3>Calidad</h3>
             <p>Solo trabajamos con productos y contenido de la más alta calidad. Cada juego, playlist y artículo de merch pasa nuestros controles.</p>
+            <div class="value-metric">✅ 100% Verificado</div>
           </div>
           
-          <div class="value-card">
-            <h3>🌍 Inclusión</h3>
+          <div class="value-card animate-on-scroll">
+            <div class="value-icon">🌍</div>
+            <h3>Inclusión</h3>
             <p>GameWorld es un espacio para todos, sin importar tu nivel de experiencia, tus gustos o tu procedencia. Todos son bienvenidos.</p>
+            <div class="value-metric">🌈 Comunidad Diversa</div>
           </div>
         </div>
       </section>
 
-      <!-- EQUIPO -->
-      <section class="team-section">
-        <h2 class="section-title">Nuestro Equipo</h2>
+      <!-- Equipo mejorado -->
+      <section class="team-section" aria-label="Nuestro equipo">
+        <div class="section-header">
+          <span class="section-tag">Talento Gamer</span>
+          <h2 class="section-title">Equipo <span class="gradient-text">GameWorld</span></h2>
+          <div class="section-divider"></div>
+        </div>
         
         <div class="team-grid">
-          <div class="team-card">
-            <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Carlos" alt="Avatar Carlos">
-            <h3>Carlos G.</h3>
-            <p class="team-role">Fundador & CEO</p>
-            <p>Apasionado por los videojuegos desde los 5 años. Su primera consola fue una NES.</p>
-            <div class="team-social">
-              <a href="#">🐦</a>
-              <a href="#">💼</a>
-              <a href="#">📧</a>
+          <div class="team-card animate-on-scroll">
+            <div class="team-image">
+              <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Carlos&backgroundColor=6366f1" alt="Carlos García - CEO" loading="lazy">
             </div>
+            <h3>Carlos García</h3>
+            <p class="team-role">🎮 Fundador & CEO</p>
+            <p>Apasionado por los videojuegos desde los 5 años. Su primera consola fue una NES. 20+ años de experiencia en la industria.</p>
+            <div class="team-social">
+              <a href="#" aria-label="Twitter">🐦</a>
+              <a href="#" aria-label="LinkedIn">💼</a>
+              <a href="#" aria-label="Email">📧</a>
+            </div>
+            <div class="team-badge">Gamer desde 1998</div>
           </div>
           
-          <div class="team-card">
-            <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Sofia" alt="Avatar Sofía">
-            <h3>Sofía M.</h3>
-            <p class="team-role">Diseño & Marketing</p>
-            <p>Experta en crear experiencias visuales únicas. Gamer de corazón y coleccionista de ediciones especiales.</p>
-            <div class="team-social">
-              <a href="#">🐦</a>
-              <a href="#">🎨</a>
-              <a href="#">📧</a>
+          <div class="team-card animate-on-scroll">
+            <div class="team-image">
+              <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Sofia&backgroundColor=6366f1" alt="Sofía Martínez - Diseño" loading="lazy">
             </div>
+            <h3>Sofía Martínez</h3>
+            <p class="team-role">🎨 Directora Creativa</p>
+            <p>Experta en crear experiencias visuales únicas. Gamer de corazón y coleccionista de ediciones especiales con más de 100 títulos.</p>
+            <div class="team-social">
+              <a href="#" aria-label="Twitter">🐦</a>
+              <a href="#" aria-label="Portafolio">🎨</a>
+              <a href="#" aria-label="Email">📧</a>
+            </div>
+            <div class="team-badge">Top Collector</div>
           </div>
           
-          <div class="team-card">
-            <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Raul" alt="Avatar Raúl">
-            <h3>Raúl P.</h3>
-            <p class="team-role">Desarrollador Web</p>
-            <p>Programador y speedrunner amateur. Siempre buscando la mejor experiencia de usuario.</p>
-            <div class="team-social">
-              <a href="#">🐦</a>
-              <a href="#">💻</a>
-              <a href="#">📧</a>
+          <div class="team-card animate-on-scroll">
+            <div class="team-image">
+              <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Raul&backgroundColor=6366f1" alt="Raúl Pérez - Desarrollo" loading="lazy">
             </div>
+            <h3>Raúl Pérez</h3>
+            <p class="team-role">💻 Lead Developer</p>
+            <p>Programador y speedrunner amateur. Especialista en React y performance web. Record en Super Mario 64: 15:32.</p>
+            <div class="team-social">
+              <a href="#" aria-label="Twitter">🐦</a>
+              <a href="#" aria-label="GitHub">💻</a>
+              <a href="#" aria-label="Email">📧</a>
+            </div>
+            <div class="team-badge">Speedrunner</div>
           </div>
           
-          <div class="team-card">
-            <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Laura" alt="Avatar Laura">
-            <h3>Laura T.</h3>
-            <p class="team-role">Community Manager</p>
-            <p>La voz de GameWorld en redes. Organiza torneos, eventos y mantiene viva la comunidad.</p>
-            <div class="team-social">
-              <a href="#">🐦</a>
-              <a href="#">🎮</a>
-              <a href="#">📧</a>
+          <div class="team-card animate-on-scroll">
+            <div class="team-image">
+              <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Laura&backgroundColor=6366f1" alt="Laura Torres - Community" loading="lazy">
             </div>
+            <h3>Laura Torres</h3>
+            <p class="team-role">👥 Community Manager</p>
+            <p>La voz de GameWorld en redes. Organiza torneos, eventos y mantiene viva la comunidad con más de 50K seguidores activos.</p>
+            <div class="team-social">
+              <a href="#" aria-label="Twitter">🐦</a>
+              <a href="#" aria-label="Instagram">🎮</a>
+              <a href="#" aria-label="Email">📧</a>
+            </div>
+            <div class="team-badge">Community Builder</div>
           </div>
         </div>
       </section>
 
-      <!-- HITOS / TIMELINE -->
-      <section class="timeline-section">
-        <h2 class="section-title">Nuestra Historia</h2>
+      <!-- Timeline interactivo -->
+      <section id="historia" class="timeline-section" aria-label="Historia de GameWorld">
+        <div class="section-header">
+          <span class="section-tag">Nuestro Viaje</span>
+          <h2 class="section-title">Historia de <span class="gradient-text">GameWorld</span></h2>
+          <div class="section-divider"></div>
+        </div>
         
         <div class="timeline">
-          <div class="timeline-item">
+          <div class="timeline-item animate-on-scroll">
             <div class="timeline-year">2018</div>
             <div class="timeline-content">
-              <h4>Fundación</h4>
-              <p>Comenzamos como un pequeño equipo apasionado por los videojuegos en un pequeño local.</p>
+              <h4>🚀 Fundación</h4>
+              <p>Comenzamos como un pequeño equipo apasionado por los videojuegos en un pequeño local de 50m². Primera tienda física inaugurada.</p>
             </div>
           </div>
           
-          <div class="timeline-item">
+          <div class="timeline-item animate-on-scroll">
             <div class="timeline-year">2019</div>
             <div class="timeline-content">
-              <h4>Primer Catálogo</h4>
-              <p>Lanzamos nuestro primer catálogo de videojuegos y merchandising exclusivo con 50 títulos.</p>
+              <h4>📚 Primer Catálogo</h4>
+              <p>Lanzamos nuestro primer catálogo digital de videojuegos y merchandising exclusivo con 50 títulos y 500 clientes iniciales.</p>
             </div>
           </div>
           
-          <div class="timeline-item">
+          <div class="timeline-item animate-on-scroll">
             <div class="timeline-year">2021</div>
             <div class="timeline-content">
-              <h4>Playlists Gamer</h4>
-              <p>Introducimos playlists y música para ambientar tus sesiones de juego. Más de 10,000 reproducciones.</p>
+              <h4>🎵 Playlists Gamer</h4>
+              <p>Introducimos playlists y música para ambientar tus sesiones de juego. Más de 10,000 reproducciones mensuales en Spotify.</p>
             </div>
           </div>
           
-          <div class="timeline-item">
+          <div class="timeline-item animate-on-scroll">
             <div class="timeline-year">2023</div>
             <div class="timeline-content">
-              <h4>Comunidad Activa</h4>
-              <p>Alcanzamos los 50,000 usuarios registrados y lanzamos el sistema de comentarios.</p>
+              <h4>👥 Comunidad Activa</h4>
+              <p>Alcanzamos los 50,000 usuarios registrados y lanzamos el sistema de comentarios y torneos semanales.</p>
             </div>
           </div>
           
-          <div class="timeline-item">
+          <div class="timeline-item animate-on-scroll">
             <div class="timeline-year">2025</div>
             <div class="timeline-content">
-              <h4>Expansión Internacional</h4>
-              <p>Hoy contamos con una comunidad global de más de 100,000 gamers satisfechos y activos.</p>
+              <h4>🌎 Expansión Internacional</h4>
+              <p>Hoy contamos con una comunidad global de más de 100,000 gamers satisfechos y activos en más de 15 países.</p>
+              <div class="timeline-stats">
+                <span>🎮 100K+ Gamers</span>
+                <span>🌍 15+ Países</span>
+                <span>⭐ 4.9/5 Rating</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- FOOTER -->
+      <!-- Footer mejorado -->
       <footer class="footer">
-        <p>&copy; 2025 GameWorld. Todos los derechos reservados.</p>
-        <div class="footer-links">
-          <a href="#">Twitter</a>
-          <a href="#">Instagram</a>
-          <a href="#">Discord</a>
-          <a href="#">TikTok</a>
-          <a href="#">YouTube</a>
+        <div class="footer-content">
+          <div class="footer-brand">
+            <h3>GameWorld</h3>
+            <p>Tu tienda gamer de confianza desde 2018</p>
+          </div>
+          <div class="footer-links">
+            <a>Twitter</a>
+            <a>Instagram</a>
+            <a>Discord</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 GameWorld. Todos los derechos reservados. | Hecho con ❤️ para la comunidad gamer</p>
         </div>
       </footer>
 
     </div>
   </div>
 
-  <!-- SCRIPT MODIFICADO -->
-  <script>
-    window.addEventListener('load', () => {
-      const loader = document.getElementById('loader');
-      document.body.classList.add('fade-in');
-      document.body.classList.add('access-allowed');
-      if (loader) {
-        loader.classList.add('hidden');
-      }
-    });
-  </script>
-
-  <script src="js/sobre.js"></script>
-
+  <script src="js/sobre.js" defer></script>
 </body>
 </html>

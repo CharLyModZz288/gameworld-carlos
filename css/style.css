@@ -1,11 +1,9 @@
-/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* VARIABLES */
 :root {
   --bg-dark: #020617;
   --bg-card: #111827;
@@ -15,7 +13,6 @@
   --text-muted: #9ca3af;
 }
 
-/* BODY */
 body {
   font-family: 'Orbitron', sans-serif;
   background: var(--bg-dark);
@@ -23,16 +20,14 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   
-  /* Fondo fijo */
   background-image: url(../Fotos/Fondo.jpg);
-  background-repeat: no-repeat;      /* No repetir la imagen */
-  background-size: cover;            /* Ajustar la imagen al tamaño de la pantalla */
-  background-attachment: fixed;      /* Mantenerla fija al hacer scroll */
-  background-position: center;       /* Centrar la imagen */
+  background-repeat: no-repeat;      
+  background-size: cover;            
+  background-attachment: fixed;      
+  background-position: center;       
 }
 
 
-/* SEPARADORES LATERALES */
 .side-left,
 .side-right {
   position: fixed;
@@ -46,7 +41,6 @@ body {
 .side-left { left: 0; }
 .side-right { right: 0; }
 
-/* PAGE */
 .page-container {
   display: flex;
   justify-content: center;
@@ -64,7 +58,6 @@ body {
   box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
 
-/* NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -97,7 +90,6 @@ body {
   color: var(--primary);
 }
 
-/* HERO */
 .hero {
   position: relative;
   border-radius: 20px;
@@ -147,7 +139,6 @@ body {
   transform: translateY(-3px);
 }
 
-/* GRID LINKS */
 .grid-links {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -184,7 +175,6 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
-/* FOOTER */
 .footer {
   margin-top: 3rem;
   padding-top: 1.5rem;
@@ -194,7 +184,6 @@ body {
   font-size: 0.8rem;
 }
 
-/* MODAL */
 .modal {
   position: fixed;
   inset: 0;
@@ -242,7 +231,6 @@ body {
   background: var(--primary-hover);
 }
 
-/* LOADER */
 #loader {
   position: fixed;
   inset: 0;
@@ -273,7 +261,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .nav-links {
     flex-wrap: wrap;

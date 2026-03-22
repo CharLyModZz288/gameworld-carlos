@@ -13,7 +13,6 @@ form.addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
-  // Validaciones...
   const usernameRegex = /^[a-zA-Z0-9_]{4,}$/;
   if (!usernameRegex.test(username)) {
     showError("❌ El username debe tener mínimo 4 caracteres y solo puede contener letras, números o _");
@@ -36,7 +35,6 @@ form.addEventListener("submit", async (e) => {
   message.classList.add("hidden");
 
   try {
-    // Verificar si el email ya existe
     const { data: existingEmail } = await supabase
       .from("users")
       .select("email")
@@ -48,7 +46,6 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // Verificar si el username ya existe
     const { data: existingUsername } = await supabase
       .from("users")
       .select("username")
@@ -60,15 +57,13 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // Insertar nuevo usuario
     const { error } = await supabase
       .from("users")
       .insert([{ username, email, password }]);
 
     if (error) throw error;
 
-    // ✅ Éxito - Guardar email en localStorage
-    localStorage.setItem("emailUsuario", email); // <-- AÑADIDO
+    localStorage.setItem("emailUsuario", email); 
 
     message.textContent = "✅ Usuario registrado correctamente";
     message.className = "bg-green-600 text-white p-3 rounded text-center mt-3";

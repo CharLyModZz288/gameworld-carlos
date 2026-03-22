@@ -2,19 +2,14 @@ import { supabase } from "./connection.js";
 
 let merchEditandoId = null;
 
-// Ocultar loader
 const loader = document.getElementById("loader");
 if (loader) loader.style.display = "none";
 
-// ============================================
-// CONFIGURACIÓN DE MODALES
-//============================================
 const modal = document.getElementById("modalMerch");
 const btnAbrir = document.getElementById("btnAñadirMerch");
 const btnCancelar = document.getElementById("cancelarMerch");
 const form = document.getElementById("formNuevoMerch");
 
-// Función para determinar el estado del stock
 function getStockInfo(stock) {
   if (stock <= 0) {
     return {
@@ -43,7 +38,6 @@ function getStockInfo(stock) {
   };
 }
 
-// Abrir modal para añadir
 btnAbrir?.addEventListener("click", () => {
   merchEditandoId = null;
   form.reset();
@@ -58,12 +52,10 @@ btnAbrir?.addEventListener("click", () => {
   modal.classList.add("flex");
 });
 
-// Cancelar
 btnCancelar?.addEventListener("click", () => {
   cerrarModal();
 });
 
-// Cerrar modal con Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
     cerrarModal();
@@ -77,10 +69,8 @@ function cerrarModal() {
   merchEditandoId = null;
 }
 
-// Guardar producto
 form?.addEventListener("submit", guardarProducto);
 
-// Cargar productos inicial
 cargarProductos();
 
 /* ============================

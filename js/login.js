@@ -26,7 +26,6 @@ form.addEventListener("submit", async (e) => {
     const usuario = data[0];
     errorText.classList.add("hidden");
 
-    // ✅ Guardar usuario, rol y EMAIL
     localStorage.setItem("nombreUsuario", usuario.username);
     localStorage.setItem("emailUsuario", usuario.email);
     localStorage.setItem("userId", usuario.id);

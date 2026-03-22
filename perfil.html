@@ -4,31 +4,30 @@
   <meta charset="UTF-8">
   <title>Perfil - GameWorld</title>
   
-  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
   <link rel="stylesheet" href="/css/perfil.css">
   
 </head>
 <body class="fade-in">
 
-  <!-- Loader de verificación -->
   <div id="access-check">
     <div class="check-spinner"></div>
   </div>
 
-  <!-- CONTENEDOR CENTRAL -->
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR -->
       <nav class="navbar">
-        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
 
         <div class="nav-links">
           <a href="index.html">Inicio</a>
           <a href="catalogo.html">Catálogo</a>
 
-          <!-- USUARIO -->
           <div class="user-menu-container" id="user-menu-container">
             <button id="user-menu-button" class="user-button">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
@@ -47,12 +46,10 @@
         </div>
       </nav>
 
-      <!-- PERFIL -->
       <h2 class="profile-title">Mi Perfil</h2>
 
       <div class="profile-container">
 
-        <!-- FORMULARIO (SOLO DATOS DE TEXTO) -->
         <form id="perfilForm" class="profile-form">
           <div class="form-group">
             <label>Nombre</label>
@@ -76,16 +73,13 @@
 
       </div>
 
-      <!-- SEPARADOR -->
       <div class="section-divider"></div>
 
-      <!-- CAMBIO DE CONTRASEÑA -->
       <h3 class="password-title">Cambiar Contraseña</h3>
 
       <div class="password-container">
         <form id="passwordForm" class="password-form">
           
-          <!-- NUEVO CAMPO: CONTRASEÑA ACTUAL -->
           <div class="form-group">
             <label>Contraseña Actual</label>
             <div class="password-input-wrapper">
@@ -136,9 +130,6 @@
         </form>
       </div>
 
-      <!-- ========================= -->
-      <!-- NUEVA SECCIÓN: MIS COMPRAS -->
-      <!-- ========================= -->
       <div class="section-divider"></div>
       
       <h3 class="purchases-title">🛍️ Mis Compras</h3>
@@ -153,7 +144,6 @@
     </div>
   </div>
 
-  <!-- Script para quitar el loader de verificación -->
   <script>
     window.addEventListener('load', function() {
       document.body.classList.add('access-allowed');

@@ -2,11 +2,9 @@ import { supabase } from "./connection.js";
 
 const API_KEY = "9PqEyX5bQYe7e43EsASkUBftzDaRcrb2sSojP5RA";
 
-// Ocultar loader
 const loader = document.getElementById("loader");
 if (loader) loader.style.display = "none";
 
-// Elementos DOM
 const modalMusica = document.getElementById("modalMusica");
 const btnAbrirMusica = document.getElementById("btnAñadirMusica");
 const btnCerrarMusica = document.getElementById("cerrarModalMusica");
@@ -17,7 +15,6 @@ const listaPlaylists = document.getElementById("listaPlaylists");
 const selectEliminar = document.getElementById("selectEliminarPlaylist");
 const btnEliminarPlaylist = document.getElementById("btnEliminarPlaylist");
 
-// Modal
 btnAbrirMusica?.addEventListener("click", () => {
   modalMusica.classList.remove("hidden");
   modalMusica.classList.add("flex");
@@ -30,7 +27,6 @@ btnCerrarMusica?.addEventListener("click", () => {
   if (inputBuscar) inputBuscar.value = "";
 });
 
-// Buscar música
 btnBuscarMusica?.addEventListener("click", async () => {
   const query = inputBuscar.value.trim();
   if (!query) return alert("Escribe algo para buscar música");
@@ -61,7 +57,6 @@ btnBuscarMusica?.addEventListener("click", async () => {
   }
 });
 
-// Crear nodo resultado
 function crearNodoResultado(sound) {
   const previewUrl = sound.previews?.["preview-hq-mp3"] || null;
 
@@ -82,7 +77,6 @@ function crearNodoResultado(sound) {
   return div;
 }
 
-// Guardar música
 async function guardarMusica(sound, previewUrl) {
   const { error } = await supabase.from("musica").insert([
     {
@@ -102,7 +96,6 @@ async function guardarMusica(sound, previewUrl) {
   cargarMusica();
 }
 
-// Cargar playlists
 async function cargarMusica() {
   if (!listaPlaylists || !selectEliminar) return;
 
@@ -140,7 +133,6 @@ async function cargarMusica() {
   });
 }
 
-// Eliminar playlist
 btnEliminarPlaylist?.addEventListener("click", async () => {
   const id = selectEliminar.value;
   if (!id) return alert("Selecciona una playlist");
@@ -158,5 +150,4 @@ btnEliminarPlaylist?.addEventListener("click", async () => {
   cargarMusica();
 });
 
-// Inicializar
 cargarMusica();

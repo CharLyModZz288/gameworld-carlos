@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GameWorld - Panel Admin</title>
 
-  <!-- Tus estilos originales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,7 +13,6 @@
 </head>
 <body>
 
-  <!-- LOADER -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">Cargando Panel...</div>
@@ -23,13 +21,15 @@
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR CON MENÚ DESPLEGABLE -->
       <nav class="navbar">
-        <h1 class="logo">Panel Administrador</h1>          
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Panel</span><span class="logo-accent">Administrador</span>
+          </a>
+        </h1>          
 
         <div class="nav-links">
           <a href="index.html">Inicio</a>          
-          <!-- MENÚ USUARIO DESPLEGABLE -->
           <div class="user-menu-container" id="user-menu-container">
             <button id="user-menu-button" class="user-button">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +45,6 @@
         </div>
       </nav>
 
-      <!-- DASHBOARD -->
       <section class="dashboard">
         <h2>Panel de Control</h2>
         <div class="dashboard-grid">
@@ -68,7 +67,6 @@
         </div>
       </section>
 
-      <!-- GESTIÓN USUARIOS -->
       <section id="usuarios" class="section-admin">
         <div class="admin-header">
           <h3>👥 Gestión de Usuarios</h3>
@@ -90,13 +88,11 @@
               </tr>
             </thead>
             <tbody id="tablaUsuarios">
-              <!-- Los usuarios se cargarán dinámicamente -->
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- MODAL EDITAR USUARIO -->
       <div id="modalEditarUsuario" class="modal hidden">
         <div class="modal-content">
           <h2 class="modal-title">Editar Usuario</h2>
@@ -123,7 +119,6 @@
         </div>
       </div>
 
-      <!-- GESTIÓN JUEGOS - CORREGIDO: ahora los items serán horizontales -->
       <section id="juegos" class="section-admin">
         <div class="admin-header">
           <h3>🎮 Gestión de Juegos</h3>
@@ -137,7 +132,6 @@
         <div class="admin-content">
           <h4 class="section-subtitle">Juegos en la base de datos</h4>
           <ul id="listaJuegos" class="lista-items">
-            <!-- EJEMPLO de cómo se verán los juegos con botones horizontales -->
             <li class="juego-item">
               <div class="item-info">
                 <span class="item-title">The Legend of Zelda: Breath of the Wild</span>
@@ -184,7 +178,6 @@
         </div>
       </section>
 
-      <!-- MODAL AÑADIR/EDITAR JUEGO -->
       <div id="modalJuego" class="modal hidden">
         <div class="modal-content modal-lg">
           <h2 class="modal-title" id="modalJuegoTitle">Añadir Nuevo Juego</h2>
@@ -264,7 +257,6 @@
         </div>
       </div>
 
-      <!-- GESTIÓN MERCHANDISING - CORREGIDO: ahora los items serán horizontales -->
       <section id="merchandising" class="section-admin">
         <div class="admin-header">
           <h3>👕 Gestión de Merchandising</h3>
@@ -278,7 +270,6 @@
         <div class="admin-content">
           <h4 class="section-subtitle">Productos en la base de datos</h4>
           <ul id="listaMerch" class="lista-items">
-            <!-- EJEMPLO de cómo se verán los productos con botones horizontales -->
             <li class="merch-item">
               <div class="item-info">
                 <span class="item-title">Camiseta GameWorld Edición Limitada</span>
@@ -325,7 +316,6 @@
         </div>
       </section>
 
-      <!-- MODAL AÑADIR/EDITAR MERCHANDISING -->
       <div id="modalMerch" class="modal hidden">
         <div class="modal-content">
           <h2 class="modal-title">Añadir Producto de Merchandising</h2>
@@ -370,7 +360,6 @@
         </div>
       </div>
 
-      <!-- PLAYLISTS -->
       <section id="playlists" class="section-admin">
         <div class="admin-header">
           <h3>🎵 Gestión de Playlists</h3>
@@ -392,12 +381,10 @@
           </div>
 
           <div id="listaPlaylists" class="lista-items">
-            <!-- Las playlists se cargarán dinámicamente -->
           </div>
         </div>
       </section>
 
-      <!-- MODAL MÚSICA -->
       <div id="modalMusica" class="modal hidden">
         <div class="modal-content modal-lg">
           <h2 class="modal-title">Buscar Música en FreeSound</h2>
@@ -412,7 +399,6 @@
         </div>
       </div>
 
-      <!-- FOOTER -->
       <footer class="footer">
         &copy; 2025 GameWorld Admin
       </footer>
@@ -420,80 +406,11 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
   <script type="module" src="js/admin-juegos.js"></script>
   <script type="module" src="js/admin-merch.js"></script>
   <script type="module" src="js/admin-musica.js"></script>
   <script type="module" src="js/admin-usuarios.js"></script>
+  <script type="module" src="js/admin.js"></script>
   
-  <!-- Script para el menú desplegable y cerrar sesión -->
-  <script>
-    // Configurar el menú desplegable
-    document.addEventListener('DOMContentLoaded', function() {
-      const userButton = document.getElementById('user-menu-button');
-      const userMenu = document.getElementById('user-menu');
-      const nombreUsuarioNav = document.getElementById('nombreUsuarioNav');
-      
-      // Obtener nombre de usuario del localStorage
-      const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Admin';
-      nombreUsuarioNav.textContent = nombreUsuario;
-      
-      // Toggle del menú al hacer clic en el botón
-      if (userButton) {
-        userButton.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userMenu.classList.toggle('hidden');
-        });
-      }
-      
-      // Cerrar menú al hacer clic fuera
-      document.addEventListener('click', function(e) {
-        if (!userButton?.contains(e.target) && !userMenu?.contains(e.target)) {
-          userMenu?.classList.add('hidden');
-        }
-      });
-      
-      // Cerrar sesión
-      const cerrarSesionBtn = document.getElementById('cerrarSesion');
-      if (cerrarSesionBtn) {
-        cerrarSesionBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          localStorage.removeItem('nombreUsuario');
-          localStorage.removeItem('emailUsuario');
-          localStorage.removeItem('rolUsuario');
-          localStorage.removeItem('userId');
-          localStorage.removeItem('supabase.auth.token');
-          localStorage.removeItem('sb-access-token');
-          sessionStorage.removeItem('supabase.auth.token');
-          sessionStorage.removeItem('sb-access-token');
-          localStorage.removeItem('carrito');
-          
-          window.location.href = 'index.html';
-        });
-      }
-    });
-
-    // Funciones de ejemplo (serán reemplazadas por los módulos reales)
-    function editarJuego(id) {
-      console.log('Editar juego', id);
-      // Aquí irá la lógica real
-    }
-
-    function eliminarJuego(id) {
-      console.log('Eliminar juego', id);
-      // Aquí irá la lógica real
-    }
-
-    function editarMerch(id) {
-      console.log('Editar merch', id);
-      // Aquí irá la lógica real
-    }
-
-    function eliminarMerch(id) {
-      console.log('Eliminar merch', id);
-      // Aquí irá la lógica real
-    }
-  </script>
 </body>
 </html>

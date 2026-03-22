@@ -1,6 +1,5 @@
 import { supabase } from "./connection.js";
 
-// Control de navbar y footer con scroll - OPTIMIZADO
 let lastScrollTop = 0;
 let ticking = false;
 let rafId = null;
@@ -58,11 +57,9 @@ const navbar = document.querySelector('.navbar');
 const footer = document.querySelector('.footer');
 const scrollThreshold = 50;
 
-// Función para manejar el scroll - OPTIMIZADA con requestAnimationFrame
 function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   
-  // Solo actualizar si hay un cambio significativo
   if (Math.abs(scrollTop - lastScrollTop) > 5) {
     if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
       navbar.classList.remove('visible');
@@ -73,7 +70,6 @@ function handleScroll() {
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
   
-  // Footer - optimizado
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
   const distanceToBottom = documentHeight - (scrollTop + windowHeight);
@@ -89,7 +85,6 @@ function handleScroll() {
   }
 }
 
-// Optimización: usar requestAnimationFrame correctamente
 function optimizedScrollHandler() {
   if (!ticking) {
     rafId = requestAnimationFrame(() => {
@@ -100,9 +95,7 @@ function optimizedScrollHandler() {
   }
 }
 
-// Función para mostrar notificaciones - OPTIMIZADA
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Eliminar notificaciones existentes de manera eficiente
   const notificacionExistente = document.querySelector('.cart-notification');
   if (notificacionExistente) {
     notificacionExistente.remove();
@@ -118,7 +111,6 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   
   document.body.appendChild(notificacion);
   
-  // Usar setTimeout en lugar de requestAnimationFrame para el cleanup
   setTimeout(() => {
     if (notificacion.parentNode) {
       notificacion.style.opacity = '0';
@@ -128,13 +120,11 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   }, 2700);
 }
 
-// Función para actualizar el contador del carrito - OPTIMIZADA con memoización
 let cachedTotalItems = -1;
 function actualizarContadorCarrito() {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   
-  // Solo actualizar el DOM si el valor cambió
   if (totalItems !== cachedTotalItems) {
     const contadorNav = document.getElementById('carrito-contador-nav');
     if (contadorNav) {
@@ -146,7 +136,6 @@ function actualizarContadorCarrito() {
   return totalItems;
 }
 
-// Función para inicializar el carrito
 function inicializarCarrito() {
   if (!localStorage.getItem('carrito')) {
     localStorage.setItem('carrito', JSON.stringify([]));
@@ -154,11 +143,29 @@ function inicializarCarrito() {
   actualizarContadorCarrito();
 }
 
-// Función para añadir al carrito - OPTIMIZADA
+function juegoDisponible(juego) {
+  const estado = juego.estado;
+  
+  if (typeof estado === 'string') {
+    return estado.toLowerCase() === 'disponible';
+  }
+  
+  if (typeof estado === 'boolean') {
+    return estado === true;
+  }
+  
+  if (typeof estado === 'number') {
+    return estado === 1;
+  }
+  
+  return false;
+}
+
 function añadirAlCarrito(juego) {
   console.log('Añadiendo al carrito:', juego);
+  console.log('Estado del juego:', juego.estado);
+  console.log('¿Está disponible?', juegoDisponible(juego));
 
-  // Verificar si el usuario está logueado
   const nombreUsuario = localStorage.getItem("nombreUsuario");
   if (!nombreUsuario || nombreUsuario === "Invitado") {
     mostrarNotificacion('Debes iniciar sesión para reservar', 'error');
@@ -168,15 +175,13 @@ function añadirAlCarrito(juego) {
     return false;
   }
 
-  // Verificar si el juego está disponible
-  if (juego.estado !== "Disponible") {
+  if (!juegoDisponible(juego)) {
     mostrarNotificacion('Este juego no está disponible para reserva', 'error');
     return false;
   }
 
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   
-  // Buscar si el juego ya está en el carrito
   const existeIndex = carrito.findIndex(item => item.id === juego.id);
   
   if (existeIndex !== -1) {
@@ -193,6 +198,7 @@ function añadirAlCarrito(juego) {
       cantidad: 1,
       regalo: juego.regalo || false,
       estado: juego.estado,
+      disponible: juegoDisponible(juego),
       descripcion: juego.descripcion || ''
     });
     mostrarNotificacion(`✓ ${juego.nombre} añadido al carrito`);
@@ -206,7 +212,6 @@ function añadirAlCarrito(juego) {
 
 window.añadirAlCarrito = añadirAlCarrito;
 
-// Función para añadir juego a favoritos
 async function añadirAFavorito(juego) {
   console.log('Añadiendo a favoritos:', juego);
 
@@ -278,7 +283,6 @@ function actualizarBotonFavorito(juegoId, esFavorito) {
 
 window.añadirAFavorito = añadirAFavorito;
 
-// Cargar juegos - OPTIMIZADO con debounce y caché
 let juegosCache = null;
 let cargaEnProgreso = false;
 
@@ -293,20 +297,17 @@ window.addEventListener("load", async () => {
 
   body.classList.add("fade-in");
 
-  // Optimización: solo agregar event listener una vez
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
 
   if (loader) {
     loader.classList.add("hidden");
   }
 
-  // Si ya tenemos caché, usar esa
   if (juegosCache) {
     renderizarJuegos(juegosCache);
     return;
   }
 
-  // Evitar múltiples cargas simultáneas
   if (cargaEnProgreso) return;
   cargaEnProgreso = true;
 
@@ -340,19 +341,15 @@ window.addEventListener("load", async () => {
 
   console.log('Juegos cargados:', juegos.length);
   
-  // Guardar en caché
   juegosCache = juegos;
   
-  // Renderizar con fragment para mejor rendimiento
   renderizarJuegos(juegos);
 });
 
-// Función separada para renderizar - OPTIMIZADA con DocumentFragment
 function renderizarJuegos(juegos) {
   const grid = document.getElementById("gridJuegos");
   if (!grid) return;
 
-  // Agrupar juegos por plataforma
   const juegosPorPlataforma = {};
   
   juegos.forEach(juego => {
@@ -363,7 +360,6 @@ function renderizarJuegos(juegos) {
     juegosPorPlataforma[plataforma].push(juego);
   });
 
-  // Ordenar plataformas
   const ordenPlataformas = ['Nintendo Switch', 'PS5', 'PS4', 'Xbox Series X', 'Xbox One', 'PC', 'Otras plataformas'];
   
   const plataformasOrdenadas = Object.keys(juegosPorPlataforma).sort((a, b) => {
@@ -376,7 +372,6 @@ function renderizarJuegos(juegos) {
     return indexA - indexB;
   });
 
-  // Usar DocumentFragment para mejor rendimiento
   const fragment = document.createDocumentFragment();
   
   plataformasOrdenadas.forEach(plataforma => {
@@ -388,7 +383,6 @@ function renderizarJuegos(juegos) {
     if (plataforma.includes('Xbox')) iconoPlataforma = '🟢';
     if (plataforma.includes('PC')) iconoPlataforma = '💻';
     
-    // Crear elementos del DOM directamente
     const section = document.createElement('div');
     section.className = 'platform-section';
     section.setAttribute('data-platform', plataforma);
@@ -435,7 +429,6 @@ function renderizarJuegos(juegos) {
         </div>
       `;
       
-      // Crear contenedor temporal para convertir string a nodos
       const temp = document.createElement('div');
       temp.innerHTML = juegoHTML;
       section.querySelector('.platform-games-grid').appendChild(temp.firstElementChild);
@@ -444,21 +437,23 @@ function renderizarJuegos(juegos) {
     fragment.appendChild(section);
   });
 
-  // Limpiar y añadir todo de una vez
   grid.innerHTML = '';
   grid.appendChild(fragment);
 }
 
-// Función para abrir modal - OPTIMIZADA
 window.abrirModal = function (juego) {
   console.log('Abriendo modal para:', juego.nombre);
+  console.log('Estado del juego en modal:', juego.estado);
   
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
 
   window.juegoSeleccionado = juego;
 
-  // Usar template string para mejor rendimiento
+  const estaDisponible = juegoDisponible(juego);
+
+  console.log('¿Juego disponible?', estaDisponible);
+
   contenido.innerHTML = `
     <div class="modal-grid">
       <img
@@ -489,8 +484,8 @@ window.abrirModal = function (juego) {
           <span class="price">
             ${juego.precio ? juego.precio.toFixed(2) : "0.00"}€
           </span>
-          <span class="status-badge ${juego.estado === "Disponible" ? "status-available" : "status-unavailable"}">
-            ${juego.estado || "No disponible"}
+          <span class="status-badge ${estaDisponible ? "status-available" : "status-unavailable"}">
+            ${estaDisponible ? "Disponible" : "No disponible"}
           </span>
         </div>
         <div class="points-row">
@@ -500,11 +495,11 @@ window.abrirModal = function (juego) {
         ${juego.regalo ? '<div class="gift-badge">🎁 Incluye regalo especial</div>' : ''}
         <div class="modal-buttons">
           <button
-            class="reserve-btn ${juego.estado === "Disponible" ? "available" : "unavailable"}"
-            ${juego.estado !== "Disponible" ? "disabled" : ""}
+            class="reserve-btn ${estaDisponible ? "available" : "unavailable"}"
+            ${!estaDisponible ? "disabled" : ""}
             onclick="añadirJuegoSeleccionado()"
           >
-            🛒 ${juego.estado === "Disponible" ? "Añadir al carrito" : "No disponible"}
+            🛒 ${estaDisponible ? "Añadir al carrito" : "No disponible"}
           </button>
           <button
             class="reserve-btn available secondary"
@@ -555,7 +550,6 @@ window.cerrarModal = function () {
   }
 };
 
-// Event listeners - OPTIMIZADOS
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     cerrarModal();
@@ -576,7 +570,6 @@ window.addEventListener("popstate", (e) => {
   }
 });
 
-// Optimización: solo prevenir touchmove si el modal está abierto
 document.body.addEventListener('touchmove', (e) => {
   const modal = document.getElementById("modalJuego");
   if (!modal.classList.contains('hidden')) {
@@ -585,21 +578,18 @@ document.body.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 window.addEventListener('resize', () => {
-  // No hacer nada en resize para evitar recálculos innecesarios
 }, { passive: true });
 
-// Escuchar cambios en localStorage desde otras pestañas
 window.addEventListener('storage', (e) => {
   if (e.key === 'carrito') {
     actualizarContadorCarrito();
   }
 });
 
-// Limpiar recursos al descargar la página
 window.addEventListener('beforeunload', () => {
   if (rafId) {
     cancelAnimationFrame(rafId);
   }
 });
 
-console.log("Script de catálogo cargado correctamente (versión optimizada)");
+console.log("Script de catálogo cargado correctamente (versión optimizada y corregida)");

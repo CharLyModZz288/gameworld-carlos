@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carrito - GameWorld</title>
   
-  <!-- Tus estilos originales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,16 +12,13 @@
   
 </head>
 <body>
-  <!-- Loader de verificación -->
   <div id="access-check">
     <div class="check-spinner"></div>
   </div>
 
-  <!-- Elementos decorativos laterales -->
   <div class="side-left"></div>
   <div class="side-right"></div>
 
-  <!-- LOADER principal -->
   <div id="loader">
     <div class="loader-circle"></div>
     <div id="loader-text">GameWorld</div>
@@ -31,9 +27,12 @@
   <div class="page-container">
     <div class="main-container">
 
-      <!-- NAVBAR (IGUAL QUE EN CATALOGO) -->
       <nav class="navbar">
-        <h1 class="logo"><a href="index.html">GameWorld</a></h1>
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
         <div class="nav-links">
           <a href="index.html">Inicio</a>
           
@@ -44,12 +43,10 @@
         </div>
       </nav>
 
-      <!-- CONTENIDO PRINCIPAL -->
       <div class="main-content">
         <h2 class="page-title">Tu Carrito de Compras</h2>
         <p class="page-subtitle">Revisa y gestiona los productos que has seleccionado</p>
 
-        <!-- CARRITO DE COMPRAS -->
         <div class="cart-section">
           <div class="cart-header">
             <div class="cart-header-item">Producto</div>
@@ -60,14 +57,12 @@
           </div>
           
           <div id="carrito-container" class="cart-items-container">
-            <!-- Los items se cargarán dinámicamente -->
             <div class="loading-cart">
               <div class="loading-spinner"></div>
               <p>Cargando tu carrito...</p>
             </div>
           </div>
 
-          <!-- RESUMEN DEL CARRITO -->
           <div class="cart-summary">
             <div class="cart-summary-row">
               <span>Subtotal:</span>
@@ -92,16 +87,13 @@
             </div>
           </div>
 
-          <!-- PRODUCTOS RECOMENDADOS -->
           <div class="recommended-section">
             <h3 class="recommended-title">También te puede interesar</h3>
             <div id="productos-recomendados" class="recommended-grid">
-              <!-- Se cargarán dinámicamente -->
             </div>
           </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="footer">
           <p>© 2025 GameWorld. Todos los derechos reservados.</p>
           <div class="footer-links">
@@ -114,7 +106,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE CONFIRMACIÓN -->
   <div id="modalConfirmacion" class="modal hidden">
     <div class="modal-content modal-small">
       <button onclick="cerrarModal()" class="modal-close">✕</button>
@@ -127,10 +118,8 @@
     </div>
   </div>
 
-  <!-- Script principal -->
   <script type="module" src="js/carrito.js"></script>
   
-  <!-- Script para quitar el loader de verificación -->
   <script>
     window.addEventListener('load', function() {
       document.body.classList.add('access-allowed');
