@@ -1,4 +1,3 @@
-/* Reset y variables CSS profesionales */
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +5,6 @@
 }
 
 :root {
-  /* Colores principales */
   --bg-dark: #0a0a0f;
   --bg-card: #111827;
   --bg-card-hover: #1f2937;
@@ -18,7 +16,6 @@
   --text-muted: #9ca3af;
   --text-dark: #1f2937;
   
-  /* Colores acento */
   --accent-green: #10b981;
   --accent-yellow: #f59e0b;
   --accent-purple: #8b5cf6;
@@ -28,23 +25,19 @@
   --danger-hover: #dc2626;
   --success: #22c55e;
   
-  /* Gradientes */
   --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   --gradient-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
   
-  /* Sombras */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.4);
   --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
   
-  /* Transiciones */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
   
-  /* Border radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -52,7 +45,6 @@
   --radius-2xl: 32px;
 }
 
-/* Body optimizado */
 body {
   font-family: 'Orbitron', sans-serif;
   background: var(--bg-dark);
@@ -67,7 +59,6 @@ body.fade-in {
   opacity: 1;
 }
 
-/* Fondo con overlay mejorado */
 body::before {
   content: '';
   position: fixed;
@@ -93,7 +84,6 @@ body::after {
   z-index: -1;
 }
 
-/* Accesibilidad */
 a {
   color: inherit;
   text-decoration: none;
@@ -106,7 +96,6 @@ a:focus-visible {
   border-radius: 4px;
 }
 
-/* Elementos laterales */
 .side-left, .side-right {
   position: fixed;
   top: 0;
@@ -128,7 +117,6 @@ a:focus-visible {
   background: linear-gradient(270deg, var(--primary), transparent);
 }
 
-/* Loader mejorado */
 #loader {
   position: fixed;
   inset: 0;
@@ -196,7 +184,6 @@ a:focus-visible {
   animation: pulse 2s ease infinite;
 }
 
-/* Contenedor principal */
 .page-container {
   display: flex;
   justify-content: center;
@@ -224,7 +211,6 @@ body.access-allowed .page-container {
   transition: all var(--transition-base);
 }
 
-/* Navbar mejorado */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -313,7 +299,6 @@ body.access-allowed .page-container {
   padding: 0.5rem;
 }
 
-/* Menú de usuario */
 .user-menu-container {
   position: relative;
   z-index: 1000;
@@ -370,7 +355,6 @@ body.access-allowed .page-container {
   color: var(--danger);
 }
 
-/* Header de página */
 .page-header {
   margin-bottom: 2rem;
   text-align: center;
@@ -390,7 +374,6 @@ body.access-allowed .page-container {
   text-align: center;
 }
 
-/* Perfil */
 .profile-container {
   width: 100%;
   margin-bottom: 2rem;
@@ -463,7 +446,6 @@ body.access-allowed .page-container {
   box-shadow: var(--shadow-glow);
 }
 
-/* Divisor */
 .section-divider {
   width: 100%;
   height: 1px;
@@ -471,7 +453,6 @@ body.access-allowed .page-container {
   margin: 2rem 0 1.5rem 0;
 }
 
-/* Sección de contraseña */
 .password-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -638,7 +619,6 @@ body.access-allowed .page-container {
   cursor: not-allowed;
 }
 
-/* Sección de compras */
 .purchases-title {
   font-size: 1.8rem;
   font-weight: 700;
@@ -656,7 +636,6 @@ body.access-allowed .page-container {
   padding: 0;
 }
 
-/* Estados de carga */
 .loading-purchases {
   text-align: center;
   padding: 3rem;
@@ -679,7 +658,6 @@ body.access-allowed .page-container {
   color: var(--text-muted);
 }
 
-/* Sin compras */
 .no-purchases {
   text-align: center;
   padding: 3rem;
@@ -728,7 +706,6 @@ body.access-allowed .page-container {
   box-shadow: var(--shadow-glow);
 }
 
-/* Error */
 .error-purchases {
   text-align: center;
   padding: 3rem;
@@ -738,7 +715,6 @@ body.access-allowed .page-container {
   color: var(--danger);
 }
 
-/* Tarjeta de compra */
 .purchase-card {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(99, 102, 241, 0.2);
@@ -795,7 +771,6 @@ body.access-allowed .page-container {
   border: 1px solid var(--danger);
 }
 
-/* Productos de la compra */
 .purchase-products {
   margin-bottom: 1rem;
 }
@@ -836,7 +811,6 @@ body.access-allowed .page-container {
   font-size: 0.9rem;
 }
 
-/* Footer de compra */
 .purchase-footer {
   display: flex;
   justify-content: flex-end;
@@ -871,7 +845,6 @@ body.access-allowed .page-container {
   animation: pulse 2s infinite;
 }
 
-/* Footer mejorado */
 .footer {
   margin-top: 3rem;
   text-align: center;
@@ -951,7 +924,6 @@ body.access-allowed .page-container {
   text-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
 }
 
-/* Animaciones */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -978,7 +950,6 @@ body.access-allowed .page-container {
   100% { box-shadow: 0 -4px 20px rgba(99, 102, 241, 0.2); }
 }
 
-/* Sistema de verificación de acceso */
 #access-check {
   position: fixed;
   top: 0;
@@ -1014,7 +985,6 @@ body.access-allowed #access-check {
   pointer-events: none;
 }
 
-/* Scrollbar personalizada */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -1033,7 +1003,6 @@ body.access-allowed #access-check {
   background: var(--secondary);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .page-container {
     padding-top: 80px;
@@ -1133,7 +1102,6 @@ body.access-allowed #access-check {
   }
 }
 
-/* Soporte para reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

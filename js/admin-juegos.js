@@ -53,9 +53,6 @@ form?.addEventListener("submit", guardarJuego);
 
 cargarJuegos();
 
-/* ============================
-   CARGAR JUEGOS
-============================ */
 async function cargarJuegos() {
   const lista = document.getElementById("listaJuegos");
   if (!lista) return;
@@ -132,9 +129,6 @@ async function cargarJuegos() {
   });
 }
 
-/* ============================
-   GUARDAR (INSERT / UPDATE)
-============================ */
 async function guardarJuego(e) {
   e.preventDefault();
 
@@ -183,9 +177,6 @@ async function guardarJuego(e) {
   cargarJuegos();
 }
 
-/* ============================
-   EDITAR JUEGO
-============================ */
 window.editarJuego = async function (id) {
   const { data, error } = await supabase
     .from("Juegos")
@@ -218,9 +209,6 @@ window.editarJuego = async function (id) {
   modal.classList.add("flex");
 };
 
-/* ============================
-   ELIMINAR JUEGO
-============================ */
 window.eliminarJuego = async function (id) {
   if (!confirm("¿Seguro que deseas eliminar este juego?")) return;
 

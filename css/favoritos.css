@@ -1,4 +1,3 @@
-/* Reset y variables CSS profesionales - Mismo estilo que las otras páginas */
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +5,6 @@
 }
 
 :root {
-  /* Colores principales - Mismos que las otras páginas */
   --bg-dark: #0a0a0f;
   --bg-card: #111827;
   --bg-card-hover: #1f2937;
@@ -18,7 +16,6 @@
   --text-muted: #9ca3af;
   --text-dark: #1f2937;
   
-  /* Colores acento */
   --accent-green: #10b981;
   --accent-yellow: #f59e0b;
   --accent-purple: #8b5cf6;
@@ -30,12 +27,10 @@
   --favorite-hover: #dc2626;
   --success: #22c55e;
   
-  /* Gradientes - Mismos que las otras páginas */
   --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   --gradient-favorite: linear-gradient(135deg, var(--favorite) 0%, var(--favorite-hover) 100%);
   --gradient-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
   
-  /* Sombras - Mismas que las otras páginas */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.3);
@@ -43,12 +38,10 @@
   --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
   --shadow-favorite: 0 0 20px rgba(239, 68, 68, 0.3);
   
-  /* Transiciones - Mismas que las otras páginas */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
   
-  /* Border radius - Mismos que las otras páginas */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -56,7 +49,6 @@
   --radius-2xl: 32px;
 }
 
-/* Body optimizado - MISMO ESTILO que las otras páginas */
 body {
   font-family: 'Orbitron', sans-serif;
   background: var(--bg-dark);
@@ -70,7 +62,6 @@ body.fade-in {
   opacity: 1;
 }
 
-/* Fondo con overlay - MISMO ESTILO que las otras páginas */
 body::before {
   content: '';
   position: fixed;
@@ -96,7 +87,6 @@ body::after {
   z-index: -1;
 }
 
-/* Accesibilidad */
 a {
   color: inherit;
   text-decoration: none;
@@ -109,7 +99,6 @@ a:focus-visible {
   border-radius: 4px;
 }
 
-/* Elementos laterales - MISMO ESTILO que las otras páginas */
 .side-left, .side-right {
   position: fixed;
   top: 0;
@@ -131,7 +120,6 @@ a:focus-visible {
   background: linear-gradient(270deg, var(--primary), transparent);
 }
 
-/* Loader mejorado - MISMO ESTILO que las otras páginas */
 #loader {
   position: fixed;
   inset: 0;
@@ -199,7 +187,6 @@ a:focus-visible {
   animation: pulse 2s ease infinite;
 }
 
-/* Contenedor principal - MISMO ESTILO que las otras páginas */
 .page-container {
   display: flex;
   justify-content: center;
@@ -227,7 +214,6 @@ body.access-allowed .page-container {
   transition: all var(--transition-base);
 }
 
-/* Navbar mejorado - MISMO ESTILO que las otras páginas */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -316,7 +302,6 @@ body.access-allowed .page-container {
   padding: 0.5rem;
 }
 
-/* Carrito en navbar */
 .cart-link-nav {
   display: flex;
   align-items: center;
@@ -347,12 +332,10 @@ body.access-allowed .page-container {
   padding: 0 4px;
 }
 
-/* Contenido principal */
 .main-content {
   text-align: center;
 }
 
-/* Header de página - MISMO ESTILO que las otras páginas */
 .page-header {
   margin-bottom: 2rem;
   text-align: center;
@@ -377,7 +360,6 @@ body.access-allowed .page-container {
   font-size: 1rem;
 }
 
-/* Grid de favoritos */
 .favorites-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -394,7 +376,6 @@ body.access-allowed .page-container {
   padding: 3rem;
 }
 
-/* Tarjetas de favoritos - MISMO ESTILO que las otras páginas */
 .favorite-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -425,7 +406,6 @@ body.access-allowed .page-container {
   background: var(--bg-card-hover);
 }
 
-/* Contenedor de imagen */
 .favorite-image-container {
   position: relative;
   aspect-ratio: 16/9;
@@ -447,7 +427,6 @@ body.access-allowed .page-container {
   transform: scale(1.05);
 }
 
-/* Badge de favorito */
 .favorite-badge {
   position: absolute;
   top: 12px;
@@ -476,7 +455,6 @@ body.access-allowed .page-container {
   100% { transform: scale(1); }
 }
 
-/* Etiquetas */
 .favorite-type-tag {
   position: absolute;
   top: 12px;
@@ -507,7 +485,6 @@ body.access-allowed .page-container {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Información */
 .favorite-info {
   padding: 1.25rem;
   display: flex;
@@ -539,7 +516,6 @@ body.access-allowed .page-container {
   margin-bottom: 0.25rem;
 }
 
-/* Detalles */
 .favorite-details {
   display: flex;
   flex-direction: column;
@@ -579,7 +555,6 @@ body.access-allowed .page-container {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-/* Acciones */
 .favorite-actions {
   display: flex;
   gap: 0.5rem;
@@ -622,7 +597,6 @@ body.access-allowed .page-container {
   box-shadow: var(--shadow-favorite);
 }
 
-/* Estado vacío */
 .favorites-empty {
   grid-column: 1 / -1;
   text-align: center;
@@ -687,7 +661,6 @@ body.access-allowed .page-container {
   color: white;
 }
 
-/* Modal - MISMO ESTILO que las otras páginas */
 .modal {
   position: fixed;
   inset: 0;
@@ -898,7 +871,6 @@ body.access-allowed .page-container {
   cursor: not-allowed;
 }
 
-/* Scrollbar del modal */
 .modal-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -917,7 +889,6 @@ body.access-allowed .page-container {
   background: var(--secondary);
 }
 
-/* Notificaciones */
 .favorite-notification {
   position: fixed;
   top: 20px;
@@ -949,7 +920,6 @@ body.access-allowed .page-container {
   }
 }
 
-/* Footer mejorado - MISMO ESTILO que las otras páginas */
 .footer {
   margin-top: 3rem;
   text-align: center;
@@ -1029,7 +999,6 @@ body.access-allowed .page-container {
   text-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
 }
 
-/* Animaciones - MISMO ESTILO que las otras páginas */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -1061,7 +1030,6 @@ body.access-allowed .page-container {
   100% { box-shadow: 0 -4px 20px rgba(99, 102, 241, 0.2); }
 }
 
-/* Sistema de verificación de acceso */
 #access-check {
   position: fixed;
   top: 0;
@@ -1097,7 +1065,6 @@ body.access-allowed #access-check {
   pointer-events: none;
 }
 
-/* Scrollbar personalizada - MISMO ESTILO que las otras páginas */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -1116,7 +1083,6 @@ body.access-allowed #access-check {
   background: var(--secondary);
 }
 
-/* Responsive - MISMO ESTILO que las otras páginas */
 @media (max-width: 1024px) {
   .favorites-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1223,7 +1189,6 @@ body.access-allowed #access-check {
   }
 }
 
-/* Soporte para reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

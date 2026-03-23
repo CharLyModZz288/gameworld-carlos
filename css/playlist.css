@@ -1,4 +1,3 @@
-/* Reset y variables CSS profesionales */
 * { 
   margin: 0; 
   padding: 0; 
@@ -6,7 +5,6 @@
 }
 
 :root {
-  /* Colores principales */
   --bg-dark: #0a0a0f;
   --bg-card: #111827;
   --bg-card-hover: #1f2937;
@@ -18,19 +16,16 @@
   --text-muted: #9ca3af;
   --text-dark: #1f2937;
   
-  /* Colores acento */
   --accent-green: #10b981;
   --accent-yellow: #f59e0b;
   --accent-purple: #8b5cf6;
   --accent-pink: #ec4899;
   --accent-cyan: #06b6d4;
   
-  /* Gradientes */
   --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   --gradient-purple: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
   --gradient-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
   
-  /* Sombras */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.3);
@@ -38,12 +33,10 @@
   --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
   --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.4);
   
-  /* Transiciones */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
   
-  /* Border radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -51,7 +44,6 @@
   --radius-2xl: 32px;
 }
 
-/* Body optimizado */
 body {
   font-family: 'Orbitron', sans-serif;
   background-color: var(--bg-dark);
@@ -66,7 +58,6 @@ body.fade-in {
   opacity: 1;
 }
 
-/* Fondo con overlay mejorado */
 body::before {
   content: '';
   position: fixed;
@@ -92,7 +83,6 @@ body::after {
   z-index: -1;
 }
 
-/* Accesibilidad */
 a {
   color: inherit;
   text-decoration: none;
@@ -105,7 +95,6 @@ a:focus-visible {
   border-radius: 4px;
 }
 
-/* Loader mejorado */
 #loader {
   position: fixed;
   inset: 0;
@@ -173,7 +162,6 @@ a:focus-visible {
   animation: pulse 2s ease infinite;
 }
 
-/* Elementos laterales */
 .side-left, .side-right {
   position: fixed;
   top: 0;
@@ -195,7 +183,6 @@ a:focus-visible {
   background: linear-gradient(270deg, var(--primary), transparent);
 }
 
-/* Contenedor principal */
 .page-container {
   display: flex;
   justify-content: center;
@@ -216,7 +203,6 @@ a:focus-visible {
   transition: all var(--transition-base);
 }
 
-/* Navbar mejorado */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -292,12 +278,10 @@ a:focus-visible {
   padding: 0.5rem;
 }
 
-/* Main content */
 .main-content {
   text-align: center;
 }
 
-/* Header de página */
 .page-header {
   margin-bottom: 3rem;
   text-align: center;
@@ -325,7 +309,6 @@ a:focus-visible {
   margin-right: auto;
 }
 
-/* Secciones por género */
 .genero-section {
   margin-bottom: 3rem;
   animation: fadeInUp 0.6s ease forwards;
@@ -395,14 +378,12 @@ a:focus-visible {
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
-/* Grid de playlists */
 .genero-playlists-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
-/* Tarjetas de playlist mejoradas */
 .playlist-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -431,7 +412,6 @@ a:focus-visible {
   border-color: var(--accent-purple);
 }
 
-/* Contenedor de imagen */
 .playlist-image-container {
   position: relative;
   aspect-ratio: 16/9;
@@ -452,7 +432,6 @@ a:focus-visible {
   transform: scale(1.1) rotate(5deg);
 }
 
-/* Etiquetas */
 .playlist-genre-tag {
   position: absolute;
   top: 12px;
@@ -487,7 +466,6 @@ a:focus-visible {
   animation: pulse 2s ease infinite;
 }
 
-/* Información de playlist */
 .playlist-info {
   padding: 1.25rem;
   display: flex;
@@ -508,7 +486,6 @@ a:focus-visible {
   overflow: hidden;
 }
 
-/* Detalles */
 .playlist-details {
   display: flex;
   flex-direction: column;
@@ -548,7 +525,6 @@ a:focus-visible {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-/* Botón de playlist */
 .playlist-button {
   width: 100%;
   padding: 0.75rem;
@@ -572,7 +548,6 @@ a:focus-visible {
   box-shadow: var(--shadow-glow-purple);
 }
 
-/* Modal mejorado */
 .modal {
   position: fixed;
   inset: 0;
@@ -717,7 +692,6 @@ a:focus-visible {
   color: var(--accent-purple);
 }
 
-/* Reproductor de audio */
 audio {
   width: 100%;
   margin-top: 1rem;
@@ -734,7 +708,6 @@ audio::-webkit-media-controls-play-button {
   border-radius: 50%;
 }
 
-/* Scrollbar personalizada */
 .modal-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -771,7 +744,6 @@ audio::-webkit-media-controls-play-button {
   background: var(--secondary);
 }
 
-/* Loading states */
 .loading-container {
   grid-column: 1 / -1;
   text-align: center;
@@ -793,7 +765,6 @@ audio::-webkit-media-controls-play-button {
   font-size: 1.125rem;
 }
 
-/* Footer mejorado */
 .footer {
   margin-top: 3rem;
   padding-top: 2rem;
@@ -849,7 +820,6 @@ audio::-webkit-media-controls-play-button {
   border-top: 1px solid rgba(99, 102, 241, 0.1);
 }
 
-/* Animaciones */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -875,7 +845,6 @@ audio::-webkit-media-controls-play-button {
   }
 }
 
-/* System de verificación de acceso */
 #access-check {
   position: fixed;
   top: 0;
@@ -910,7 +879,6 @@ body.access-allowed #access-check {
   pointer-events: none;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .main-container {
     padding: 1.5rem;
@@ -1041,7 +1009,6 @@ body.access-allowed #access-check {
   }
 }
 
-/* Soporte para reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

@@ -1,4 +1,3 @@
-/* Reset y variables CSS profesionales - Mismo estilo que las otras páginas */
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +5,6 @@
 }
 
 :root {
-  /* Colores principales - Mismos que las otras páginas */
   --bg-dark: #0a0a0f;
   --bg-card: #111827;
   --bg-card-hover: #1f2937;
@@ -18,7 +16,6 @@
   --text-muted: #9ca3af;
   --text-dark: #1f2937;
   
-  /* Colores de estado */
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --success: #10b981;
@@ -27,14 +24,12 @@
   --warning-dark: #d97706;
   --info: #3b82f6;
   
-  /* Gradientes */
   --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   --gradient-danger: linear-gradient(135deg, var(--danger) 0%, var(--danger-hover) 100%);
   --gradient-success: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
   --gradient-warning: linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%);
   --gradient-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
   
-  /* Sombras */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.3);
@@ -43,12 +38,10 @@
   --shadow-glow-danger: 0 0 20px rgba(239, 68, 68, 0.3);
   --shadow-glow-success: 0 0 20px rgba(16, 185, 129, 0.3);
   
-  /* Transiciones */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
   
-  /* Border radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -56,7 +49,6 @@
   --radius-2xl: 32px;
 }
 
-/* Body optimizado - MISMO ESTILO que las otras páginas */
 body {
   font-family: 'Orbitron', sans-serif;
   background: var(--bg-dark);
@@ -66,7 +58,6 @@ body {
   transition: opacity 0.6s ease;
 }
 
-/* Fondo con overlay - MISMO ESTILO que las otras páginas */
 body::before {
   content: '';
   position: fixed;
@@ -92,7 +83,6 @@ body::after {
   z-index: -1;
 }
 
-/* Accesibilidad */
 a {
   color: inherit;
   text-decoration: none;
@@ -105,7 +95,6 @@ a:focus-visible {
   border-radius: 4px;
 }
 
-/* Elementos laterales decorativos - MISMO ESTILO que las otras páginas */
 .side-left, .side-right {
   position: fixed;
   top: 0;
@@ -127,7 +116,6 @@ a:focus-visible {
   background: linear-gradient(270deg, var(--primary), transparent);
 }
 
-/* Loader mejorado - MISMO ESTILO que las otras páginas */
 #loader {
   position: fixed;
   inset: 0;
@@ -195,7 +183,6 @@ a:focus-visible {
   animation: pulse 2s ease infinite;
 }
 
-/* Contenedor principal */
 .page-container {
   display: flex;
   justify-content: center;
@@ -223,7 +210,6 @@ body.access-allowed .page-container {
   transition: all var(--transition-base);
 }
 
-/* Navbar mejorado - MISMO ESTILO que las otras páginas */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -312,7 +298,6 @@ body.access-allowed .page-container {
   padding: 0.5rem;
 }
 
-/* Botón de logout */
 .btn-logout {
   background: var(--gradient-danger);
   border: none;
@@ -333,7 +318,6 @@ body.access-allowed .page-container {
   box-shadow: var(--shadow-glow-danger);
 }
 
-/* Dashboard */
 .dashboard {
   margin-bottom: 2rem;
 }
@@ -413,7 +397,6 @@ body.access-allowed .page-container {
   z-index: 1;
 }
 
-/* Secciones de administración */
 .section-admin {
   margin-top: 2rem;
   background: var(--bg-card);
@@ -439,7 +422,6 @@ body.access-allowed .page-container {
   font-size: 0.9rem;
 }
 
-/* Header de acciones */
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -460,7 +442,6 @@ body.access-allowed .page-container {
   flex-wrap: wrap;
 }
 
-/* Botones principales */
 .btn-primary {
   background: var(--gradient-primary);
   color: white;
@@ -531,7 +512,6 @@ body.access-allowed .page-container {
   box-shadow: var(--shadow-glow-danger);
 }
 
-/* Tablas */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-lg);
@@ -562,7 +542,6 @@ tr:hover td {
   background: rgba(99, 102, 241, 0.05);
 }
 
-/* Botones de tabla */
 .btn-editar, .btn-edit {
   background: rgba(99, 102, 241, 0.15);
   border: 1px solid var(--primary);
@@ -607,7 +586,6 @@ tr:hover td {
   transform: translateY(-2px);
 }
 
-/* Badges */
 .role-badge, .estado-badge, .stock-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 50px;
@@ -671,7 +649,6 @@ tr:hover td {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Lista de items */
 .lista-items {
   list-style: none;
   padding: 0;
@@ -754,7 +731,6 @@ tr:hover td {
   margin-left: 1rem;
 }
 
-/* Menú de usuario */
 .user-menu-container {
   position: relative;
   z-index: 1000;
@@ -811,7 +787,6 @@ tr:hover td {
   color: var(--primary);
 }
 
-/* Usuarios */
 .user-cell {
   display: flex;
   align-items: center;
@@ -845,7 +820,6 @@ tr:hover td {
   flex-wrap: wrap;
 }
 
-/* Alertas */
 .alert-success,
 .alert-error,
 .alert-warning {
@@ -876,7 +850,6 @@ tr:hover td {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-/* Modal mejorado */
 .modal {
   position: fixed;
   inset: 0;
@@ -950,7 +923,6 @@ tr:hover td {
   margin-bottom: 1.5rem;
 }
 
-/* Formularios */
 .form-group {
   margin-bottom: 1.25rem;
 }
@@ -1005,7 +977,6 @@ tr:hover td {
   margin-top: 1.5rem;
 }
 
-/* Inputs de búsqueda */
 .flex-row {
   display: flex;
   gap: 1rem;
@@ -1031,7 +1002,6 @@ tr:hover td {
   border-color: var(--primary);
 }
 
-/* Modal de detalle */
 .modal-juego-detalle,
 .modal-merch-detalle {
   max-width: 900px !important;
@@ -1183,7 +1153,6 @@ tr:hover td {
   box-shadow: var(--shadow-glow-danger);
 }
 
-/* Tooltips */
 [data-tooltip] {
   position: relative;
   cursor: help;
@@ -1215,7 +1184,6 @@ tr:hover td {
   bottom: 150%;
 }
 
-/* Footer */
 .footer {
   margin-top: 3rem;
   text-align: center;
@@ -1253,7 +1221,6 @@ tr:hover td {
   color: var(--primary);
 }
 
-/* Utilidades */
 .hidden {
   display: none !important;
 }
@@ -1274,7 +1241,6 @@ tr:hover td {
   margin-bottom: 1.5rem;
 }
 
-/* Sistema de verificación de acceso */
 #access-check {
   position: fixed;
   top: 0;
@@ -1310,7 +1276,6 @@ body.access-allowed #access-check {
   pointer-events: none;
 }
 
-/* Animaciones */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -1336,7 +1301,6 @@ body.access-allowed #access-check {
   }
 }
 
-/* Scrollbar personalizada */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -1355,7 +1319,6 @@ body.access-allowed #access-check {
   background: var(--secondary);
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .main-container {
     padding: 1.5rem;
@@ -1513,7 +1476,6 @@ body.access-allowed #access-check {
   }
 }
 
-/* Soporte para reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

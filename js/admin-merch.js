@@ -73,9 +73,6 @@ form?.addEventListener("submit", guardarProducto);
 
 cargarProductos();
 
-/* ============================
-   CARGAR PRODUCTOS
-============================ */
 async function cargarProductos() {
   const lista = document.getElementById("listaMerch");
   if (!lista) return;
@@ -139,9 +136,6 @@ async function cargarProductos() {
   });
 }
 
-/* ============================
-   GUARDAR (INSERT / UPDATE)
-============================ */
 async function guardarProducto(e) {
   e.preventDefault();
 
@@ -204,9 +198,6 @@ async function guardarProducto(e) {
   cargarProductos();
 }
 
-/* ============================
-   EDITAR PRODUCTO
-============================ */
 window.editarProducto = async function (id) {
   const { data, error } = await supabase
     .from("merchandising")
@@ -236,9 +227,6 @@ window.editarProducto = async function (id) {
   modal.classList.add("flex");
 };
 
-/* ============================
-   ELIMINAR PRODUCTO
-============================ */
 window.eliminarProducto = async function (id) {
   if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
 
