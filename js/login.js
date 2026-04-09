@@ -15,41 +15,36 @@ form.addEventListener("submit", async (e) => {
   submitBtn.disabled = true;
 
   try {
+    const encryptedPassword = btoa(password); 
+    
+    console.log("📤 Enviando solicitud con contraseña cifrada");
+    
     const { data, error } = await supabase.rpc("verificar_usuario", {
       p_email: email,
-      p_password: password,
+      p_password: encryptedPassword  
     });
 
     if (error) {
-      console.error("❌ Error al verificar usuario:", error);
-      errorText.textContent = "Error al iniciar sesión. Intente nuevamente.";
+      console.error("❌ Error:", error);
+      errorText.textContent = "Error al iniciar sesión";
       errorText.classList.remove("hidden");
       return;
     }
 
-    
-    if (data && data.id) {  
-      const usuario = data;
-      errorText.classList.add("hidden");
-
-      localStorage.setItem("nombreUsuario", usuario.username);
-      localStorage.setItem("emailUsuario", usuario.email);
-      localStorage.setItem("userId", usuario.id);
-
-      const rolNormalizado = (usuario.rol || "user").toString().toLowerCase().trim();
-      localStorage.setItem("rolUsuario", rolNormalizado);
-
-      console.log("✅ Usuario autenticado correctamente");
-      console.log("Rol guardado:", rolNormalizado);
-
+    if (data && data.success === true) {
+      localStorage.setItem("nombreUsuario", data.username);
+      localStorage.setItem("emailUsuario", data.email);
+      localStorage.setItem("userId", data.id);
+      localStorage.setItem("rolUsuario", (data.rol || "user").toLowerCase());
+      
       window.location.href = "index.html";
     } else {
-      errorText.textContent = "Correo o contraseña incorrectos";
+      errorText.textContent = data?.message || "Credenciales incorrectas";
       errorText.classList.remove("hidden");
     }
   } catch (err) {
-    console.error("❌ Error inesperado:", err);
-    errorText.textContent = "Error al iniciar sesión. Intente nuevamente.";
+    console.error("❌ Error:", err);
+    errorText.textContent = "Error al iniciar sesión";
     errorText.classList.remove("hidden");
   } finally {
     submitBtn.textContent = originalText;
