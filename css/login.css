@@ -506,3 +506,55 @@ body.access-allowed #access-check {
     scroll-behavior: auto !important;
   }
 }
+/* Modal para mostrar código (fallback) */
+.code-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.code-modal.show {
+    opacity: 1;
+}
+
+.code-modal-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 400px;
+    border: 1px solid #6366f1;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.verification-code-display {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 10px;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 12px;
+    font-family: monospace;
+    color: #6366f1;
+}
+
+.code-modal-content button {
+    background: linear-gradient(135deg, #6366f1, #ec489a);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 1rem;
+}

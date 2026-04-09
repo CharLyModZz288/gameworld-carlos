@@ -5,7 +5,6 @@
   <title>GameWorld - Login</title>
   <link rel="stylesheet" href="css/login.css">
 </head>
-
 <body>
 
   <div class="login-container">
@@ -26,6 +25,21 @@
 
       <p id="errorText" class="error-text hidden"></p>
     </form>
+
+    <!-- Contenedor para verificación de dos factores -->
+    <div id="twoFactorContainer" class="two-factor-container hidden">
+      <h3>🔐 Verificación de seguridad</h3>
+      <p>Ingresa el código de 6 dígitos enviado a tu correo electrónico</p>
+      <div class="input-group">
+        <label for="twoFactorCode">Código de verificación</label>
+        <input id="twoFactorCode" type="text" maxlength="6" placeholder="000000" autocomplete="off">
+      </div>
+      <div class="two-factor-buttons">
+        <button id="verifyTwoFactorBtn" class="btn-login-main">Verificar</button>
+        <button id="cancelTwoFactorBtn" class="btn-login-main btn-cancel">Cancelar</button>
+      </div>
+      <p id="twoFactorError" class="error-text hidden"></p>
+    </div>
 
     <p class="register-text">
       ¿No tienes cuenta?
