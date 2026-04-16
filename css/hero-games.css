@@ -1,0 +1,571 @@
+/* ========== HERO CON JUEGOS DESTACADOS ========== */
+
+.hero {
+  position: relative;
+  min-height: 700px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.5);
+}
+
+.hero video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.4);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(10, 10, 15, 0.85) 0%, 
+    rgba(99, 102, 241, 0.4) 50%,
+    rgba(10, 10, 15, 0.85) 100%);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 3rem 2rem;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-content h2 {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+  animation: fadeInDown 0.8s ease;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #00ffff, #ff00ff, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+.hero-content p {
+  margin-bottom: 2rem;
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  color: rgba(255, 255, 255, 0.9);
+  animation: fadeInUp 0.8s ease;
+}
+
+/* Contenedor de juegos dentro del hero */
+.hero-games-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  animation: fadeInUp 1s ease;
+}
+
+.hero-games-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #00ffff;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+/* Grid de juegos dentro del hero */
+.hero-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Tarjetas de juegos en el hero */
+.hero-game-card {
+  background: rgba(10, 20, 30, 0.9);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+}
+
+.hero-game-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: #00ffff;
+  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+}
+
+.hero-game-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hero-game-card:hover .hero-game-image {
+  transform: scale(1.05);
+}
+
+.hero-game-info {
+  padding: 1rem;
+}
+
+.hero-game-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-game-price {
+  color: #00ff00;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero-game-platform {
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.hero-game-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+}
+
+.hero-status-available {
+  background: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+}
+
+.hero-status-unavailable {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+/* Botón Ver más del hero */
+.hero-view-more-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #00ffff, #ff00ff);
+  border: none;
+  border-radius: 30px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.hero-view-more-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+}
+
+/* Estados de carga y error */
+.hero-loading,
+.hero-error {
+  text-align: center;
+  color: #aaa;
+  padding: 2rem;
+  grid-column: 1 / -1;
+}
+
+.hero-error {
+  color: #ff4444;
+}
+
+/* ========== ANIMACIONES ========== */
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 1024px) {
+  .hero {
+    min-height: 650px;
+  }
+  
+  .hero-content {
+    min-height: 650px;
+    padding: 2rem 1.5rem;
+  }
+  
+  .hero-content h2 {
+    font-size: 2.5rem;
+  }
+  
+  .hero-games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 600px;
+  }
+  
+  .hero-content {
+    min-height: 600px;
+    padding: 1.5rem;
+  }
+  
+  .hero-content h2 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-content p {
+    font-size: 0.9rem;
+  }
+  
+  .hero-games-title {
+    font-size: 1.2rem;
+  }
+  
+  .hero-games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+  }
+  
+  .hero-game-image {
+    height: 120px;
+  }
+  
+  .hero-game-title {
+    font-size: 0.8rem;
+  }
+  
+  .hero-game-price {
+    font-size: 0.9rem;
+  }
+  
+  .hero-view-more-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-games-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-game-image {
+    height: 160px;
+  }
+  
+  .hero-games-container {
+    padding: 1rem;
+  }
+}/* ========== MODAL STYLES ========== */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal.flex {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 900px;
+  width: 90%;
+  max-height: 85vh;
+  background: linear-gradient(135deg, #111827, #0f172a);
+  border-radius: 20px;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 0, 0, 0.5);
+  transform: rotate(90deg);
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.modal-image {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.modal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-game-title {
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #00ffff, #ff00ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.favorite-btn-modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn-modal:hover {
+  transform: scale(1.1);
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.modal-description {
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag-primary, .tag-secondary {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.tag-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.tag-secondary {
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid #6366f1;
+  color: #6366f1;
+}
+
+.developer {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #00ff00;
+}
+
+.status-badge {
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.status-available {
+  background: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+}
+
+.status-unavailable {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+.points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffaa00;
+}
+
+.gift-badge {
+  background: linear-gradient(135deg, #ffaa00, #ff6600);
+  padding: 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.reserve-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reserve-btn.available {
+  background: linear-gradient(135deg, #00ff00, #00aa00);
+  color: white;
+}
+
+.reserve-btn.available:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+}
+
+.reserve-btn.unavailable {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.reserve-btn.secondary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+@media (max-width: 768px) {
+  .modal-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .modal-game-title {
+    font-size: 1.3rem;
+  }
+  
+  .price {
+    font-size: 1.5rem;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+  }
+}

@@ -341,7 +341,7 @@ function renderizarFavoritos(items) {
     const estado = item.estado || (item.stock > 0 ? 'Disponible' : 'No disponible');
     const fechaAgregado = item.fecha_agregado ? new Date(item.fecha_agregado).toLocaleDateString() : 'Recientemente';
     
-    const disponible = tipo === 'juego' ? estado === 'Disponible' : item.stock > 0;
+    const disponible = juegoDisponible(item);
     
     return `
       <div class="favorite-card game-card" data-id="${item.id}" data-tipo="${tipo}">
@@ -369,7 +369,8 @@ function renderizarFavoritos(items) {
             <span style="color: var(--text-muted); font-size: 0.8rem;">
               🕒 Añadido: ${fechaAgregado}
             </span>
-            <span class="status-badge ${disponible ? 'status-available' : 'status-unavailable'}" style="font-size: 0.8rem; padding: 0.15rem 0.5rem;">
+            <span 
+              class="status-badge ${disponible ? 'status-available' : 'status-unavailable'}" style="font-size: 0.8rem; padding: 0.15rem 0.5rem;">
               ${disponible ? 'Disponible' : 'No disponible'}
             </span>
           </div>
@@ -513,8 +514,9 @@ window.abrirModal = function(item) {
   const estado = item.estado || (item.stock > 0 ? 'Disponible' : 'No disponible');
   const genero = item.genero || (tipo === 'juego' ? 'Aventura' : plataforma);
   const desarrolladora = item.desarrolladora || 'GameWorld';
-  const disponible = tipo === 'juego' ? estado === 'Disponible' : item.stock > 0;
+  const disponible = juegoDisponible(item);
 
+  
   contenido.innerHTML = `
     <div class="modal-grid">
       <img src="${imagen}" alt="${nombre}" class="modal-image">
@@ -568,6 +570,26 @@ window.abrirModal = function(item) {
     window.history.pushState({ modalOpen: true }, '');
   }
 };
+
+
+function juegoDisponible(juego) {
+  const estado = juego.estado;
+  
+  if (typeof estado === 'string') {
+    return estado.toLowerCase() === 'disponible';
+  }
+  
+  if (typeof estado === 'boolean') {
+    return estado === true;
+  }
+  
+  if (typeof estado === 'number') {
+    return estado === 1;
+  }
+  
+  return false;
+}
+
 
 window.añadirItemSeleccionado = function() {
   if (window.itemSeleccionado) {

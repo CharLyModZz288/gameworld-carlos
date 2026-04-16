@@ -174,12 +174,20 @@ window.addEventListener("load", async () => {
   }
 
   async function cambiarContrasena(id, currentPassword, newPassword) {
-    if (!email) throw new Error("No hay email de usuario");
-
+    if (!id) throw new Error("No hay ID de usuario");
+    
+    console.log("🔐 Cifrando contraseñas con Base64...");
+    
+    // Cifrar las contraseñas en Base64 (igual que en login y registro)
+    const encryptedCurrentPassword = btoa(currentPassword);
+    const encryptedNewPassword = btoa(newPassword);
+    
+    console.log("📝 Enviando contraseñas cifradas al servidor...");
+    
     const { data, error } = await supabase.rpc("cambiar_contrasena", {
       p_user_id: id,
-      p_current_password: currentPassword,
-      p_new_password: newPassword,
+      p_current_password: encryptedCurrentPassword,
+      p_new_password: encryptedNewPassword,
     });
 
     if (error) {
@@ -187,7 +195,7 @@ window.addEventListener("load", async () => {
       throw new Error(error.message);
     }
 
-    return data; // true si se cambió, false si la contraseña actual no coincide
+    return data; // { success: true/false, error: "mensaje", message: "mensaje" }
   }
 
   // Función para cargar compras del usuario
@@ -467,8 +475,8 @@ window.addEventListener("load", async () => {
         return;
       }
 
-      if (newPassword.length < 6) {
-        alert("❌ La nueva contraseña debe tener mínimo 6 caracteres");
+      if (newPassword.length < 8) {
+        alert("❌ La nueva contraseña debe tener mínimo 8 caracteres");
         return;
       }
 
@@ -484,8 +492,8 @@ window.addEventListener("load", async () => {
         return;
       }
 
-      const email = emailInput?.value || userEmail;
-      if (!email) {
+      const id = localStorage.getItem('userId');
+      if (!id) {
         alert("❌ No se pudo identificar el usuario");
         return;
       }
@@ -496,19 +504,39 @@ window.addEventListener("load", async () => {
       btnSubmit.disabled = true;
 
       try {
-        const id = localStorage.getItem('userId');
         const resultado = await cambiarContrasena(id, currentPassword, newPassword);
 
-        if (resultado === false) {
-          alert("❌ La contraseña actual no es correcta");
+        if (resultado && resultado.success === false) {
+          alert("❌ " + (resultado.error || "La contraseña actual no es correcta"));
           return;
         }
 
-        alert("✅ Contraseña actualizada correctamente");
-
-        currentPasswordInput.value = "";
-        newPasswordInput.value = "";
-        confirmPasswordInput.value = "";
+        if (resultado && resultado.success === true) {
+          alert("✅ Contraseña actualizada correctamente");
+          
+          // Limpiar los campos
+          if (currentPasswordInput) currentPasswordInput.value = "";
+          if (newPasswordInput) newPasswordInput.value = "";
+          if (confirmPasswordInput) confirmPasswordInput.value = "";
+          
+          // Limpiar el mensaje de coincidencia si existe
+          const matchMessage = document.getElementById("passwordMatchMessage");
+          if (matchMessage) {
+            matchMessage.textContent = "";
+            matchMessage.className = "password-match-message";
+          }
+          
+          // Resetear medidor de fortaleza
+          const passwordStrength = document.getElementById("passwordStrength");
+          if (passwordStrength) {
+            const strengthBars = passwordStrength.querySelectorAll(".strength-bar");
+            strengthBars.forEach(bar => {
+              bar.style.backgroundColor = "#e0e0e0";
+            });
+          }
+        } else {
+          alert("❌ La contraseña actual no es correcta");
+        }
       } catch (error) {
         console.error("❌ Error:", error);
         alert("❌ Error al actualizar: " + error.message);
@@ -584,7 +612,7 @@ window.addEventListener("load", async () => {
       const strengthBars = passwordStrength.querySelectorAll(".strength-bar");
 
       let strength = 0;
-      if (value.length >= 6) strength++;
+      if (value.length >= 8) strength++;
       if (value.match(/[A-Z]/)) strength++;
       if (value.match(/[0-9]/)) strength++;
       if (value.match(/[^A-Za-z0-9]/)) strength++;

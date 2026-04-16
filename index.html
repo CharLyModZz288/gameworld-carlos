@@ -8,8 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/index2.css">
+  <link rel="stylesheet" href="css/hero-games.css">
   <script type="module" src="js/connection.js"></script>
- </head>
+</head>
 <body>
 
   <div class="side-left"></div>
@@ -23,6 +24,7 @@
   <div class="page-container">
     <div class="main-container">
 
+      <!-- Navbar para usuarios no logueados -->
       <nav id="nav" class="navbar">
         <h1 class="logo">
           <a href="index.html" aria-label="GameWorld - Inicio">
@@ -39,13 +41,13 @@
         <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
       </nav>
       
+      <!-- Navbar para usuarios logueados -->
       <nav id="navLog" class="navbar hidden-nav">
         <h1 class="logo">
           <a href="index.html" aria-label="GameWorld - Inicio">
             <span class="logo-text">Game</span><span class="logo-accent">World</span>
           </a>
         </h1>
-
         <div class="nav-links">
           <a href="catalogo.html" aria-label="Ver catálogo de juegos">🎮 Catálogo</a>
           <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
@@ -78,23 +80,30 @@
         <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
       </nav>
 
+      <!-- HERO SECTION MODIFICADA - Con juegos en lugar del botón -->
       <section class="hero">
         <video autoplay muted loop>
           <source src="media/bg-video.mp4" type="video/mp4">
         </video>
+        <div class="hero-overlay"></div>
+        
         <div class="hero-content">
-          <h2>Bienvenido a GameWorld</h2>
+          <h2>Bienvenido a <span class="gradient-text">GameWorld</span></h2>
           <p>Tu tienda gamer definitiva: videojuegos, playlists, merchandising y más.</p>
-          <a href="catalogo.html" class="btn-primary">Explorar Catálogo</a>
+          
+          <!-- Aquí van los juegos destacados dentro del hero -->
+          <div class="hero-games-container">
+            <h3 class="hero-games-title">🔥 Juegos Destacados</h3>
+            <div id="heroGamesGrid" class="hero-games-grid">
+              <div class="hero-loading">Cargando juegos...</div>
+            </div>
+            <a href="catalogo.html" class="hero-view-more-btn">Ver catálogo completo →</a>
+          </div>
         </div>
       </section>
 
+      <!-- Grid de secciones (sin el catálogo porque ya está en el hero) -->
       <div class="section-grid">
-        <a href="catalogo.html" class="section-card">
-          <div class="card-icon">🎮</div>
-          <h3>Catálogo</h3>
-          <p>Compra y reserva los últimos lanzamientos.</p>
-        </a>
         <a href="playlists.html" class="section-card">
           <div class="card-icon">🎵</div>
           <h3>Playlists</h3>
@@ -112,6 +121,7 @@
         </a>
       </div>
 
+      <!-- Sección de comentarios -->
       <section id="coment" class="comments">
         <h3>Deja tu comentario</h3>
 
@@ -158,6 +168,15 @@
     </div>
   </div>
 
+  <!-- MODAL PARA DETALLES DEL JUEGO (igual que en catálogo) -->
+  <div id="modalJuego" class="modal hidden">
+    <div class="modal-content">
+      <button onclick="cerrarModal()" class="modal-close">✕</button>
+      <div id="modalContenido" class="modal-info"></div>
+    </div>
+  </div>
+
   <script type="module" src="js/index2.js"></script>
+  <script type="module" src="js/hero-games.js"></script>
 </body>
 </html>
