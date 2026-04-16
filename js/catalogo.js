@@ -285,7 +285,395 @@ window.añadirAFavorito = añadirAFavorito;
 
 let juegosCache = null;
 let cargaEnProgreso = false;
+let todosLosJuegos = [];
 
+// ========================
+// 🎲 JUEGO ALEATORIO DEL DÍA
+// ========================
+function mostrarJuegoAleatorio() {
+  const container = document.getElementById('randomGameContainer');
+  if (!container || !todosLosJuegos.length) return;
+
+  const randomIndex = Math.floor(Math.random() * todosLosJuegos.length);
+  const juego = todosLosJuegos[randomIndex];
+
+  const cardHTML = `
+    <div class="game-card" style="max-width: 280px;">
+      <div class="game-image-container" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+        <img src="${juego.imagen}" alt="${juego.nombre}" loading="lazy">
+        <span class="game-platform-tag">${juego.plataforma?.toUpperCase() || "NINTENDO"}</span>
+      </div>
+      <div class="game-info">
+        <h3 class="game-title">${juego.nombre}</h3>
+        <div class="game-details">
+          <div class="game-price-row">
+            <span class="game-price-label">PRECIO</span>
+            <span class="game-price-value">${juego.precio?.toFixed(2) || "0.00"}€</span>
+          </div>
+        </div>
+        <button class="game-button" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
+          🎲 Probar suerte
+        </button>
+      </div>
+    </div>
+  `;
+  container.innerHTML = cardHTML;
+}
+
+// ========================
+// 🏆 BATTLE DIARIA (24 horas)
+// ========================
+let batallaActual = null;
+let votos = { juegoA: 0, juegoB: 0 };
+let usuarioYaVoto = false;
+
+// Obtener clave única para la batalla de hoy (basada en fecha)
+function getBattleKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+  return `battle_${year}_${month}_${day}`;
+}
+
+// Obtener ID de batalla (timestamp del día)
+function getBattleId() {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return now.getTime();
+}
+
+// Verificar si el usuario ya votó en esta batalla
+function usuarioYaVotoEnEstaBatalla() {
+  const userId = localStorage.getItem("userId");
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  
+  if (!userId || nombreUsuario === "Invitado") {
+    return false; // Los invitados no pueden votar
+  }
+  
+  const battleId = getBattleId();
+  const votosRegistrados = JSON.parse(localStorage.getItem(`votos_usuario_${userId}`) || '{}');
+  return votosRegistrados[battleId] === true;
+}
+
+// Registrar que el usuario votó en esta batalla
+function registrarVotoUsuario() {
+  const userId = localStorage.getItem("userId");
+  if (!userId) return;
+  
+  const battleId = getBattleId();
+  const votosRegistrados = JSON.parse(localStorage.getItem(`votos_usuario_${userId}`) || '{}');
+  votosRegistrados[battleId] = true;
+  localStorage.setItem(`votos_usuario_${userId}`, JSON.stringify(votosRegistrados));
+}
+
+// Iniciar o cargar batalla del día
+function iniciarBatalla() {
+  if (!todosLosJuegos.length || todosLosJuegos.length < 2) {
+    console.log('No hay suficientes juegos para la batalla');
+    return;
+  }
+
+  const battleKey = getBattleKey();
+  const guardado = localStorage.getItem(battleKey);
+  
+  if (guardado) {
+    // Cargar batalla existente del día
+    const data = JSON.parse(guardado);
+    batallaActual = {
+      juegoA: data.juegoA,
+      juegoB: data.juegoB
+    };
+    votos = data.votos;
+  } else {
+    // Crear nueva batalla aleatoria para hoy
+    let idxA = Math.floor(Math.random() * todosLosJuegos.length);
+    let idxB;
+    do {
+      idxB = Math.floor(Math.random() * todosLosJuegos.length);
+    } while (idxB === idxA);
+
+    batallaActual = {
+      juegoA: todosLosJuegos[idxA],
+      juegoB: todosLosJuegos[idxB]
+    };
+    votos = { juegoA: 0, juegoB: 0 };
+    
+    // Guardar batalla del día
+    localStorage.setItem(battleKey, JSON.stringify({
+      juegoA: batallaActual.juegoA,
+      juegoB: batallaActual.juegoB,
+      votos: votos,
+      fecha: new Date().toISOString()
+    }));
+  }
+  
+  // Verificar si el usuario ya votó
+  usuarioYaVoto = usuarioYaVotoEnEstaBatalla();
+  
+  renderBatalla();
+}
+
+// Renderizar la batalla
+function renderBatalla() {
+  const container = document.getElementById('battleContainer');
+  if (!container || !batallaActual) return;
+
+  const total = votos.juegoA + votos.juegoB;
+  const porcentajeA = total === 0 ? 50 : (votos.juegoA / total) * 100;
+  const porcentajeB = total === 0 ? 50 : (votos.juegoB / total) * 100;
+
+  // Mostrar tiempo restante para la próxima batalla
+  const ahora = new Date();
+  const mañana = new Date(ahora);
+  mañana.setDate(mañana.getDate() + 1);
+  mañana.setHours(0, 0, 0, 0);
+  const horasRestantes = Math.ceil((mañana - ahora) / (1000 * 60 * 60));
+  
+  const tiempoRestanteTexto = horasRestantes === 24 ? "24 horas" : 
+                               horasRestantes === 1 ? "1 hora" : 
+                               `${horasRestantes} horas`;
+
+  container.innerHTML = `
+    <div style="text-align: center; margin-bottom: 1rem; color: #facc15; font-size: 0.9rem;">
+      ⏰ Próxima batalla en: ${tiempoRestanteTexto}
+    </div>
+    <div class="battle-card">
+      <div class="game-card" style="cursor: ${usuarioYaVoto ? 'not-allowed' : 'pointer'}; opacity: ${usuarioYaVoto ? 0.7 : 1};" onclick='${!usuarioYaVoto ? `votarBatalla("A")` : ''}'>
+        <div class="game-image-container">
+          <img src="${batallaActual.juegoA.imagen}" alt="${batallaActual.juegoA.nombre}" style="width: 100%; height: 200px; object-fit: cover;">
+        </div>
+        <div class="game-info">
+          <h3 class="game-title">${batallaActual.juegoA.nombre}</h3>
+          <div class="progress-bar"><div style="width: ${porcentajeA}%; background: #3b82f6;">${Math.round(porcentajeA)}%</div></div>
+          <p style="text-align: center; margin: 0.5rem 0;">${votos.juegoA} votos</p>
+          <button class="game-button" ${usuarioYaVoto ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+            ${usuarioYaVoto ? '✓ Ya votaste' : 'Votar 🗳️'}
+          </button>
+        </div>
+      </div>
+      <div class="vs-div">⚔️ VS ⚔️</div>
+      <div class="game-card" style="cursor: ${usuarioYaVoto ? 'not-allowed' : 'pointer'}; opacity: ${usuarioYaVoto ? 0.7 : 1};" onclick='${!usuarioYaVoto ? `votarBatalla("B")` : ''}'>
+        <div class="game-image-container">
+          <img src="${batallaActual.juegoB.imagen}" alt="${batallaActual.juegoB.nombre}" style="width: 100%; height: 200px; object-fit: cover;">
+        </div>
+        <div class="game-info">
+          <h3 class="game-title">${batallaActual.juegoB.nombre}</h3>
+          <div class="progress-bar"><div style="width: ${porcentajeB}%; background: #ef4444;">${Math.round(porcentajeB)}%</div></div>
+          <p style="text-align: center; margin: 0.5rem 0;">${votos.juegoB} votos</p>
+          <button class="game-button" ${usuarioYaVoto ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+            ${usuarioYaVoto ? '✓ Ya votaste' : 'Votar 🗳️'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const resultado = document.getElementById('battleResult');
+  if (total > 0) {
+    if (votos.juegoA > votos.juegoB) resultado.innerHTML = `🏆 Ganador actual: ${batallaActual.juegoA.nombre} <span style="font-size:0.8rem;">(${votos.juegoA} votos)</span>`;
+    else if (votos.juegoB > votos.juegoA) resultado.innerHTML = `🏆 Ganador actual: ${batallaActual.juegoB.nombre} <span style="font-size:0.8rem;">(${votos.juegoB} votos)</span>`;
+    else resultado.innerHTML = `🤝 ¡Empate! Vota para decidir. (${total} votos totales)`;
+  } else {
+    resultado.innerHTML = `💥 ¡Sé el primero en votar!`;
+  }
+}
+
+// Votar en la batalla
+window.votarBatalla = function(lado) {
+  if (!batallaActual) return;
+
+  // Verificar si ya votó
+  if (usuarioYaVotoEnEstaBatalla()) {
+    mostrarNotificacion('⚠️ Ya votaste en la batalla de hoy. ¡Vuelve mañana!', 'error');
+    return;
+  }
+
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  if (!nombreUsuario || nombreUsuario === "Invitado") {
+    mostrarNotificacion('Debes iniciar sesión para votar', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return;
+  }
+
+  const battleKey = getBattleKey();
+  
+  // Actualizar votos
+  if (lado === 'A') votos.juegoA++;
+  else votos.juegoB++;
+
+  // Guardar votos actualizados
+  localStorage.setItem(battleKey, JSON.stringify({
+    juegoA: batallaActual.juegoA,
+    juegoB: batallaActual.juegoB,
+    votos: votos,
+    fecha: new Date().toISOString()
+  }));
+
+  // Registrar que este usuario votó
+  registrarVotoUsuario();
+  usuarioYaVoto = true;
+
+  renderBatalla();
+  mostrarNotificacion(`✅ ¡Voto registrado para ${lado === 'A' ? batallaActual.juegoA.nombre : batallaActual.juegoB.nombre}!`, 'success');
+};
+
+// Verificar si la batalla debe actualizarse (cada minuto)
+function verificarActualizacionBatalla() {
+  const battleKey = getBattleKey();
+  const guardado = localStorage.getItem(battleKey);
+  
+  if (!guardado) {
+    // No hay batalla guardada para hoy, crear nueva
+    iniciarBatalla();
+  } else {
+    const data = JSON.parse(guardado);
+    // Verificar si la fecha guardada es de hoy
+    const fechaGuardada = new Date(data.fecha);
+    const hoy = new Date();
+    
+    if (fechaGuardada.getDate() !== hoy.getDate() || 
+        fechaGuardada.getMonth() !== hoy.getMonth() || 
+        fechaGuardada.getFullYear() !== hoy.getFullYear()) {
+      // La batalla es de otro día, actualizar
+      iniciarBatalla();
+    } else {
+      // Actualizar estado de voto del usuario
+      usuarioYaVoto = usuarioYaVotoEnEstaBatalla();
+      renderBatalla();
+    }
+  }
+}
+
+// Iniciar verificación automática cada minuto
+let verificadorInterval = null;
+
+function iniciarVerificadorBatalla() {
+  if (verificadorInterval) clearInterval(verificadorInterval);
+  verificadorInterval = setInterval(() => {
+    // Solo verificar si la sección de batalla está visible
+    const battleSection = document.getElementById('battleSection');
+    if (battleSection && battleSection.style.display === 'block') {
+      verificarActualizacionBatalla();
+    }
+  }, 60000); // Cada minuto
+}
+
+// ========================
+// CONTROL DE SECCIONES
+// ========================
+function mostrarSeccion(seccionId) {
+  const randomSection = document.getElementById('randomGameSection');
+  const battleSection = document.getElementById('battleSection');
+  const gridJuegos = document.getElementById('gridJuegos');
+  
+  if (randomSection) randomSection.style.display = 'none';
+  if (battleSection) battleSection.style.display = 'none';
+  if (gridJuegos) gridJuegos.style.display = 'block';
+  
+  if (seccionId === 'random') {
+    if (randomSection) {
+      gridJuegos.style.display = 'none';
+      randomSection.style.display = 'block';
+      mostrarJuegoAleatorio();
+    }
+  } else if (seccionId === 'battle') {
+    if (battleSection) {
+      gridJuegos.style.display = 'none';
+      battleSection.style.display = 'block';
+      if (!batallaActual) {
+        iniciarBatalla();
+      } else {
+        verificarActualizacionBatalla();
+      }
+    }
+  }
+}
+
+// ========================
+// MENÚ HAMBURGUESA
+// ========================
+function initMobileMenu() {
+  const menuToggle = document.querySelector('.menu-toggle');
+  const navLinks = document.querySelector('.nav-links');
+  
+  if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', () => {
+      const expanded = menuToggle.getAttribute('aria-expanded') === 'true' ? false : true;
+      menuToggle.setAttribute('aria-expanded', expanded);
+      navLinks.classList.toggle('show');
+    });
+    
+    // Cerrar menú al hacer click en un enlace
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('show');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+}
+
+// Eventos del navbar
+document.addEventListener('DOMContentLoaded', () => {
+  const randomLink = document.getElementById('randomGameLink');
+  const battleLink = document.getElementById('battleLink');
+  const rerollBtn = document.getElementById('rerollRandomBtn');
+  
+  if (randomLink) {
+    randomLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      mostrarSeccion('random');
+      window.location.hash = 'random-game';
+      // Cerrar menú móvil si está abierto
+      const navLinks = document.querySelector('.nav-links');
+      if (navLinks && navLinks.classList.contains('show')) {
+        navLinks.classList.remove('show');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+  
+  if (battleLink) {
+    battleLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      mostrarSeccion('battle');
+      window.location.hash = 'battle-week';
+      // Cerrar menú móvil si está abierto
+      const navLinks = document.querySelector('.nav-links');
+      if (navLinks && navLinks.classList.contains('show')) {
+        navLinks.classList.remove('show');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+  
+  if (rerollBtn) {
+    rerollBtn.addEventListener('click', () => mostrarJuegoAleatorio());
+  }
+  
+  // Inicializar menú hamburguesa
+  initMobileMenu();
+  
+  // Iniciar verificador de batalla
+  iniciarVerificadorBatalla();
+  
+  // Comprobar hash al cargar
+  if (window.location.hash === '#random-game') {
+    mostrarSeccion('random');
+  } else if (window.location.hash === '#battle-week') {
+    mostrarSeccion('battle');
+  }
+});
+
+// ========================
+// CARGA PRINCIPAL
+// ========================
 window.addEventListener("load", async () => {
   console.log('Página cargada, inicializando...');
   
@@ -304,6 +692,7 @@ window.addEventListener("load", async () => {
   }
 
   if (juegosCache) {
+    todosLosJuegos = juegosCache;
     renderizarJuegos(juegosCache);
     return;
   }
@@ -322,26 +711,31 @@ window.addEventListener("load", async () => {
 
   if (juegosError) {
     console.error('Error al cargar juegos:', juegosError);
-    grid.innerHTML = `
-      <p class="loading-text" style="color: #ef4444;">
-        Error al cargar los juegos: ${juegosError.message}
-      </p>
-    `;
+    if (grid) {
+      grid.innerHTML = `
+        <p class="loading-text" style="color: #ef4444;">
+          Error al cargar los juegos: ${juegosError.message}
+        </p>
+      `;
+    }
     return;
   }
 
   if (!juegos || juegos.length === 0) {
-    grid.innerHTML = `
-      <p class="loading-text">
-        No hay juegos disponibles
-      </p>
-    `;
+    if (grid) {
+      grid.innerHTML = `
+        <p class="loading-text">
+          No hay juegos disponibles
+        </p>
+      `;
+    }
     return;
   }
 
   console.log('Juegos cargados:', juegos.length);
   
   juegosCache = juegos;
+  todosLosJuegos = juegos;
   
   renderizarJuegos(juegos);
 });
@@ -589,5 +983,8 @@ window.addEventListener('storage', (e) => {
 window.addEventListener('beforeunload', () => {
   if (rafId) {
     cancelAnimationFrame(rafId);
+  }
+  if (verificadorInterval) {
+    clearInterval(verificadorInterval);
   }
 });

@@ -150,31 +150,6 @@ a:focus-visible {
   animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
 }
 
-.loader-progress {
-  width: 200px;
-  height: 2px;
-  background: rgba(99, 102, 241, 0.2);
-  margin-top: 20px;
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-}
-
-.loader-progress::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: var(--gradient-primary);
-  animation: progress 2s ease forwards;
-}
-
-@keyframes progress {
-  to { width: 100%; }
-}
-
 #loader-text {
   margin-top: 1.5rem;
   font-size: 1.5rem;
@@ -207,13 +182,14 @@ a:focus-visible {
   transition: all var(--transition-base);
 }
 
+/* ==================== NAVBAR MEJORADO ==================== */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(10, 10, 15, 0.95);
   backdrop-filter: blur(10px);
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   border-radius: var(--radius-xl);
   margin-bottom: 2rem;
   border: 1px solid rgba(99, 102, 241, 0.2);
@@ -226,6 +202,8 @@ a:focus-visible {
   margin-left: auto;
   margin-right: auto;
   box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .navbar.visible {
@@ -235,10 +213,15 @@ a:focus-visible {
   border-bottom: 1px solid var(--primary);
 }
 
+.logo {
+  flex-shrink: 0;
+}
+
 .logo a {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .logo-text {
@@ -254,8 +237,10 @@ a:focus-visible {
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.25rem;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .nav-links a {
@@ -263,6 +248,9 @@ a:focus-visible {
   font-weight: 500;
   position: relative;
   padding: 0.5rem 0;
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .nav-links a::after {
@@ -283,21 +271,134 @@ a:focus-visible {
 
 .nav-links a:hover {
   color: var(--text-light);
+  transform: translateY(-2px);
 }
 
+/* Estilo especial para el carrito */
+.cart-link-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  background: rgba(99, 102, 241, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  transition: all var(--transition-fast);
+}
+
+.cart-link-nav:hover {
+  background: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.carrito-contador-nav {
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+/* Botón menú hamburguesa */
 .menu-toggle {
   display: none;
-  background: none;
-  border: none;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   color: var(--text-light);
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
-.page-header {
-  margin-bottom: 3rem;
-  text-align: center;
+.menu-toggle:hover {
+  background: rgba(99, 102, 241, 0.4);
+  transform: scale(1.05);
+}
+
+/* ==================== RESPONSIVE NAVBAR ==================== */
+@media (max-width: 1024px) {
+  .nav-links {
+    gap: 1rem;
+  }
+  
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+  
+  .cart-link-nav {
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .menu-toggle {
+    display: block;
+  }
+  
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    align-items: stretch;
+  }
+  
+  .nav-links.show {
+    display: flex;
+  }
+  
+  .nav-links a {
+    text-align: center;
+    padding: 0.6rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: var(--radius-md);
+    white-space: normal;
+  }
+  
+  .nav-links a::after {
+    display: none;
+  }
+  
+  .cart-link-nav {
+    justify-content: center;
+  }
+  
+  .logo a {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.6rem 1rem;
+  }
+  
+  .logo a {
+    font-size: 1.2rem;
+  }
+  
+  .menu-toggle {
+    font-size: 1.2rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .nav-links a {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
 }
 
 .page-title {
@@ -328,11 +429,6 @@ a:focus-visible {
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
   transform: translateY(20px);
-}
-
-.platform-section.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .platform-header {
@@ -548,44 +644,6 @@ a:focus-visible {
   z-index: 2;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
   animation: pulse 2s ease infinite;
-}
-
-.favorite-btn {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid #ef4444;
-  color: #ef4444;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  z-index: 10;
-  backdrop-filter: blur(5px);
-}
-
-.favorite-btn:hover {
-  transform: scale(1.1);
-  background: #ef4444;
-  color: white;
-}
-
-.favorite-btn.active {
-  background: #ef4444;
-  color: white;
-  animation: heartPop 0.3s ease;
-}
-
-@keyframes heartPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
 }
 
 .game-info {
@@ -942,8 +1000,7 @@ a:focus-visible {
   cursor: not-allowed;
 }
 
-.cart-notification,
-.favorite-notification {
+.cart-notification {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -957,10 +1014,6 @@ a:focus-visible {
   box-shadow: var(--shadow-lg);
   font-weight: 500;
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.favorite-notification {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
 .footer {
@@ -1037,55 +1090,11 @@ a:focus-visible {
   width: 100%;
 }
 
-.cart-link-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-  background: rgba(99, 102, 241, 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  transition: all var(--transition-fast);
-}
-
-.cart-link-nav:hover {
-  background: rgba(99, 102, 241, 0.2);
-  transform: translateY(-2px);
-}
-
-.carrito-contador-nav {
-  background: var(--gradient-primary);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: bold;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-}
-
-.loading-container {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 3rem;
-}
-
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 3px solid rgba(99, 102, 241, 0.2);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
 .loading-text {
   color: var(--text-muted);
   font-size: 1.125rem;
+  text-align: center;
+  padding: 2rem;
 }
 
 @keyframes spin {
@@ -1154,12 +1163,6 @@ a:focus-visible {
   animation: spin 1s linear infinite;
 }
 
-.check-text {
-  margin-top: 1rem;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-}
-
 body.access-allowed #access-check {
   opacity: 0;
   pointer-events: none;
@@ -1183,132 +1186,81 @@ body.access-allowed #access-check {
   background: var(--secondary);
 }
 
-@media (max-width: 1024px) {
-  .page-container {
-    padding-top: 80px;
-  }
-  
-  .main-container {
-    padding: 1.5rem;
-  }
-  
-  .platform-games-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
+/* Battle vs */
+.battle-card {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+
+.vs-div {
+  font-size: 2rem;
+  font-weight: bold;
+  background: #1e1e2f;
+  padding: 1rem;
+  border-radius: 1rem;
+  color: #facc15;
+  font-family: 'Orbitron', monospace;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #2d2d3f;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress-bar div {
+  padding: 0.25rem 0;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  transition: width 0.3s ease;
+}
+
+.battle-card .game-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  max-width: 300px;
+}
+
+.battle-card .game-card:hover {
+  transform: scale(1.05);
+}
+
+.reroll-btn {
+  margin: 1rem auto;
+  display: block;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-family: 'Orbitron', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.reroll-btn:hover {
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
-  .navbar {
-    flex-wrap: wrap;
-    padding: 1rem;
-  }
-  
-  .menu-toggle {
-    display: block;
-  }
-  
-  .nav-links {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    gap: 1rem;
-    padding-top: 1rem;
-  }
-  
-  .nav-links.show {
-    display: flex;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .platform-header {
-    flex-wrap: wrap;
-  }
-  
-  .platform-title {
-    font-size: 1.4rem;
-  }
-  
-  .platform-icon {
-    font-size: 1.6rem;
-  }
-  
-  .platform-count {
-    margin-left: 0;
-    width: 100%;
-    text-align: center;
-  }
-  
-  .platform-games-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  .battle-card {
     gap: 1rem;
   }
   
-  .modal-info {
-    padding: 1.5rem;
-  }
-  
-  .modal-game-title {
-    font-size: 1.5rem;
-  }
-  
-  .price {
-    font-size: 1.5rem;
-  }
-  
-  .modal-buttons {
-    flex-direction: column;
-  }
-  
-  .modal-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .favorite-btn-modal {
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-container {
-    padding: 1rem;
-  }
-  
-  .page-title {
-    font-size: 1.5rem;
-  }
-  
-  .platform-title {
+  .vs-div {
     font-size: 1.2rem;
+    padding: 0.5rem;
   }
   
-  .platform-games-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .footer-links {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .cart-notification,
-  .favorite-notification {
-    left: 20px;
-    right: 20px;
-    text-align: center;
-    font-size: 0.875rem;
-    padding: 0.75rem 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .battle-card .game-card {
+    max-width: 250px;
   }
 }

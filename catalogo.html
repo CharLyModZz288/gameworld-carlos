@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/catalogo.css">
-  
 </head>
 <body>
   <div id="access-check">
@@ -35,6 +34,8 @@
         </h1>
         <div class="nav-links">
           <a href="index.html" aria-label="Volver al inicio">🏠 Inicio</a>
+          <a href="#" id="randomGameLink" aria-label="Juego aleatorio">🎲 Juego random</a>
+          <a href="#" id="battleLink" aria-label="Battle semanal">🏆 Battle semanal</a>
           <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
           <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
           <a href="sobre.html" aria-label="Ver sobre nosotros">👥 Sobre Nosotros</a>
@@ -50,6 +51,29 @@
         <h2 class="page-title">Catálogo de Videojuegos</h2>
         <p class="page-subtitle">Explora los títulos más recientes y reserva tus favoritos.</p>
 
+        <!-- Sección Juego Aleatorio del Día (inicialmente oculta) -->
+        <div id="randomGameSection" style="display: none;">
+          <div class="platform-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-bottom: 1.5rem;">
+            <span class="platform-icon">🎲</span>
+            <h2 class="platform-title">Juego aleatorio para hoy</h2>
+          </div>
+          <div id="randomGameContainer" class="platform-games-grid" style="justify-content: center;"></div>
+          <button id="rerollRandomBtn" class="reroll-btn">🎲 Otro juego 🎲</button>
+        </div>
+
+        <!-- Sección Battle de la Semana (inicialmente oculta) -->
+        <div id="battleSection" style="display: none;">
+          <div class="platform-header" style="background: linear-gradient(135deg, #ef4444, #dc2626); margin-bottom: 1.5rem;">
+            <span class="platform-icon">🏆</span>
+            <h2 class="platform-title">Battle de la semana</h2>
+          </div>
+          <div id="battleContainer"></div>
+          <div style="text-align: center; margin-top: 1rem;">
+            <span id="battleResult" style="font-weight: bold; font-size: 1.2rem; color: #facc15;"></span>
+          </div>
+        </div>
+
+        <!-- Catálogo normal -->
         <div id="gridJuegos" class="games-grid">
           <p class="loading-text">Cargando juegos...</p>
         </div>
