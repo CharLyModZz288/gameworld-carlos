@@ -113,6 +113,7 @@ window.addEventListener('load', async () => {
     cerrarSesionBtn.addEventListener('click', () => {
       localStorage.removeItem("nombreUsuario");
       localStorage.removeItem("rolUsuario");
+      localStorage.removeItem("carrito");
       window.location.href = "index.html";
     });
   }

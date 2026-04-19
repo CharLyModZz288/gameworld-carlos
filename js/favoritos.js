@@ -402,8 +402,9 @@ window.añadirAlCarrito = function(item) {
 
   const tipo = item.tipo || 'juego';
   const nombre = item.nombre || item.titulo || 'Producto';
-  
-  if (tipo === 'juego' && item.estado !== "Disponible") {
+  const disponible = juegoDisponible(item);
+
+  if (tipo === 'juego' && disponible === "unavailable") {
     mostrarNotificacion('Este juego no está disponible', 'error');
     return false;
   }
