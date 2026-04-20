@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playlists - GameWorld</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/playlist.css">
+  
+</head>
+<body>
+  <div id="access-check">
+    <div class="check-spinner"></div>
+  </div>
+
+  <div class="side-left"></div>
+  <div class="side-right"></div>
+
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
+  </div>
+
+  <div class="page-container">
+    <div class="main-container">
+
+      <nav class="navbar">
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
+        <div class="nav-links">
+          <a href="catalogo.html" aria-label="Ver catálogo de juegos">🎮 Catálogo</a>
+          <a href="index.html" aria-label="Volver al inicio">🏠 Inicio</a>
+          <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
+          <a href="sobre.html" aria-label="Ver sobre nosotros">👥 Sobre Nosotros</a>
+        </div>
+        <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
+      </nav>
+
+      <div class="main-content">
+        <h2 class="page-title">Playlists Gamer</h2>
+        <p class="page-subtitle">Explora música épica inspirada en tus juegos favoritos.</p>
+
+        <div id="gridPlaylists" class="playlists-grid">
+        </div>
+
+        <footer class="footer">
+          <p>© 2026 GameWorld. Todos los derechos reservados.</p>
+          <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalPlaylist" class="modal hidden">
+    <div class="modal-content">
+      <button onclick="cerrarModal()" class="modal-close">✕</button>
+      <div id="modalContenido" class="modal-info"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/playlist.js"></script>
+  
+  <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('access-allowed');
+    });
+  </script>
+</body>
+</html>

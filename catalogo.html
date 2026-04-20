@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - GameWorld</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/catalogo.css">
+</head>
+<body>
+  <div id="access-check">
+    <div class="check-spinner"></div>
+  </div>
+
+  <div class="side-left"></div>
+  <div class="side-right"></div>
+
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <div id="loader-text">GameWorld</div>
+  </div>
+
+  <div class="page-container">
+    <div class="main-container">
+
+      <nav class="navbar">
+        <h1 class="logo">
+          <a href="index.html" aria-label="GameWorld - Inicio">
+            <span class="logo-text">Game</span><span class="logo-accent">World</span>
+          </a>
+        </h1>
+        <div class="nav-links">
+          <a href="index.html" aria-label="Volver al inicio">🏠 Inicio</a>
+          <a href="#" id="randomGameLink" aria-label="Juego aleatorio">🎲 Juego random</a>
+          <a href="#" id="battleLink" aria-label="Battle diaria">🏆 Battle diaria</a>
+          <a href="playlists.html" aria-label="Explorar playlists">🎵 Playlists</a>
+          <a href="merch.html" aria-label="Ver merchandising">👕 Merchandising</a>
+          <a href="sobre.html" aria-label="Ver sobre nosotros">👥 Sobre Nosotros</a>
+          <a href="carrito.html" class="cart-link-nav" id="carrito">
+            🛒 Carrito
+            <span id="carrito-contador-nav" class="carrito-contador-nav">0</span>
+          </a>
+        </div>
+        <button class="menu-toggle" aria-label="Menú" aria-expanded="false">☰</button>
+      </nav>
+
+      <div class="main-content">
+        <h2 class="page-title">Catálogo de Videojuegos</h2>
+        <p class="page-subtitle">Explora los títulos más recientes y reserva tus favoritos.</p>
+
+        <!-- Sección Juego Aleatorio del Día (inicialmente oculta) -->
+        <div id="randomGameSection" style="display: none;">
+          <div class="platform-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-bottom: 1.5rem;">
+            <span class="platform-icon">🎲</span>
+            <h2 class="platform-title">Juego aleatorio para hoy</h2>
+          </div>
+          <div id="randomGameContainer" class="platform-games-grid" style="justify-content: center;"></div>
+          <button id="rerollRandomBtn" class="reroll-btn">🎲 Otro juego 🎲</button>
+        </div>
+
+        <!-- Sección Battle de la Semana (inicialmente oculta) -->
+        <div id="battleSection" style="display: none;">
+          <div class="platform-header" style="background: linear-gradient(135deg, #ef4444, #dc2626); margin-bottom: 1.5rem;">
+            <span class="platform-icon">🏆</span>
+            <h2 class="platform-title">Battle de la semana</h2>
+          </div>
+          <div id="battleContainer"></div>
+          <div style="text-align: center; margin-top: 1rem;">
+            <span id="battleResult" style="font-weight: bold; font-size: 1.2rem; color: #facc15;"></span>
+          </div>
+        </div>
+
+        <!-- Catálogo normal -->
+        <div id="gridJuegos" class="games-grid">
+          <p class="loading-text">Cargando juegos...</p>
+        </div>
+
+        <footer class="footer">
+          <p>© 2025 GameWorld. Todos los derechos reservados.</p>
+          <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalJuego" class="modal hidden">
+    <div class="modal-content">
+      <button onclick="cerrarModal()" class="modal-close">✕</button>
+      <div id="modalContenido" class="modal-info"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/catalogo.js"></script>
+  
+  <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('access-allowed');
+    });
+  </script>
+</body>
+</html>
