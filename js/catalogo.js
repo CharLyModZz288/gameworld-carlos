@@ -4,6 +4,13 @@ let lastScrollTop = 0;
 let ticking = false;
 let rafId = null;
 
+// ==================== NUEVA FUNCIÓN PARA VERIFICAR SESIÓN ====================
+function verificarSesion() {
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  const userId = localStorage.getItem("userId");
+  return nombreUsuario && nombreUsuario !== "Invitado" && userId;
+}
+
 function checkDirectAccess() {
   try {
     const referrer = document.referrer;
@@ -297,8 +304,17 @@ async function guardarEnLista(itemId, itemType, listaId, listaNombre) {
   }
 }
 
-// Mostrar popup de selección de lista
+// Mostrar popup de selección de lista - MODIFICADO para verificar sesión
 async function mostrarPopupListas(item) {
+  // VERIFICAR SESIÓN ANTES DE CONTINUAR
+  if (!verificarSesion()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en favoritos', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return;
+  }
+  
   const userId = localStorage.getItem("userId");
   if (!userId) {
     mostrarNotificacion('Debes iniciar sesión', 'error');
@@ -351,8 +367,15 @@ async function mostrarPopupListas(item) {
   document.getElementById('cerrarPopup').addEventListener('click', () => popup.remove());
 }
 
-// Añadir a favoritos (lista por defecto)
+// Añadir a favoritos (lista por defecto) - MODIFICADO para verificar sesión
 async function añadirAFavorito(juego) {
+  if (!verificarSesion()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en favoritos', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
   await guardarEnLista(juego.id, 'game', null, 'Favoritos');
 }
 
@@ -904,9 +927,12 @@ window.addEventListener("load", async () => {
   renderizarJuegos(juegos);
 });
 
+// ==================== FUNCIÓN RENDERIZAR MODIFICADA ====================
 function renderizarJuegos(juegos) {
   const grid = document.getElementById("gridJuegos");
   if (!grid) return;
+
+  const sesionIniciada = verificarSesion();
 
   const juegosPorPlataforma = {};
   
@@ -955,6 +981,15 @@ function renderizarJuegos(juegos) {
     `;
     
     juegosPlataforma.forEach(juego => {
+      // Botón de favoritos condicional según sesión
+      const botonFavoritosHTML = sesionIniciada 
+        ? `<button class="game-button" style="flex: 1; background: #6366f1;" onclick='mostrarPopupListas(${JSON.stringify(juego).replace(/'/g, "&apos;")})' title="Guardar en favoritos">
+             📁
+           </button>`
+        : `<button class="game-button" style="flex: 1; background: #6b7280; cursor: not-allowed; opacity: 0.6;" disabled title="🔒 Inicia sesión para guardar en favoritos">
+             🔒
+           </button>`;
+      
       const juegoHTML = `
         <div class="game-card">
           <div class="game-image-container" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
@@ -984,9 +1019,7 @@ function renderizarJuegos(juegos) {
               <button class="game-button" style="flex: 2;" onclick='abrirModal(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
                 VER DETALLES
               </button>
-              <button class="game-button" style="flex: 1; background: #6366f1;" onclick='mostrarPopupListas(${JSON.stringify(juego).replace(/'/g, "&apos;")})'>
-                📁
-              </button>
+              ${botonFavoritosHTML}
             </div>
           </div>
         </div>
@@ -1004,15 +1037,26 @@ function renderizarJuegos(juegos) {
   grid.appendChild(fragment);
 }
 
+// ==================== MODAL MODIFICADO ====================
 window.abrirModal = function (juego) {
   console.log('Abriendo modal para:', juego.nombre);
   
   const modal = document.getElementById("modalJuego");
   const contenido = document.getElementById("modalContenido");
+  const sesionIniciada = verificarSesion();
 
   window.juegoSeleccionado = juego;
 
   const estaDisponible = juegoDisponible(juego);
+  
+  // Botón de favoritos condicional según sesión
+  const botonFavoritosHTML = sesionIniciada
+    ? `<button class="favorite-btn-modal" onclick="mostrarPopupListas(window.juegoSeleccionado)" title="Guardar en favoritos">
+         ❤️
+       </button>`
+    : `<button class="favorite-btn-modal" style="opacity: 0.5; cursor: not-allowed;" disabled title="🔒 Inicia sesión para guardar en favoritos">
+         🔒
+       </button>`;
 
   contenido.innerHTML = `
     <div class="modal-grid">
@@ -1025,9 +1069,7 @@ window.abrirModal = function (juego) {
       <div class="modal-info">
         <div class="modal-header">
           <h2 class="modal-game-title">${juego.nombre}</h2>
-          <button class="favorite-btn-modal" onclick="mostrarPopupListas(window.juegoSeleccionado)">
-            ❤️
-          </button>
+          ${botonFavoritosHTML}
         </div>
         <p class="modal-description">
           ${juego.descripcion || "Descripción no disponible"}

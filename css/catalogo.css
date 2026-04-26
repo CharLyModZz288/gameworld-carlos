@@ -1264,3 +1264,68 @@ body.access-allowed #access-check {
     max-width: 250px;
   }
 }
+/* ==================== ESTILOS PARA BOTONES DE FAVORITOS DESHABILITADOS ==================== */
+
+/* Estilo para botones deshabilitados */
+.game-button:disabled,
+.favorite-btn-modal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+  transform: none !important;
+}
+
+.game-button:disabled:hover,
+.favorite-btn-modal:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: #6b7280 !important;
+}
+
+/* Tooltip para botones deshabilitados (efecto hover) */
+.game-button[disabled][title],
+.favorite-btn-modal[disabled][title] {
+  position: relative;
+}
+
+.game-button[disabled][title]:hover::after,
+.favorite-btn-modal[disabled][title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #facc15;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 0.5rem;
+  border: 1px solid #facc15;
+  font-family: 'Orbitron', monospace;
+  font-weight: normal;
+  pointer-events: none;
+}
+
+/* Estilo responsivo para tooltips en móvil */
+@media (max-width: 768px) {
+  .game-button[disabled][title]:hover::after,
+  .favorite-btn-modal[disabled][title]:hover::after {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.5rem;
+    white-space: nowrap;
+  }
+}
+
+/* Efecto de pulso suave para botón deshabilitado (opcional) */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.7; }
+}
+
+.game-button[disabled],
+.favorite-btn-modal[disabled] {
+  animation: subtlePulse 2s ease-in-out infinite;
+}

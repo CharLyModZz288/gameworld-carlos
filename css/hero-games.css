@@ -569,3 +569,44 @@
     flex-direction: column;
   }
 }
+/* Estilos para el botón de guardar cuando NO está logueado */
+.hero-favorite-disabled {
+  background: #444 !important;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.hero-favorite-disabled:hover {
+  transform: scale(1.02);
+  background: #555 !important;
+}
+
+/* Advertencia de login en el modal */
+.login-warning-modal {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  border: 1px solid #ffaa00;
+}
+
+.login-warning-modal a {
+  color: #ffaa00;
+  text-decoration: underline;
+}
+
+.login-warning-modal a:hover {
+  color: #ffcc44;
+}
+
+/* Botón de favoritos deshabilitado en el modal */
+.favorite-disabled {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.favorite-disabled:hover {
+  opacity: 0.7;
+}

@@ -4,6 +4,13 @@ let lastScrollTop = 0;
 let ticking = false;
 let rafId = null;
 
+// ==================== FUNCIÓN PARA VERIFICAR SESIÓN ====================
+function verificarSesion() {
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  const userId = localStorage.getItem("userId");
+  return nombreUsuario && nombreUsuario !== "Invitado" && userId;
+}
+
 function checkDirectAccess() {
   try {
     const referrer = document.referrer;
@@ -241,7 +248,6 @@ async function obtenerListasUsuario() {
   
   if (!data) return [];
   
-  // Asegurarse de que "Favoritos" esté incluido (como lista virtual)
   const listasConFavoritos = [
     ...data
   ];
@@ -249,7 +255,6 @@ async function obtenerListasUsuario() {
   return listasConFavoritos;
 }
 
-// Guardar en una lista específica
 async function guardarEnLista(itemId, itemType, listaId, listaNombre) {
   const userId = localStorage.getItem("userId");
   if (!userId) return false;
@@ -313,8 +318,15 @@ async function guardarEnLista(itemId, itemType, listaId, listaNombre) {
   }
 }
 
-// Mostrar popup de selección de lista
 async function mostrarPopupListas(item) {
+  if (!verificarSesion()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en favoritos', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return;
+  }
+  
   const userId = localStorage.getItem("userId");
   if (!userId) {
     mostrarNotificacion('Debes iniciar sesión', 'error');
@@ -350,7 +362,6 @@ async function mostrarPopupListas(item) {
   
   document.body.appendChild(popup);
   
-  // Añadir hover effects
   document.querySelectorAll('.lista-opt').forEach(opt => {
     opt.addEventListener('mouseenter', () => opt.style.background = '#4b5563');
     opt.addEventListener('mouseleave', () => opt.style.background = '#374151');
@@ -366,12 +377,17 @@ async function mostrarPopupListas(item) {
   document.getElementById('cerrarPopup').addEventListener('click', () => popup.remove());
 }
 
-// Añadir a favoritos (lista por defecto)
 async function añadirAFavorito(producto) {
+  if (!verificarSesion()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en favoritos', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
   await guardarEnLista(producto.id, 'merch', null, 'Favoritos');
 }
 
-// Exponer funciones globalmente
 window.obtenerListasUsuario = obtenerListasUsuario;
 window.mostrarPopupListas = mostrarPopupListas;
 window.añadirAFavorito = añadirAFavorito;
@@ -451,10 +467,19 @@ window.abrirModalProducto = function(producto) {
   
   const modal = document.getElementById("modalProducto");
   const contenido = document.getElementById("modalContenido");
+  const sesionIniciada = verificarSesion();
 
   window.productoSeleccionado = producto;
 
   const stockInfo = getStockInfo(producto.stock);
+  
+  const botonFavoritosHTML = sesionIniciada
+    ? `<button class="favorite-btn-modal" onclick="mostrarPopupListas(window.productoSeleccionado)" title="Guardar en favoritos">
+         ❤️
+       </button>`
+    : `<button class="favorite-btn-modal" style="opacity: 0.5; cursor: not-allowed;" disabled title="🔒 Inicia sesión para guardar en favoritos">
+         🔒
+       </button>`;
 
   contenido.innerHTML = `
     <div class="modal-grid">
@@ -469,9 +494,7 @@ window.abrirModalProducto = function(producto) {
           <h2 class="modal-game-title">
             ${producto.nombre}
           </h2>
-          <button class="favorite-btn-modal" onclick="mostrarPopupListas(window.productoSeleccionado)">
-            ❤️
-          </button>
+          ${botonFavoritosHTML}
         </div>
         <p class="modal-description">
           ${producto.descripcion || "Descripción no disponible"}
@@ -619,6 +642,8 @@ function renderizarMerch(productos) {
   const grid = document.getElementById("gridMerch");
   if (!grid) return;
 
+  const sesionIniciada = verificarSesion();
+
   const productosPorCategoria = {};
   
   productos.forEach(item => {
@@ -685,6 +710,14 @@ function renderizarMerch(productos) {
     productosCat.forEach(producto => {
       const stockInfo = getStockInfo(producto.stock);
       
+      const botonFavoritosHTML = sesionIniciada 
+        ? `<button class="merch-button" style="flex: 1; background: #6366f1;" onclick="event.stopPropagation(); mostrarPopupListas(${JSON.stringify(producto).replace(/'/g, "&apos;")})" title="Guardar en favoritos">
+             📁
+           </button>`
+        : `<button class="merch-button" style="flex: 1; background: #6b7280; cursor: not-allowed; opacity: 0.6;" disabled title="🔒 Inicia sesión para guardar en favoritos">
+             🔒
+           </button>`;
+      
       const productoHTML = `
         <div class="merch-card">
           <div class="merch-image-container" onclick='abrirModalProducto(${JSON.stringify(producto).replace(/'/g, "&apos;")})'>
@@ -716,9 +749,7 @@ function renderizarMerch(productos) {
               <button class="merch-button" style="flex: 2;" onclick="event.stopPropagation(); abrirModalProducto(${JSON.stringify(producto).replace(/'/g, "&apos;")})">
                 VER PRODUCTO
               </button>
-              <button class="merch-button" style="flex: 1; background: #6366f1;" onclick="event.stopPropagation(); mostrarPopupListas(${JSON.stringify(producto).replace(/'/g, "&apos;")})">
-                📁
-              </button>
+              ${botonFavoritosHTML}
             </div>
           </div>
         </div>

@@ -4,6 +4,14 @@ import { supabase } from './connection.js';
 let juegoSeleccionado = null;
 
 /**
+ * Verificar si el usuario está logueado
+ */
+function isUserLoggedIn() {
+  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  return nombreUsuario && nombreUsuario !== "Invitado";
+}
+
+/**
  * Función para verificar si un juego está disponible
  */
 function juegoDisponible(juego) {
@@ -64,7 +72,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
 }
 
 /**
- * Función para añadir al carrito
+ * Función para añadir al carrito (SOLO si está logueado)
  */
 function añadirAlCarrito(juego) {
   console.log('Añadiendo al carrito:', juego);
@@ -117,7 +125,9 @@ function añadirAlCarrito(juego) {
   return true;
 }
 
-
+/**
+ * Obtener listas del usuario (SOLO si está logueado)
+ */
 async function obtenerListasUsuario() {
   const userId = localStorage.getItem("userId");
   if (!userId) return [];
@@ -143,9 +153,18 @@ async function obtenerListasUsuario() {
 }
 
 /**
- * Guardar en una lista específica
+ * Guardar en una lista específica (SOLO si está logueado)
  */
 async function guardarEnLista(itemId, itemType, listaId, listaNombre) {
+  // PRIMERO: Verificar si el usuario está logueado
+  if (!isUserLoggedIn()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en listas', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
+  
   const userId = localStorage.getItem("userId");
   if (!userId) return false;
   
@@ -209,9 +228,18 @@ async function guardarEnLista(itemId, itemType, listaId, listaNombre) {
 }
 
 /**
- * Mostrar popup de selección de lista
+ * Mostrar popup de selección de lista (SOLO si está logueado)
  */
 async function mostrarPopupListas(item) {
+  // PRIMERO: Verificar si el usuario está logueado
+  if (!isUserLoggedIn()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en listas', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return;
+  }
+  
   const userId = localStorage.getItem("userId");
   if (!userId) {
     mostrarNotificacion('Debes iniciar sesión', 'error');
@@ -264,9 +292,16 @@ async function mostrarPopupListas(item) {
 }
 
 /**
- * Añadir a favoritos (lista por defecto)
+ * Añadir a favoritos (lista por defecto) - SOLO si está logueado
  */
 async function añadirAFavorito(juego) {
+  if (!isUserLoggedIn()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en favoritos', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return false;
+  }
   await guardarEnLista(juego.id, 'game', null, 'Favoritos');
 }
 
@@ -287,6 +322,7 @@ function abrirModal(juego) {
   juegoSeleccionado = juego;
 
   const estaDisponible = juegoDisponible(juego);
+  const estaLogueado = isUserLoggedIn();
 
   contenido.innerHTML = `
     <div class="modal-grid">
@@ -300,9 +336,15 @@ function abrirModal(juego) {
       <div class="modal-info">
         <div class="modal-header">
           <h2 class="modal-game-title">${escapeHtml(juego.nombre)}</h2>
-          <button class="favorite-btn-modal" onclick="window.mostrarPopupListasDesdeHero()">
-            ❤️
-          </button>
+          ${estaLogueado ? `
+            <button class="favorite-btn-modal" onclick="window.mostrarPopupListasDesdeHero()">
+              ❤️
+            </button>
+          ` : `
+            <button class="favorite-btn-modal favorite-disabled" onclick="window.mostrarMensajeLogin()" style="opacity:0.5; cursor:pointer;">
+              🔒
+            </button>
+          `}
         </div>
         <p class="modal-description">
           ${escapeHtml(juego.descripcion) || "Descripción no disponible"}
@@ -343,6 +385,11 @@ function abrirModal(juego) {
             Ver Carrito
           </button>
         </div>
+        ${!estaLogueado ? `
+          <div class="login-warning-modal">
+            🔒 <a href="login.html">Inicia sesión</a> para guardar juegos en tus listas
+          </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -350,6 +397,16 @@ function abrirModal(juego) {
   modal.classList.remove("hidden");
   modal.classList.add("flex");
   document.body.style.overflow = "hidden";
+}
+
+/**
+ * Función para mostrar mensaje de login (cuando no está logueado)
+ */
+function mostrarMensajeLogin() {
+  mostrarNotificacion('Debes iniciar sesión para guardar en listas', 'error');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 2000);
 }
 
 /**
@@ -377,9 +434,18 @@ function añadirJuegoSeleccionadoDesdeHero() {
 }
 
 /**
- * Función para mostrar popup de listas desde el hero
+ * Función para mostrar popup de listas desde el hero (con verificación de login)
  */
 async function mostrarPopupListasDesdeHero() {
+  // Verificar login ANTES de cualquier otra cosa
+  if (!isUserLoggedIn()) {
+    mostrarNotificacion('Debes iniciar sesión para guardar en listas', 'error');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+    return;
+  }
+  
   if (juegoSeleccionado) {
     await mostrarPopupListas(juegoSeleccionado);
   } else {
@@ -393,6 +459,8 @@ window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
 window.añadirJuegoSeleccionadoDesdeHero = añadirJuegoSeleccionadoDesdeHero;
 window.mostrarPopupListasDesdeHero = mostrarPopupListasDesdeHero;
+window.mostrarMensajeLogin = mostrarMensajeLogin;
+window.isUserLoggedIn = isUserLoggedIn;
 
 /**
  * Escapa caracteres HTML para prevenir XSS
@@ -466,12 +534,29 @@ async function cargarJuegosHero() {
  */
 function crearTarjetaHero(juego) {
   const estaDisponible = juegoDisponible(juego);
+  const estaLogueado = isUserLoggedIn();
   const imagenUrl = juego.imagen || 'https://via.placeholder.com/200x160?text=GameWorld';
   const precioFormateado = juego.precio ? juego.precio.toFixed(2) : '0.00';
   
   let plataforma = juego.plataforma || 'Multi';
   if (plataforma.length > 15) {
     plataforma = plataforma.substring(0, 12) + '...';
+  }
+  
+  // Crear el botón de guardar o mensaje de login según el estado del usuario
+  let guardarButtonOrMessage = '';
+  if (estaLogueado) {
+    guardarButtonOrMessage = `
+      <button class="hero-favorite-btn" onclick="event.stopPropagation(); window.mostrarPopupListas(${JSON.stringify(juego).replace(/'/g, "&apos;")})">
+        📁 Guardar
+      </button>
+    `;
+  } else {
+    guardarButtonOrMessage = `
+      <button class="hero-favorite-btn hero-favorite-disabled" onclick="event.stopPropagation(); window.mostrarMensajeLogin()" style="background: #444; cursor: pointer;">
+        🔒 Inicia sesión
+      </button>
+    `;
   }
   
   return `
@@ -493,19 +578,7 @@ function crearTarjetaHero(juego) {
           <span class="hero-game-status ${estaDisponible ? 'hero-status-available' : 'hero-status-unavailable'}">
             ${estaDisponible ? '✓ Disponible' : '✗ Agotado'}
           </span>
-          <button class="hero-favorite-btn" onclick="event.stopPropagation(); window.mostrarPopupListas(${JSON.stringify(juego).replace(/'/g, "&apos;")})" style="
-            background: #6366f1;
-            border: none;
-            border-radius: 20px;
-            padding: 0.25rem 0.75rem;
-            color: white;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-family: 'Orbitron', monospace;
-            transition: transform 0.2s;
-          " onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
-            📁 Guardar
-          </button>
+          ${guardarButtonOrMessage}
         </div>
       </div>
     </div>
@@ -534,7 +607,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Añadir estilos para animaciones si no existen
+// Añadir estilos para animaciones y botón deshabilitado si no existen
 if (!document.querySelector('#hero-favorite-styles')) {
   const style = document.createElement('style');
   style.id = 'hero-favorite-styles';
@@ -564,6 +637,39 @@ if (!document.querySelector('#hero-favorite-styles')) {
     
     .hero-favorite-btn:hover {
       transform: scale(1.05);
+    }
+    
+    .hero-favorite-disabled {
+      background: #444 !important;
+      opacity: 0.8;
+    }
+    
+    .hero-favorite-disabled:hover {
+      transform: scale(1.02);
+    }
+    
+    .login-warning-modal {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.85rem;
+      border: 1px solid #ffaa00;
+    }
+    
+    .login-warning-modal a {
+      color: #ffaa00;
+      text-decoration: underline;
+    }
+    
+    .login-warning-modal a:hover {
+      color: #ffcc44;
+    }
+    
+    .favorite-disabled {
+      opacity: 0.5;
+      cursor: pointer;
     }
   `;
   document.head.appendChild(style);
